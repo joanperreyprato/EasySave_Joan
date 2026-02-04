@@ -102,6 +102,24 @@ while (running)
             ui.DisplayBackupJobs();
             break;
         case "4":
+            ui.ChangeLanguageMenu();
+            string? langChoice = Console.ReadLine();
+            switch (langChoice)
+            {
+                case "1":
+                    language.SetLanguage("en");
+                    Console.WriteLine("Language changed to English.");
+                    break;
+                case "2":
+                    language.SetLanguage("fr");
+                    Console.WriteLine("Langue changée en Français.");
+                    break;
+                default:
+                    Console.WriteLine(language.GetText("error.notfound"));
+                    break;
+            }
+            break;
+        case "5":
             running = false;
             break;
         default:
