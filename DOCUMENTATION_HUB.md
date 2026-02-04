@@ -1,64 +1,64 @@
-# ?? EasySave Documentation Hub
+#  EasySave Documentation Hub
 
-**[???? Français](#français-documentation) | [???? English](#english-documentation)**
+**[ Français](#français-documentation) | [ English](#english-documentation)**
 
 ---
 
 <a name="français-documentation"></a>
 
-# ???? Documentation Française
+#  Documentation Française
 
 Choisissez votre point de départ :
 
-## ?? Je veux démarrer rapidement (5 min)
-?? **[QUICK_START.md](QUICK_START.md)** - Installation et premiers pas
+##  Je veux démarrer rapidement (5 min)
+ **[QUICK_START.md](QUICK_START.md)** - Installation et premiers pas
 
-## ?? Je veux comprendre complètement
-?? **[DOCUMENTATION.md](DOCUMENTATION.md)** - Guide complet (30 pages)
+##  Je veux comprendre complètement
+ **[DOCUMENTATION.md](DOCUMENTATION.md)** - Guide complet (30 pages)
 
 ## ? J'ai une question spécifique
-?? **[FAQ.md](FAQ.md)** - 30 Questions-Réponses
+ **[FAQ.md](FAQ.md)** - 30 Questions-Réponses
 
-## ?? Je suis développeur
-?? **[TECHNICAL_DOCUMENTATION.md](TECHNICAL_DOCUMENTATION.md)** - Architecture technique
+##  Je suis développeur
+ **[TECHNICAL_DOCUMENTATION.md](TECHNICAL_DOCUMENTATION.md)** - Architecture technique
 
-## ??? Je veux naviguer
-?? **[INDEX.md](INDEX.md)** - Index de navigation complet
+## ? Je veux naviguer
+ **[INDEX.md](INDEX.md)** - Index de navigation complet
 
-## ?? Je suis visuel
-?? **[START_HERE.md](START_HERE.md)** - Guide visuel d'accueil
+##  Je suis visuel
+ **[START_HERE.md](START_HERE.md)** - Guide visuel d'accueil
 
 ---
 
 <a name="english-documentation"></a>
 
-# ???? English Documentation
+#  English Documentation
 
 Choose your starting point:
 
-## ?? I want to start quickly (5 min)
-?? **[QUICK_START_EN.md](QUICK_START_EN.md)** - Installation and first steps
+##  I want to start quickly (5 min)
+ **[QUICK_START_EN.md](QUICK_START_EN.md)** - Installation and first steps
 
-## ?? I want to understand completely
-?? **[DOCUMENTATION_EN.md](DOCUMENTATION_EN.md)** - Complete guide (30 pages)
+##  I want to understand completely
+ **[DOCUMENTATION_EN.md](DOCUMENTATION_EN.md)** - Complete guide (30 pages)
 
 ## ? I have a specific question
-?? **[FAQ_EN.md](FAQ_EN.md)** - 30 Questions & Answers
+ **[FAQ_EN.md](FAQ_EN.md)** - 30 Questions & Answers
 
-## ?? I'm a developer
-?? **[TECHNICAL_DOCUMENTATION_EN.md](TECHNICAL_DOCUMENTATION_EN.md)** - Technical architecture
+##  I'm a developer
+ **[TECHNICAL_DOCUMENTATION_EN.md](TECHNICAL_DOCUMENTATION_EN.md)** - Technical architecture
 
-## ??? I want to navigate
-?? **[INDEX_EN.md](INDEX_EN.md)** - Complete navigation index
+## ? I want to navigate
+ **[INDEX_EN.md](INDEX_EN.md)** - Complete navigation index
 
-## ?? I'm visual
-?? **[START_HERE_EN.md](START_HERE_EN.md)** - Visual welcome guide
+##  I'm visual
+ **[START_HERE_EN.md](START_HERE_EN.md)** - Visual welcome guide
 
 ---
 
-## ?? Documentation Overview
+##  Documentation Overview
 
-### ???? French Files
+###  French Files
 | File | Purpose | Time |
 |------|---------|------|
 | START_HERE.md | Visual guide | 10 min |
@@ -68,7 +68,7 @@ Choose your starting point:
 | FAQ.md | 30 Questions | Variable |
 | INDEX.md | Navigation | Reference |
 
-### ???? English Files
+###  English Files
 | File | Purpose | Time |
 |------|---------|------|
 | START_HERE_EN.md | Visual guide | 10 min |
@@ -80,36 +80,36 @@ Choose your starting point:
 
 ---
 
-## ?? Quick Navigation
+##  Quick Navigation
 
-### ?? New Users
-- ???? [Français: QUICK_START.md](QUICK_START.md)
-- ???? [English: QUICK_START_EN.md](QUICK_START_EN.md)
+###  New Users
+-  [Français: QUICK_START.md](QUICK_START.md)
+-  [English: QUICK_START_EN.md](QUICK_START_EN.md)
 
-### ?? Experienced Users
-- ???? [Français: DOCUMENTATION.md](DOCUMENTATION.md)
-- ???? [English: DOCUMENTATION_EN.md](DOCUMENTATION_EN.md)
+###  Experienced Users
+-  [Français: DOCUMENTATION.md](DOCUMENTATION.md)
+-  [English: DOCUMENTATION_EN.md](DOCUMENTATION_EN.md)
 
-### ?? Developers
-- ???? [Français: TECHNICAL_DOCUMENTATION.md](TECHNICAL_DOCUMENTATION.md)
-- ???? [English: TECHNICAL_DOCUMENTATION_EN.md](TECHNICAL_DOCUMENTATION_EN.md)
+###  Developers
+-  [Français: TECHNICAL_DOCUMENTATION.md](TECHNICAL_DOCUMENTATION.md)
+-  [English: TECHNICAL_DOCUMENTATION_EN.md](TECHNICAL_DOCUMENTATION_EN.md)
 
 ### ? Questions
-- ???? [Français: FAQ.md](FAQ.md)
-- ???? [English: FAQ_EN.md](FAQ_EN.md)
+-  [Français: FAQ.md](FAQ.md)
+-  [English: FAQ_EN.md](FAQ_EN.md)
 
-### ??? Navigation
-- ???? [Français: INDEX.md](INDEX.md)
-- ???? [English: INDEX_EN.md](INDEX_EN.md)
+### ? Navigation
+-  [Français: INDEX.md](INDEX.md)
+-  [English: INDEX_EN.md](INDEX_EN.md)
 
 ---
 
-## ?? Documentation Statistics
+##  Documentation Statistics
 
 | Metric | Value |
 |--------|-------|
 | **Documentation files** | 12 Markdown files |
-| **Languages** | 2 (French + English) ???? ???? |
+| **Languages** | 2 (French + English)   |
 | **Total pages** | ~62 pages |
 | **Total words** | ~38,000 words |
 | **Total size** | ~150 KB |
@@ -120,15 +120,15 @@ Choose your starting point:
 
 ---
 
-## ?? Language Selection
+##  Language Selection
 
-### Français ????
+### Français 
 ```bash
 # Edit Program.cs line 2
 var language = new LanguageProvider("fr");
 ```
 
-### English ????
+### English 
 ```bash
 # Edit Program.cs line 2
 var language = new LanguageProvider("en");
@@ -158,27 +158,27 @@ Then read: **[QUICK_START_EN.md](QUICK_START_EN.md)**
 
 ---
 
-## ?? Support
+##  Support
 
-### ???? Aide en Français
-- ?? Voir **[DOCUMENTATION.md](DOCUMENTATION.md)**
+###  Aide en Français
+-  Voir **[DOCUMENTATION.md](DOCUMENTATION.md)**
 - ? Chercher dans **[FAQ.md](FAQ.md)**
-- ?? Naviguer via **[INDEX.md](INDEX.md)**
+-  Naviguer via **[INDEX.md](INDEX.md)**
 
-### ???? Help in English
-- ?? See **[DOCUMENTATION_EN.md](DOCUMENTATION_EN.md)**
+###  Help in English
+-  See **[DOCUMENTATION_EN.md](DOCUMENTATION_EN.md)**
 - ? Search in **[FAQ_EN.md](FAQ_EN.md)**
-- ?? Navigate via **[INDEX_EN.md](INDEX_EN.md)**
+-  Navigate via **[INDEX_EN.md](INDEX_EN.md)**
 
 ### Issues & Contributions
-- ?? [Report issues](https://github.com/joanperreyprato/EasySave/issues)
-- ?? [Contribute](https://github.com/joanperreyprato/EasySave)
+-  [Report issues](https://github.com/joanperreyprato/EasySave/issues)
+-  [Contribute](https://github.com/joanperreyprato/EasySave)
 
 ---
 
-## ?? Learning Paths
+##  Learning Paths
 
-### ???? Parcours Français
+###  Parcours Français
 
 **Débutant:**
 ```
@@ -195,7 +195,7 @@ QUICK_START.md ? Appli ? DOCUMENTATION.md ? FAQ.md
 QUICK_START.md ? TECHNICAL_DOCUMENTATION.md ? Code source ? FAQ.md
 ```
 
-### ???? English Paths
+###  English Paths
 
 **Beginner:**
 ```
@@ -248,32 +248,32 @@ QUICK_START_EN.md ? TECHNICAL_DOCUMENTATION_EN.md ? Source code ? FAQ_EN.md
 
 ---
 
-## ?? File Organization
+##  File Organization
 
 ```
 Documentation/
-??? README.md                         (Main README - Bilingual)
-??? 
-??? ?? FRENCH DOCUMENTATION
-?   ??? START_HERE.md                 (Visual guide)
-?   ??? QUICK_START.md                (5 min start)
-?   ??? DOCUMENTATION.md              (Complete guide)
-?   ??? TECHNICAL_DOCUMENTATION.md    (Dev guide)
-?   ??? FAQ.md                        (30 Q&A)
-?   ??? INDEX.md                      (Navigation)
+? README.md                         (Main README - Bilingual)
+? 
+?  FRENCH DOCUMENTATION
+?   ? START_HERE.md                 (Visual guide)
+?   ? QUICK_START.md                (5 min start)
+?   ? DOCUMENTATION.md              (Complete guide)
+?   ? TECHNICAL_DOCUMENTATION.md    (Dev guide)
+?   ? FAQ.md                        (30 Q&A)
+?   ? INDEX.md                      (Navigation)
 ?
-??? ?? ENGLISH DOCUMENTATION
-    ??? START_HERE_EN.md              (Visual guide)
-    ??? QUICK_START_EN.md             (5 min start)
-    ??? DOCUMENTATION_EN.md           (Complete guide)
-    ??? TECHNICAL_DOCUMENTATION_EN.md (Dev guide)
-    ??? FAQ_EN.md                     (30 Q&A)
-    ??? INDEX_EN.md                   (Navigation)
+?  ENGLISH DOCUMENTATION
+    ? START_HERE_EN.md              (Visual guide)
+    ? QUICK_START_EN.md             (5 min start)
+    ? DOCUMENTATION_EN.md           (Complete guide)
+    ? TECHNICAL_DOCUMENTATION_EN.md (Dev guide)
+    ? FAQ_EN.md                     (30 Q&A)
+    ? INDEX_EN.md                   (Navigation)
 ```
 
 ---
 
-## ?? Documentation Quality
+##  Documentation Quality
 
 - ? **Complete** - All topics covered
 - ? **Accessible** - All levels (beginner ? expert)
@@ -285,33 +285,33 @@ Documentation/
 
 ---
 
-## ?? Ready to Go?
+##  Ready to Go?
 
-### ???? Français
+###  Français
 Choose: [QUICK_START.md](QUICK_START.md) or [DOCUMENTATION.md](DOCUMENTATION.md)
 
-### ???? English
+###  English
 Choose: [QUICK_START_EN.md](QUICK_START_EN.md) or [DOCUMENTATION_EN.md](DOCUMENTATION_EN.md)
 
 ---
 
-## ?? Key Info
+##  Key Info
 
 | Info | Details |
 |------|---------|
 | **Version** | 1.0 |
-| **Languages** | French ???? + English ???? |
+| **Languages** | French  + English  |
 | **Built with** | C# .NET 8 |
 | **GitHub** | [joanperreyprato/EasySave](https://github.com/joanperreyprato/EasySave) |
 | **Status** | ? Complete |
 
 ---
 
-**Welcome to EasySave!** ??
+**Welcome to EasySave!** 
 
 Choose your language and documentation above.
 
-Bienvenue à EasySave! ??
+Bienvenue à EasySave! 
 
 ---
 

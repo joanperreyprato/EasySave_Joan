@@ -1,6 +1,6 @@
 # EasySave - Guide Rapide
 
-Commencez avec EasySave en 5 minutes ! ??
+Commencez avec EasySave en 5 minutes ! 
 
 ---
 
@@ -24,7 +24,7 @@ dotnet run
 
 ---
 
-## ?? Premiers pas
+##  Premiers pas
 
 ### 1. Lancer en mode interactif
 ```bash
@@ -59,7 +59,7 @@ Select an option:
 
 ---
 
-## ??? Mode ligne de commande
+## ? Mode ligne de commande
 
 ### Créer rapidement
 ```bash
@@ -83,7 +83,7 @@ dotnet run -- list
 
 ---
 
-## ?? Types de sauvegarde
+##  Types de sauvegarde
 
 | Type | Première fois | Utilisation |
 |------|---------------|-------------|
@@ -94,7 +94,7 @@ dotnet run -- list
 
 ---
 
-## ?? Configuration
+##  Configuration
 
 Fichiers créés automatiquement dans :
 - **Windows** : `C:\ProgramData\EasySave\`
@@ -108,7 +108,7 @@ Fichiers créés automatiquement dans :
 
 ---
 
-## ?? Erreurs courantes
+##  Erreurs courantes
 
 | Problème | Solution |
 |----------|----------|
@@ -120,7 +120,7 @@ Fichiers créés automatiquement dans :
 
 ---
 
-## ?? Changer la langue
+##  Changer la langue
 
 Modifiez `Program.cs` ligne 2 :
 
@@ -140,7 +140,7 @@ dotnet run
 
 ---
 
-## ?? Exemples pratiques
+##  Exemples pratiques
 
 ### Exemple 1 : Sauvegarder une partition
 ```bash
@@ -172,7 +172,7 @@ dotnet run -- execute 0-2
 
 ---
 
-## ?? Suivi de progression
+##  Suivi de progression
 
 Pendant une sauvegarde, l'application met à jour :
 - Fichiers traités
@@ -191,7 +191,7 @@ Vérifiez dans `state.json` :
 
 ---
 
-## ?? Dépannage rapide
+##  Dépannage rapide
 
 ### Réinstaller
 ```bash
@@ -220,7 +220,7 @@ Consultez le dossier `logs/` pour l'historique
 
 ---
 
-## ?? Besoin d'aide ?
+##  Besoin d'aide ?
 
 - **Bug** : [Signaler sur GitHub](https://github.com/joanperreyprato/EasySave/issues)
 - **Question** : Voir `DOCUMENTATION.md`
@@ -230,4 +230,4 @@ Consultez le dossier `logs/` pour l'historique
 
 **Version** : 1.0 | **Mise à jour** : Janvier 2024
 
-?? Vous êtes prêt ! Commencez votre première sauvegarde maintenant !
+ Vous êtes prêt ! Commencez votre première sauvegarde maintenant !

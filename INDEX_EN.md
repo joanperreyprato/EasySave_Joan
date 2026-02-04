@@ -1,29 +1,29 @@
-# ?? EasySave - English Documentation Index
+#  EasySave - English Documentation Index
 
 Welcome to EasySave's complete documentation! Find what you need quickly.
 
 ---
 
-## ?? Quick Start
+##  Quick Start
 
 ### For impatient users
-?? **[QUICK_START_EN.md](QUICK_START_EN.md)** - 5 minutes to first backup
+ **[QUICK_START_EN.md](QUICK_START_EN.md)** - 5 minutes to first backup
 - Installation in 3 commands
 - First backup in interactive mode
 - First CLI trials
 
 ### In a rush?
-?? **Getting started command**:
+ **Getting started command**:
 ```bash
 git clone https://github.com/joanperreyprato/EasySave.git && cd EasySave && dotnet run
 ```
 
 ---
 
-## ?? Complete Documentation
+##  Complete Documentation
 
 ### For regular users
-?? **[DOCUMENTATION_EN.md](DOCUMENTATION_EN.md)** - Complete and detailed guide
+ **[DOCUMENTATION_EN.md](DOCUMENTATION_EN.md)** - Complete and detailed guide
 - All features explained
 - Detailed installation
 - Usage (interactive + CLI modes)
@@ -42,7 +42,7 @@ git clone https://github.com/joanperreyprato/EasySave.git && cd EasySave && dotn
 ## ? FAQ - Frequently Asked Questions
 
 ### Have a question?
-?? **[FAQ_EN.md](FAQ_EN.md)** - 30 questions/answers
+ **[FAQ_EN.md](FAQ_EN.md)** - 30 questions/answers
 - Installation & Configuration
 - Backup creation
 - Backup types
@@ -58,10 +58,10 @@ git clone https://github.com/joanperreyprato/EasySave.git && cd EasySave && dotn
 
 ---
 
-## ?? Technical Documentation
+##  Technical Documentation
 
 ### For developers
-?? **[TECHNICAL_DOCUMENTATION_EN.md](TECHNICAL_DOCUMENTATION_EN.md)** - Technical specifications
+ **[TECHNICAL_DOCUMENTATION_EN.md](TECHNICAL_DOCUMENTATION_EN.md)** - Technical specifications
 - Complete architecture with UML diagrams
 - Detailed description of each component
 - Execution flows
@@ -76,7 +76,7 @@ git clone https://github.com/joanperreyprato/EasySave.git && cd EasySave && dotn
 
 ---
 
-## ?? Overview by Topic
+##  Overview by Topic
 
 ### Installation & Configuration
 | Question | Document |
@@ -134,7 +134,7 @@ git clone https://github.com/joanperreyprato/EasySave.git && cd EasySave && dotn
 
 ---
 
-## ?? Recommended Reading Paths
+##  Recommended Reading Paths
 
 ### I'm new to EasySave
 ```
@@ -168,7 +168,7 @@ git clone https://github.com/joanperreyprato/EasySave.git && cd EasySave && dotn
 
 ---
 
-## ?? Detailed Table of Contents
+##  Detailed Table of Contents
 
 ### QUICK_START_EN.md
 - Quick installation
@@ -221,7 +221,7 @@ git clone https://github.com/joanperreyprato/EasySave.git && cd EasySave && dotn
 
 ---
 
-## ?? Useful Links
+##  Useful Links
 
 ### External Resources
 - **GitHub**: [joanperreyprato/EasySave](https://github.com/joanperreyprato/EasySave)
@@ -235,24 +235,24 @@ git clone https://github.com/joanperreyprato/EasySave.git && cd EasySave && dotn
 
 ---
 
-## ?? Reading Tips
+##  Reading Tips
 
 ### For quick answers
-- ?? **5 min** ? QUICK_START_EN.md
-- ?? **2 min** ? FAQ_EN.md (search your question)
-- ?? **Instant** ? Ctrl+F in document
+-  **5 min** ? QUICK_START_EN.md
+-  **2 min** ? FAQ_EN.md (search your question)
+-  **Instant** ? Ctrl+F in document
 
 ### To understand the project
-- ?? **30 min** ? DOCUMENTATION_EN.md
-- ?? **60 min** ? TECHNICAL_DOCUMENTATION_EN.md
+-  **30 min** ? DOCUMENTATION_EN.md
+-  **60 min** ? TECHNICAL_DOCUMENTATION_EN.md
 
 ### To contribute
-- ?? **90 min** ? Read all + explore code
-- ?? **30 min** ? TECHNICAL_DOCUMENTATION_EN.md + code
+-  **90 min** ? Read all + explore code
+-  **30 min** ? TECHNICAL_DOCUMENTATION_EN.md + code
 
 ---
 
-## ?? Support & Contributions
+##  Support & Contributions
 
 ### Need help?
 1. Check FAQ_EN.md
@@ -270,7 +270,7 @@ See FAQ_EN.md - Q30 (Contributing)
 
 ---
 
-## ?? Documentation Statistics
+##  Documentation Statistics
 
 | Document | Pages | Reading Time | For Who |
 |----------|-------|---------------|---------|
@@ -282,29 +282,29 @@ See FAQ_EN.md - Q30 (Contributing)
 
 ---
 
-## ?? Recommended Reading Order
+##  Recommended Reading Order
 
 **To get started**:
 ```
-1?? QUICK_START_EN.md
-2?? Test the application
-3?? DOCUMENTATION_EN.md (if needed)
-4?? FAQ_EN.md (consult as needed)
+1 QUICK_START_EN.md
+2 Test the application
+3 DOCUMENTATION_EN.md (if needed)
+4 FAQ_EN.md (consult as needed)
 ```
 
 **To explore**:
 ```
-1?? DOCUMENTATION_EN.md (complete)
-2?? Read source code (understand)
-3?? TECHNICAL_DOCUMENTATION_EN.md (go deeper)
+1 DOCUMENTATION_EN.md (complete)
+2 Read source code (understand)
+3 TECHNICAL_DOCUMENTATION_EN.md (go deeper)
 ```
 
 **To develop**:
 ```
-1?? QUICK_START_EN.md (setup)
-2?? TECHNICAL_DOCUMENTATION_EN.md (architecture)
-3?? Explore code (details)
-4?? Modify + Test
+1 QUICK_START_EN.md (setup)
+2 TECHNICAL_DOCUMENTATION_EN.md (architecture)
+3 Explore code (details)
+4 Modify + Test
 ```
 
 ---
@@ -326,6 +326,6 @@ Complete documentation includes:
 **Version**: 1.0
 **Status**: Complete Documentation ?
 
-?? **You have everything you need to get started!**
+ **You have everything you need to get started!**
 
-Choose your document above and let's go! ??
+Choose your document above and let's go! 
