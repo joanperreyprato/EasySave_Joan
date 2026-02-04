@@ -70,7 +70,23 @@ namespace EasySave_v1._0
                 ["menu.execute"] = "Execute Backup",
                 ["menu.list"] = "List Backups",
                 ["menu.exit"] = "Exit",
-                ["error.notfound"] = "Not found"
+                ["error.notfound"] = "Not found",
+                ["backup.create.title"] = "-- Create Backup Job --",
+                ["backup.create.name.prompt"] = "Name: ",
+                ["backup.create.source.prompt"] = "Source path: ",
+                ["backup.create.target.prompt"] = "Target path: ",
+                ["backup.create.type.prompt"] = "Type (full/diff): ",
+                ["backup.create.success"] = "Backup job created successfully.",
+                ["backup.create.error.title"] = "[ERROR] Failed to create backup job:",
+                ["backup.create.error.invalid_name"] = "  - Invalid job name. Use only alphanumeric characters, spaces, hyphens, and underscores (max 50 characters).",
+                ["backup.create.error.source_path_invalid"] = "  - Source path is invalid. Please check the path format.",
+                ["backup.create.error.source_path_not_found"] = "  - Source directory does not exist. Please check the path.",
+                ["backup.create.error.target_path_invalid"] = "  - Target path is invalid. Please check the path format.",
+                ["backup.create.error.target_path_not_found"] = "  - Target directory does not exist. Please check the path.",
+                ["backup.create.error.duplicate_name"] = "  - A backup job with this name already exists.",
+                ["backup.create.error.max_jobs_exceeded"] = "  - Maximum number of backup jobs (5) reached.",
+                ["backup.create.error.unknown"] = "  - An unknown error occurred.",
+                ["backup.create.retry.prompt"] = "\nDo you want to retry? (yes/no): "
             };
 
             translations["fr"] = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
@@ -79,7 +95,23 @@ namespace EasySave_v1._0
                 ["menu.execute"] = "Exécuter la sauvegarde",
                 ["menu.list"] = "Lister les sauvegardes",
                 ["menu.exit"] = "Quitter",
-                ["error.notfound"] = "Introuvable"
+                ["error.notfound"] = "Introuvable",
+                ["backup.create.title"] = "-- Créer une sauvegarde --",
+                ["backup.create.name.prompt"] = "Nom : ",
+                ["backup.create.source.prompt"] = "Chemin source : ",
+                ["backup.create.target.prompt"] = "Chemin cible : ",
+                ["backup.create.type.prompt"] = "Type (complet/diff) : ",
+                ["backup.create.success"] = "Sauvegarde créée avec succès.",
+                ["backup.create.error.title"] = "[ERREUR] Impossible de créer la sauvegarde :",
+                ["backup.create.error.invalid_name"] = "  - Nom invalide. Utilisez uniquement des caractères alphanumériques, des espaces, des tirets et des underscores (max 50 caractères).",
+                ["backup.create.error.source_path_invalid"] = "  - Le chemin source est invalide. Vérifiez le format du chemin.",
+                ["backup.create.error.source_path_not_found"] = "  - Le répertoire source n'existe pas. Vérifiez le chemin.",
+                ["backup.create.error.target_path_invalid"] = "  - Le chemin cible est invalide. Vérifiez le format du chemin.",
+                ["backup.create.error.target_path_not_found"] = "  - Le répertoire cible n'existe pas. Vérifiez le chemin.",
+                ["backup.create.error.duplicate_name"] = "  - Une sauvegarde portant ce nom existe déjà.",
+                ["backup.create.error.max_jobs_exceeded"] = "  - Nombre maximum de sauvegardes (5) atteint.",
+                ["backup.create.error.unknown"] = "  - Une erreur inconnue s'est produite.",
+                ["backup.create.retry.prompt"] = "\nVoulez-vous réessayer ? (oui/non) : "
             };
         }
     }
