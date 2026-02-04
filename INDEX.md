@@ -1,29 +1,29 @@
-# ?? EasySave - Index de Documentation
+#  EasySave - Index de Documentation
 
 Bienvenue dans la documentation complète d'EasySave ! Trouvez rapidement ce que vous cherchez.
 
 ---
 
-## ?? Commencer rapidement
+##  Commencer rapidement
 
 ### Pour les utilisateurs impatients
-?? **[QUICK_START.md](QUICK_START.md)** - 5 minutes pour votre première sauvegarde
+ **[QUICK_START.md](QUICK_START.md)** - 5 minutes pour votre première sauvegarde
 - Installation en 3 commandes
 - Premier backup en mode interactif
 - Premiers essais en CLI
 
-### Vous êtes pressé ?
-?? **Commande pour démarrer** :
+### Vous êtes pressé 
+ **Commande pour démarrer** :
 ```bash
 git clone https://github.com/joanperreyprato/EasySave.git && cd EasySave && dotnet run
 ```
 
 ---
 
-## ?? Documentation complète
+##  Documentation complète
 
 ### Pour les utilisateurs réguliers
-?? **[DOCUMENTATION.md](DOCUMENTATION.md)** - Guide complet et détaillé
+ **[DOCUMENTATION.md](DOCUMENTATION.md)** - Guide complet et détaillé
 - Caractéristiques complètes
 - Installation détaillée
 - Utilisation (mode interactif + CLI)
@@ -37,10 +37,10 @@ git clone https://github.com/joanperreyprato/EasySave.git && cd EasySave && dotn
 
 ---
 
-## ? FAQ - Questions fréquentes
+##  FAQ - Questions fréquentes
 
-### Vous vous posez une question ?
-?? **[FAQ.md](FAQ.md)** - 30 questions/réponses
+### Vous vous posez une question 
+ **[FAQ.md](FAQ.md)** - 30 questions/réponses
 - Installation & configuration
 - Création de sauvegardes
 - Types de sauvegarde
@@ -54,10 +54,10 @@ git clone https://github.com/joanperreyprato/EasySave.git && cd EasySave && dotn
 
 ---
 
-## ?? Documentation technique
+##  Documentation technique
 
 ### Pour les développeurs
-?? **[TECHNICAL_DOCUMENTATION.md](TECHNICAL_DOCUMENTATION.md)** - Spécifications techniques
+ **[TECHNICAL_DOCUMENTATION.md](TECHNICAL_DOCUMENTATION.md)** - Spécifications techniques
 - Architecture complète avec diagrammes UML
 - Description détaillée de chaque composant
 - Flux d'exécution
@@ -72,14 +72,14 @@ git clone https://github.com/joanperreyprato/EasySave.git && cd EasySave && dotn
 
 ---
 
-## ?? Vue d'ensemble par thème
+##  Vue d'ensemble par thème
 
 ### Installation & Configuration
 | Question | Document |
 |----------|----------|
-| Comment installer ? | [QUICK_START.md](QUICK_START.md) |
-| Où sont les fichiers ? | [FAQ.md - Q2](FAQ.md) |
-| Comment changer la langue ? | [FAQ.md - Q3](FAQ.md) |
+| Comment installer  | [QUICK_START.md](QUICK_START.md) |
+| Où sont les fichiers  | [FAQ.md - Q2](FAQ.md) |
+| Comment changer la langue  | [FAQ.md - Q3](FAQ.md) |
 | Installation détaillée | [DOCUMENTATION.md](DOCUMENTATION.md) |
 
 ### Utilisation
@@ -93,9 +93,9 @@ git clone https://github.com/joanperreyprato/EasySave.git && cd EasySave && dotn
 ### Sauvegardes
 | Question | Document |
 |----------|----------|
-| Full vs Diff ? | [FAQ.md - Q8](FAQ.md) |
+| Full vs Diff  | [FAQ.md - Q8](FAQ.md) |
 | Types de sauvegarde | [DOCUMENTATION.md](DOCUMENTATION.md) |
-| Combien de sauvegardes ? | [FAQ.md - Q5](FAQ.md) |
+| Combien de sauvegardes  | [FAQ.md - Q5](FAQ.md) |
 | Exécuter plusieurs | [FAQ.md - Q10](FAQ.md) |
 
 ### Erreurs & Dépannage
@@ -130,7 +130,7 @@ git clone https://github.com/joanperreyprato/EasySave.git && cd EasySave && dotn
 
 ---
 
-## ?? Chemins de lecture recommandés
+##  Chemins de lecture recommandés
 
 ### Je suis nouveau sur EasySave
 ```
@@ -142,8 +142,8 @@ git clone https://github.com/joanperreyprato/EasySave.git && cd EasySave && dotn
 ### J'ai une question spécifique
 ```
 1. FAQ.md (chercher Q+numéro)
-2. Si non trouvé ? DOCUMENTATION.md
-3. Si technique ? TECHNICAL_DOCUMENTATION.md
+2. Si non trouvé  DOCUMENTATION.md
+3. Si technique  TECHNICAL_DOCUMENTATION.md
 ```
 
 ### Je veux contribuer
@@ -164,7 +164,7 @@ git clone https://github.com/joanperreyprato/EasySave.git && cd EasySave && dotn
 
 ---
 
-## ?? Sommaires détaillés
+##  Sommaires détaillés
 
 ### QUICK_START.md
 - Installation rapide
@@ -217,7 +217,7 @@ git clone https://github.com/joanperreyprato/EasySave.git && cd EasySave && dotn
 
 ---
 
-## ?? Liens utiles
+##  Liens utiles
 
 ### Ressources externes
 - **GitHub** : [joanperreyprato/EasySave](https://github.com/joanperreyprato/EasySave)
@@ -231,42 +231,42 @@ git clone https://github.com/joanperreyprato/EasySave.git && cd EasySave && dotn
 
 ---
 
-## ?? Conseils de lecture
+##  Conseils de lecture
 
 ### Pour des réponses rapides
-- ?? **5 min** ? QUICK_START.md
-- ?? **2 min** ? FAQ.md (chercher votre question)
-- ?? **Instantané** ? Ctrl+F dans le fichier
+-  **5 min**  QUICK_START.md
+-  **2 min**  FAQ.md (chercher votre question)
+-  **Instantané**  Ctrl+F dans le fichier
 
 ### Pour comprendre le projet
-- ?? **30 min** ? DOCUMENTATION.md
-- ?? **60 min** ? TECHNICAL_DOCUMENTATION.md
+-  **30 min**  DOCUMENTATION.md
+-  **60 min**  TECHNICAL_DOCUMENTATION.md
 
 ### Pour contribuer
-- ?? **90 min** ? Tout lire + explorer code
-- ?? **30 min** ? TECHNICAL_DOCUMENTATION.md + code
+-  **90 min**  Tout lire + explorer code
+-  **30 min**  TECHNICAL_DOCUMENTATION.md + code
 
 ---
 
-## ?? Support & Contributions
+##  Support & Contributions
 
-### Besoin d'aide ?
+### Besoin d'aide 
 1. Consulter FAQ.md
 2. Lire DOCUMENTATION.md (section Dépannage)
 3. Ouvrir une issue sur GitHub
 
-### Vous trouvez un bug ?
+### Vous trouvez un bug 
 [Signaler sur GitHub](https://github.com/joanperreyprato/EasySave/issues/new)
 
-### Vous avez une idée ?
+### Vous avez une idée 
 [Discuter sur GitHub Discussions](https://github.com/joanperreyprato/EasySave/discussions)
 
-### Vous voulez contribuer ?
+### Vous voulez contribuer 
 Voir FAQ.md - Q30 (Contribution)
 
 ---
 
-## ?? Statistiques documentation
+##  Statistiques documentation
 
 | Document | Pages | Temps lecture | Pour qui |
 |----------|-------|----------------|----------|
@@ -278,50 +278,50 @@ Voir FAQ.md - Q30 (Contribution)
 
 ---
 
-## ?? Ordre de lecture recommandé
+##  Ordre de lecture recommandé
 
 **Pour démarrer** :
 ```
-1?? QUICK_START.md
-2?? Tester l'application
-3?? DOCUMENTATION.md (si besoin)
-4?? FAQ.md (consulter au besoin)
+1 QUICK_START.md
+2 Tester l'application
+3 DOCUMENTATION.md (si besoin)
+4 FAQ.md (consulter au besoin)
 ```
 
 **Pour explorer** :
 ```
-1?? DOCUMENTATION.md (complet)
-2?? Lire code source (comprendre)
-3?? TECHNICAL_DOCUMENTATION.md (approfondissement)
+1 DOCUMENTATION.md (complet)
+2 Lire code source (comprendre)
+3 TECHNICAL_DOCUMENTATION.md (approfondissement)
 ```
 
 **Pour développer** :
 ```
-1?? QUICK_START.md (setup)
-2?? TECHNICAL_DOCUMENTATION.md (archi)
-3?? Explorer code (détails)
-4?? Modifier + Tester
+1 QUICK_START.md (setup)
+2 TECHNICAL_DOCUMENTATION.md (archi)
+3 Explorer code (détails)
+4 Modifier + Tester
 ```
 
 ---
 
-## ? Checklist de documentation
+##  Checklist de documentation
 
 Documentation complète inclus :
-- ? Guide rapide (5 min)
-- ? Guide utilisateur complet
-- ? FAQ (30 questions)
-- ? Documentation technique
-- ? Exemples pratiques
-- ? Guide dépannage
-- ? Index de navigation (ce fichier)
+-  Guide rapide (5 min)
+-  Guide utilisateur complet
+-  FAQ (30 questions)
+-  Documentation technique
+-  Exemples pratiques
+-  Guide dépannage
+-  Index de navigation (ce fichier)
 
 ---
 
 **Dernière mise à jour** : Janvier 2024
 **Version** : 1.0
-**Statut** : Documentation complète ?
+**Statut** : Documentation complète 
 
-?? **Vous avez tout ce qu'il faut pour commencer !**
+ **Vous avez tout ce qu'il faut pour commencer !**
 
-Choisissez votre document ci-dessus et lancez-vous ! ??
+Choisissez votre document ci-dessus et lancez-vous ! 

@@ -1,10 +1,10 @@
 # EasySave - Guide Rapide
 
-Commencez avec EasySave en 5 minutes ! ??
+Commencez avec EasySave en 5 minutes ! 
 
 ---
 
-## ? Installation rapide
+##  Installation rapide
 
 ### Windows
 ```bash
@@ -24,7 +24,7 @@ dotnet run
 
 ---
 
-## ?? Premiers pas
+##  Premiers pas
 
 ### 1. Lancer en mode interactif
 ```bash
@@ -51,7 +51,7 @@ Select an option:
 ### 3. Exécuter la sauvegarde
 - Appuyez sur **2**
 - Sélectionnez l'index : `0`
-- C'est parti ! ?
+- C'est parti ! 
 
 ### 4. Lister vos sauvegardes
 - Appuyez sur **3**
@@ -59,7 +59,7 @@ Select an option:
 
 ---
 
-## ??? Mode ligne de commande
+##  Mode ligne de commande
 
 ### Créer rapidement
 ```bash
@@ -83,18 +83,18 @@ dotnet run -- list
 
 ---
 
-## ?? Types de sauvegarde
+##  Types de sauvegarde
 
 | Type | Première fois | Utilisation |
 |------|---------------|-------------|
-| **Full** | ? À faire | Sauvegarde complète (tous fichiers) |
-| **Diff** | ? Trop long | Mise à jour (fichiers modifiés seulement) |
+| **Full** |  À faire | Sauvegarde complète (tous fichiers) |
+| **Diff** |  Trop long | Mise à jour (fichiers modifiés seulement) |
 
 **Conseil** : Faites une `full` au départ, puis utilisez `diff` pour les suivantes.
 
 ---
 
-## ?? Configuration
+##  Configuration
 
 Fichiers créés automatiquement dans :
 - **Windows** : `C:\ProgramData\EasySave\`
@@ -108,7 +108,7 @@ Fichiers créés automatiquement dans :
 
 ---
 
-## ?? Erreurs courantes
+##  Erreurs courantes
 
 | Problème | Solution |
 |----------|----------|
@@ -120,7 +120,7 @@ Fichiers créés automatiquement dans :
 
 ---
 
-## ?? Changer la langue
+##  Changer la langue
 
 Modifiez `Program.cs` ligne 2 :
 
@@ -140,7 +140,7 @@ dotnet run
 
 ---
 
-## ?? Exemples pratiques
+##  Exemples pratiques
 
 ### Exemple 1 : Sauvegarder une partition
 ```bash
@@ -172,7 +172,7 @@ dotnet run -- execute 0-2
 
 ---
 
-## ?? Suivi de progression
+##  Suivi de progression
 
 Pendant une sauvegarde, l'application met à jour :
 - Fichiers traités
@@ -191,7 +191,7 @@ Vérifiez dans `state.json` :
 
 ---
 
-## ?? Dépannage rapide
+##  Dépannage rapide
 
 ### Réinstaller
 ```bash
@@ -207,7 +207,7 @@ Consultez le dossier `logs/` pour l'historique
 
 ---
 
-## ? Checklist premier backup
+##  Checklist premier backup
 
 - [ ] Compiler : `dotnet build`
 - [ ] Lancer : `dotnet run`
@@ -215,12 +215,12 @@ Consultez le dossier `logs/` pour l'historique
 - [ ] Spécifier source ET cible
 - [ ] Type = `full`
 - [ ] Exécuter (menu 2)
-- [ ] Vérifier fichiers copiés ?
+- [ ] Vérifier fichiers copiés 
 - [ ] Lister (menu 3) pour voir résumé
 
 ---
 
-## ?? Besoin d'aide ?
+##  Besoin d'aide 
 
 - **Bug** : [Signaler sur GitHub](https://github.com/joanperreyprato/EasySave/issues)
 - **Question** : Voir `DOCUMENTATION.md`
@@ -230,4 +230,4 @@ Consultez le dossier `logs/` pour l'historique
 
 **Version** : 1.0 | **Mise à jour** : Janvier 2024
 
-?? Vous êtes prêt ! Commencez votre première sauvegarde maintenant !
+ Vous êtes prêt ! Commencez votre première sauvegarde maintenant !
