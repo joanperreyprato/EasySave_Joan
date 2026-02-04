@@ -2,18 +2,18 @@
 using System;
 using System.Linq;
 // Initialize core services
-var language = new LanguageProvider("en");
-var stateManager = new StateManager();
+LanguageProvider language = new("en");
+StateManager stateManager = new();
 stateManager.LoadState();
 
 var logger = new EasyLog.JsonLogger("logs");
-var backupManager = new BackupManager(stateManager, logger);
-            var ui = new ConsoleUI(backupManager, language);
+BackupManager backupManager = new(stateManager, logger);
+ConsoleUI ui = new(backupManager, language);
 
 if (args != null && args.Length > 0)
 {
     // Simple command-line support
-    var tokens = args.Select(a => a.Trim()).Where(a => !string.IsNullOrWhiteSpace(a)).ToArray();
+    string[] tokens = args.Select(a => a.Trim()).Where(a => !string.IsNullOrWhiteSpace(a)).ToArray();
 
     if (tokens.Any(t => string.Equals(t, "list", StringComparison.OrdinalIgnoreCase)))
     {
@@ -22,8 +22,8 @@ if (args != null && args.Length > 0)
     }
 
     // If args are only indices (ex. "1-3" or "1;3" or "0,2"), execute those jobs directly
-    var directIndices = CommandLineParser.ParseArguments(tokens);
-    var hasExplicitCommand = tokens.Any(t => string.Equals(t, "create", StringComparison.OrdinalIgnoreCase)
+    int[] directIndices = CommandLineParser.ParseArguments(tokens);
+    bool hasExplicitCommand = tokens.Any(t => string.Equals(t, "create", StringComparison.OrdinalIgnoreCase)
                                              || string.Equals(t, "list", StringComparison.OrdinalIgnoreCase)
                                              || string.Equals(t, "execute", StringComparison.OrdinalIgnoreCase));
 
@@ -36,13 +36,13 @@ if (args != null && args.Length > 0)
     if (tokens.Any(t => string.Equals(t, "create", StringComparison.OrdinalIgnoreCase)))
     {
         // Expect: create <name> <source> <target> [full|diff]
-        var idx = Array.FindIndex(tokens, t => string.Equals(t, "create", StringComparison.OrdinalIgnoreCase));
+        int idx = Array.FindIndex(tokens, t => string.Equals(t, "create", StringComparison.OrdinalIgnoreCase));
         if (idx >= 0 && tokens.Length > idx + 3)
         {
-            var name = tokens[idx + 1];
-            var source = tokens[idx + 2];
-            var target = tokens[idx + 3];
-            var type = BackupType.Full;
+            string name = tokens[idx + 1];
+            string source = tokens[idx + 2];
+            string target = tokens[idx + 3];
+            BackupType type = BackupType.Full;
             if (tokens.Length > idx + 4 && tokens[idx + 4].StartsWith("d", StringComparison.OrdinalIgnoreCase))
                 type = BackupType.Differential;
 
@@ -67,7 +67,7 @@ if (args != null && args.Length > 0)
     if (tokens.Any(t => string.Equals(t, "execute", StringComparison.OrdinalIgnoreCase)))
     {
         // Parse indices from args
-                    var indices = CommandLineParser.ParseArguments(tokens);
+        int[] indices = CommandLineParser.ParseArguments(tokens);
         if (indices.Length == 0)
         {
             Console.WriteLine("No indices provided. Use execute <index> or execute 0-2 or execute 0,2");
@@ -88,7 +88,7 @@ bool running = true;
 while (running)
 {
     ui.DisplayMainMenu();
-    var choice = Console.ReadLine();
+    string? choice = Console.ReadLine();
     switch (choice)
     {
         case "1":

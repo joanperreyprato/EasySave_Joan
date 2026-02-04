@@ -40,8 +40,8 @@ namespace EasySave_v1._0
 
             if (string.IsNullOrWhiteSpace(configPath))
             {
-                var appData = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
-                var dir = Path.Combine(appData, "EasySave");
+                string appData = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
+                string dir = Path.Combine(appData, "EasySave");
                 Directory.CreateDirectory(dir);
                 this.configPath = Path.Combine(dir, "backup_config.json");
             }
@@ -149,7 +149,7 @@ namespace EasySave_v1._0
                 return false;
             }
 
-            var job = new BackupJob(name, source, target, type);
+            BackupJob job = new BackupJob(name, source, target, type);
             backupJobs.Add(job);
             SaveConfiguration();
             return true;
@@ -175,8 +175,8 @@ namespace EasySave_v1._0
         {
             if (index < 0 || index >= backupJobs.Count) return;
 
-            var job = backupJobs[index];
-            var executor = new BackupExecutor(logger, stateManager);
+            BackupJob job = backupJobs[index];
+            BackupExecutor executor = new BackupExecutor(logger, stateManager);
 
             if (job.GetBackupType() == BackupType.Full)
                 executor.ExecuteFullBackup(job);
@@ -203,15 +203,15 @@ namespace EasySave_v1._0
             try
             {
                 if (!File.Exists(configPath)) return;
-                var json = File.ReadAllText(configPath);
-                // Using the cached JsonSerializerOptions instance
-                var entries = JsonSerializer.Deserialize<List<BackupConfigEntry>>(json, CachedJsonOptions);
+                string json = File.ReadAllText(configPath);
+                // Utilisation de l'instance statique
+                List<BackupConfigEntry>? entries = JsonSerializer.Deserialize<List<BackupConfigEntry>>(json, CachedJsonOptions);
                 if (entries == null) return;
 
                 backupJobs.Clear();
-                foreach (var e in entries)
+                foreach (BackupConfigEntry e in entries)
                 {
-                    var job = new BackupJob(e.Name, e.SourcePath, e.TargetPath, e.Type);
+                    BackupJob job = new BackupJob(e.Name, e.SourcePath, e.TargetPath, e.Type);
                     backupJobs.Add(job);
                 }
             }
@@ -225,7 +225,7 @@ namespace EasySave_v1._0
         {
             try
             {
-                var entries = backupJobs.Select(b => new BackupConfigEntry
+                IEnumerable<BackupConfigEntry> entries = backupJobs.Select(b => new BackupConfigEntry
                 {
                     Name = b.GetName(),
                     SourcePath = b.GetSourcePath(),
@@ -233,8 +233,8 @@ namespace EasySave_v1._0
                     Type = b.GetBackupType()
                 }).ToList();
 
-                // Using the cached JsonSerializerOptions instance
-                var json = JsonSerializer.Serialize(entries, CachedJsonOptions);
+                // Utilisation de l'instance statique
+                string json = JsonSerializer.Serialize(entries, CachedJsonOptions);
                 File.WriteAllText(configPath, json);
             }
             catch

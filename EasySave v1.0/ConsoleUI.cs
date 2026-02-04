@@ -92,7 +92,7 @@ namespace EasySave_v1._0
             var idxStr = GetUserInput("Enter job index to execute: ");
             if (int.TryParse(idxStr, out var idx))
             {
-                backupManager.ExecuteBackupJob(idx);
+                backupManager.ExecuteBackupJob(idx-1);
                 Console.WriteLine("Execution requested.");
             }
             else
@@ -113,7 +113,7 @@ namespace EasySave_v1._0
             for (int i = 0; i < jobs.Count; i++)
             {
                 var j = jobs[i];
-                Console.WriteLine($"[{i}] {j.GetName()} -> {j.GetSourcePath()} => {j.GetTargetPath()} ({j.GetType()})");
+                Console.WriteLine($"[{i+1}] {j.GetName()} -> {j.GetSourcePath()} => {j.GetTargetPath()} ({j.GetType()})");
             }
         }
 
