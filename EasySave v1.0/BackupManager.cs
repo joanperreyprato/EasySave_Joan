@@ -173,6 +173,7 @@ namespace EasySave_v1._0
 
         public void ExecuteBackupJob(int index)
         {
+            index -= 1; // Adjust for 0-based index
             if (index < 0 || index >= backupJobs.Count) return;
 
             BackupJob job = backupJobs[index];
@@ -189,7 +190,7 @@ namespace EasySave_v1._0
             if (indices == null) return;
             foreach (var idx in indices)
             {
-                ExecuteBackupJob(idx);
+                ExecuteBackupJob(idx-1);
             }
         }
 
