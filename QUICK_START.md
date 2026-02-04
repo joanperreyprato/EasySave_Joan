@@ -4,7 +4,7 @@ Commencez avec EasySave en 5 minutes !
 
 ---
 
-## ? Installation rapide
+##  Installation rapide
 
 ### Windows
 ```bash
@@ -51,7 +51,7 @@ Select an option:
 ### 3. Exécuter la sauvegarde
 - Appuyez sur **2**
 - Sélectionnez l'index : `0`
-- C'est parti ! ?
+- C'est parti ! 
 
 ### 4. Lister vos sauvegardes
 - Appuyez sur **3**
@@ -59,7 +59,7 @@ Select an option:
 
 ---
 
-## ? Mode ligne de commande
+##  Mode ligne de commande
 
 ### Créer rapidement
 ```bash
@@ -87,8 +87,8 @@ dotnet run -- list
 
 | Type | Première fois | Utilisation |
 |------|---------------|-------------|
-| **Full** | ? À faire | Sauvegarde complète (tous fichiers) |
-| **Diff** | ? Trop long | Mise à jour (fichiers modifiés seulement) |
+| **Full** |  À faire | Sauvegarde complète (tous fichiers) |
+| **Diff** |  Trop long | Mise à jour (fichiers modifiés seulement) |
 
 **Conseil** : Faites une `full` au départ, puis utilisez `diff` pour les suivantes.
 
@@ -207,7 +207,7 @@ Consultez le dossier `logs/` pour l'historique
 
 ---
 
-## ? Checklist premier backup
+##  Checklist premier backup
 
 - [ ] Compiler : `dotnet build`
 - [ ] Lancer : `dotnet run`
@@ -215,12 +215,12 @@ Consultez le dossier `logs/` pour l'historique
 - [ ] Spécifier source ET cible
 - [ ] Type = `full`
 - [ ] Exécuter (menu 2)
-- [ ] Vérifier fichiers copiés ?
+- [ ] Vérifier fichiers copiés 
 - [ ] Lister (menu 3) pour voir résumé
 
 ---
 
-##  Besoin d'aide ?
+##  Besoin d'aide 
 
 - **Bug** : [Signaler sur GitHub](https://github.com/joanperreyprato/EasySave/issues)
 - **Question** : Voir `DOCUMENTATION.md`

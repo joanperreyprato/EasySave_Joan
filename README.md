@@ -20,18 +20,18 @@
 
 ---
 
-## ? Caractéristiques
+##  Caractéristiques
 
-- ? **Deux modes de fonctionnement** : interactif et ligne de commande
-- ? **Deux types de sauvegarde** :
+-  **Deux modes de fonctionnement** : interactif et ligne de commande
+-  **Deux types de sauvegarde** :
   - **Complète** (Full) : copie tous les fichiers
   - **Différentielle** (Diff) : copie uniquement les fichiers nouveaux ou modifiés
-- ? **Multilingue** : Support de l'anglais et du français
-- ? **Suivi d'état** : progression en temps réel des sauvegardes
-- ? **Journalisation** : enregistrement détaillé des opérations
-- ? **Configuration persistante** : sauvegarde des tâches de sauvegarde
-- ? **Gestion robuste des erreurs** : validation complète des chemins et paramètres
-- ? **Architecture modulaire** : Facile à étendre et maintenir
+-  **Multilingue** : Support de l'anglais et du français
+-  **Suivi d'état** : progression en temps réel des sauvegardes
+-  **Journalisation** : enregistrement détaillé des opérations
+-  **Configuration persistante** : sauvegarde des tâches de sauvegarde
+-  **Gestion robuste des erreurs** : validation complète des chemins et paramètres
+-  **Architecture modulaire** : Facile à étendre et maintenir
 
 ---
 
@@ -148,21 +148,21 @@ var language = new LanguageProvider("en");  // Anglais
 
 ---
 
-## ? FAQ Français
+##  FAQ Français
 
 Pour 30 questions-réponses détaillées, consultez **[FAQ.md](FAQ.md)**
 
 **Questions couvertes** :
-- ? Installation & Configuration (Q1-Q3)
-- ? Création de sauvegardes (Q4-Q7)
-- ? Types de sauvegarde (Q8-Q10)
-- ? Exécution & Suivi (Q11-Q13)
-- ? Mode CLI (Q14-Q15)
-- ? Dépannage (Q16-Q21)
-- ? Performance (Q22-Q23)
-- ? Sécurité (Q24-Q26)
-- ? Maintenance (Q27-Q29)
-- ? Contribution (Q30)
+-  Installation & Configuration (Q1-Q3)
+-  Création de sauvegardes (Q4-Q7)
+-  Types de sauvegarde (Q8-Q10)
+-  Exécution & Suivi (Q11-Q13)
+-  Mode CLI (Q14-Q15)
+-  Dépannage (Q16-Q21)
+-  Performance (Q22-Q23)
+-  Sécurité (Q24-Q26)
+-  Maintenance (Q27-Q29)
+-  Contribution (Q30)
 
 ---
 
@@ -193,18 +193,18 @@ Pour 30 questions-réponses détaillées, consultez **[FAQ.md](FAQ.md)**
 
 ---
 
-## ? Features
+##  Features
 
-- ? **Two operating modes** : interactive and command-line
-- ? **Two backup types** :
+-  **Two operating modes** : interactive and command-line
+-  **Two backup types** :
   - **Full** : copies all files
   - **Differential** : copies only new or modified files
-- ? **Multilingual** : English and French support
-- ? **Real-time tracking** : progress monitoring during backups
-- ? **Logging** : detailed operation records
-- ? **Persistent configuration** : saves backup tasks
-- ? **Robust error handling** : complete path and parameter validation
-- ? **Modular architecture** : Easy to extend and maintain
+-  **Multilingual** : English and French support
+-  **Real-time tracking** : progress monitoring during backups
+-  **Logging** : detailed operation records
+-  **Persistent configuration** : saves backup tasks
+-  **Robust error handling** : complete path and parameter validation
+-  **Modular architecture** : Easy to extend and maintain
 
 ---
 
@@ -321,21 +321,21 @@ var language = new LanguageProvider("fr");  // French
 
 ---
 
-## ? FAQ English
+##  FAQ English
 
 For 30 detailed Q&A, see **[FAQ.md](FAQ.md)**
 
 **Topics covered** :
-- ? Installation & Configuration (Q1-Q3)
-- ? Backup Creation (Q4-Q7)
-- ? Backup Types (Q8-Q10)
-- ? Execution & Monitoring (Q11-Q13)
-- ? CLI Mode (Q14-Q15)
-- ? Troubleshooting (Q16-Q21)
-- ? Performance (Q22-Q23)
-- ? Security (Q24-Q26)
-- ? Maintenance (Q27-Q29)
-- ? Contributing (Q30)
+-  Installation & Configuration (Q1-Q3)
+-  Backup Creation (Q4-Q7)
+-  Backup Types (Q8-Q10)
+-  Execution & Monitoring (Q11-Q13)
+-  CLI Mode (Q14-Q15)
+-  Troubleshooting (Q16-Q21)
+-  Performance (Q22-Q23)
+-  Security (Q24-Q26)
+-  Maintenance (Q27-Q29)
+-  Contributing (Q30)
 
 ---
 
@@ -354,16 +354,16 @@ For 30 detailed Q&A, see **[FAQ.md](FAQ.md)**
 
 ### Choose Your Path
 
-**I'm new to EasySave** ?
+**I'm new to EasySave** 
 1. Read [QUICK_START.md](QUICK_START.md) (5 min)
 2. Run `dotnet run`
 3. Create first backup
 
-**I have questions** ?
+**I have questions** 
 1. Check [FAQ.md](FAQ.md)
 2. Use Ctrl+F to search
 
-**I'm a developer** ?
+**I'm a developer** 
 1. Read [TECHNICAL_DOCUMENTATION.md](TECHNICAL_DOCUMENTATION.md)
 2. Explore source code
 
@@ -373,7 +373,7 @@ For 30 detailed Q&A, see **[FAQ.md](FAQ.md)**
 
 ### Get Help
 -  Check [DOCUMENTATION.md](DOCUMENTATION.md)
-- ? See [FAQ.md](FAQ.md)
+-  See [FAQ.md](FAQ.md)
 -  Read [TECHNICAL_DOCUMENTATION.md](TECHNICAL_DOCUMENTATION.md)
 -  Browse [INDEX.md](INDEX.md)
 
@@ -381,7 +381,7 @@ For 30 detailed Q&A, see **[FAQ.md](FAQ.md)**
 -  [GitHub Issues](https://github.com/joanperreyprato/EasySave/issues)
 
 ### Contribute
--  Fork ? Branch ? Commit ? Pull Request
+-  Fork  Branch  Commit  Pull Request
 - See [FAQ.md](FAQ.md) Q30 for details
 
 ---
@@ -398,7 +398,7 @@ For 30 detailed Q&A, see **[FAQ.md](FAQ.md)**
 
 ---
 
-## ? Documentation Statistics
+##  Documentation Statistics
 
 - **8 Markdown files** created
 - **~31 pages** of documentation
@@ -410,7 +410,7 @@ For 30 detailed Q&A, see **[FAQ.md](FAQ.md)**
 
 ---
 
-##  Ready to Start?
+##  Ready to Start
 
  **[Read START_HERE.md](START_HERE.md)** for visual guide
  **[Read QUICK_START.md](QUICK_START.md)** for 5-minute start
@@ -420,4 +420,4 @@ For 30 detailed Q&A, see **[FAQ.md](FAQ.md)**
 
 **Last Updated** : January 2024
 **Version** : 1.0
-**Status** : ? Complete Documentation
+**Status** :  Complete Documentation

@@ -1,6 +1,6 @@
 #  EasySave - Récapitulatif Documentation
 
-## ? Documentation créée
+##  Documentation créée
 
 La documentation complète d'**EasySave v1.0** a été créée avec succès !
 
@@ -64,7 +64,7 @@ La documentation complète d'**EasySave v1.0** a été créée avec succès !
 - **Temps de lecture** : 60-90 min
 - **Pour qui** : Développeurs, contributeurs
 
-#### 5. **FAQ.md** ?
+#### 5. **FAQ.md** 
 - **Objectif** : 30 Questions-Réponses fréquentes
 - **Contenu** :
   - **Q1-Q3** : Installation & Configuration
@@ -85,13 +85,13 @@ La documentation complète d'**EasySave v1.0** a été créée avec succès !
 ##  Statistiques de documentation
 
 ### Couverture
-- ? Guide utilisateur complet
-- ? Guide technique complet
-- ? Questions fréquentes (30 Q&R)
-- ? Exemples pratiques (6+)
-- ? Dépannage détaillé
-- ? Architecture expliquée
-- ? Index de navigation
+-  Guide utilisateur complet
+-  Guide technique complet
+-  Questions fréquentes (30 Q&R)
+-  Exemples pratiques (6+)
+-  Dépannage détaillé
+-  Architecture expliquée
+-  Index de navigation
 
 ### Volume
 | Document | Pages | Mots | Temps lecture |
@@ -116,36 +116,36 @@ La documentation complète d'**EasySave v1.0** a été créée avec succès !
 
 ### Chemin utilisateur novice
 ```
-1. Lire INDEX.md (2 min) ? Comprendre structure doc
-2. Lire QUICK_START.md (5 min) ? Installation rapide
-3. Tester application ? Créer premier backup
-4. Consulter FAQ au besoin ? Questions spécifiques
+1. Lire INDEX.md (2 min)  Comprendre structure doc
+2. Lire QUICK_START.md (5 min)  Installation rapide
+3. Tester application  Créer premier backup
+4. Consulter FAQ au besoin  Questions spécifiques
 ```
 ** Total : 30 min pour être productif**
 
 ### Chemin utilisateur expérimenté
 ```
-1. Lire QUICK_START.md (5 min) ? Installation
-2. Consulter FAQ au besoin ? Questions spécifiques
+1. Lire QUICK_START.md (5 min)  Installation
+2. Consulter FAQ au besoin  Questions spécifiques
 3. Lire sections DOCUMENTATION.md pertinentes
 ```
 ** Total : 10-20 min selon besoins**
 
 ### Chemin développeur
 ```
-1. Lire QUICK_START.md (5 min) ? Installation dev
-2. Lire TECHNICAL_DOCUMENTATION.md (60 min) ? Comprendre archi
-3. Explorer code source ? Détails implémentation
-4. Lire DOCUMENTATION.md au besoin ? Comportement utilisateur
+1. Lire QUICK_START.md (5 min)  Installation dev
+2. Lire TECHNICAL_DOCUMENTATION.md (60 min)  Comprendre archi
+3. Explorer code source  Détails implémentation
+4. Lire DOCUMENTATION.md au besoin  Comportement utilisateur
 5. Consulter FAQ pour edge cases
 ```
 ** Total : 90 min pour maîtriser le projet**
 
 ### Chemin dépannage urgent
 ```
-1. FAQ.md ? Chercher problème spécifique (Ctrl+F)
-2. Si non trouvé ? DOCUMENTATION.md section Dépannage
-3. Si technique ? TECHNICAL_DOCUMENTATION.md
+1. FAQ.md  Chercher problème spécifique (Ctrl+F)
+2. Si non trouvé  DOCUMENTATION.md section Dépannage
+3. Si technique  TECHNICAL_DOCUMENTATION.md
 ```
 ** Total : 5-15 min selon complexité**
 
@@ -154,89 +154,89 @@ La documentation complète d'**EasySave v1.0** a été créée avec succès !
 ##  Sujets couverts
 
 ### Installation & Configuration
-- ? Prérequis (.NET 8)
-- ? Installation Windows/Linux/macOS
-- ? Build du projet
-- ? Chemins de configuration
-- ? Changement de langue
+-  Prérequis (.NET 8)
+-  Installation Windows/Linux/macOS
+-  Build du projet
+-  Chemins de configuration
+-  Changement de langue
 
 ### Utilisation
-- ? Mode interactif (menu)
-- ? Mode ligne de commande
-- ? Création de sauvegardes
-- ? Exécution de sauvegardes
-- ? Listing des sauvegardes
-- ? Paramètres et options
+-  Mode interactif (menu)
+-  Mode ligne de commande
+-  Création de sauvegardes
+-  Exécution de sauvegardes
+-  Listing des sauvegardes
+-  Paramètres et options
 
 ### Types de sauvegarde
-- ? Sauvegarde complète (Full)
-- ? Sauvegarde différentielle (Diff)
-- ? Comparaison et quand les utiliser
-- ? Détection des modifications
+-  Sauvegarde complète (Full)
+-  Sauvegarde différentielle (Diff)
+-  Comparaison et quand les utiliser
+-  Détection des modifications
 
 ### Architecture
-- ? Composants (Program, ConsoleUI, BackupManager, etc.)
-- ? Flux d'exécution
-- ? Interaction entre composants
-- ? Patterns utilisés
+-  Composants (Program, ConsoleUI, BackupManager, etc.)
+-  Flux d'exécution
+-  Interaction entre composants
+-  Patterns utilisés
 
 ### Système de traduction
-- ? Support multilingue (EN/FR)
-- ? Système de clés de traduction
-- ? Comment ajouter une langue
-- ? Fichier languages.json
+-  Support multilingue (EN/FR)
+-  Système de clés de traduction
+-  Comment ajouter une langue
+-  Fichier languages.json
 
 ### Validation & Erreurs
-- ? Validation du nom
-- ? Validation des chemins
-- ? Codes d'erreur
-- ? Messages localisés
-- ? Recovery après erreur
+-  Validation du nom
+-  Validation des chemins
+-  Codes d'erreur
+-  Messages localisés
+-  Recovery après erreur
 
 ### État & Progression
-- ? Propriétés JobState
-- ? Calcul de progression
-- ? Cycles de vie tâche
-- ? Persistance état JSON
+-  Propriétés JobState
+-  Calcul de progression
+-  Cycles de vie tâche
+-  Persistance état JSON
 
 ### Performance
-- ? Optimisations actuelles
-- ? Points d'amélioration
-- ? Conseils d'accélération
-- ? Gestion ressources disque
+-  Optimisations actuelles
+-  Points d'amélioration
+-  Conseils d'accélération
+-  Gestion ressources disque
 
 ### Sécurité
-- ? Permissions de fichiers
-- ? Chiffrement (non implémenté)
-- ? Gestion disque plein
-- ? Intégrité données
+-  Permissions de fichiers
+-  Chiffrement (non implémenté)
+-  Gestion disque plein
+-  Intégrité données
 
 ### Dépannage
-- ? 20+ erreurs couantes résolues
-- ? Guide diagnostic
-- ? Solutions étape par étape
+-  20+ erreurs couantes résolues
+-  Guide diagnostic
+-  Solutions étape par étape
 
 ### Développement
-- ? Extension du projet
-- ? Nouveaux types de sauvegarde
-- ? Nouveaux formats de config
-- ? Contribution et Pull Requests
+-  Extension du projet
+-  Nouveaux types de sauvegarde
+-  Nouveaux formats de config
+-  Contribution et Pull Requests
 
 ---
 
-##  Où trouver la documentation ?
+##  Où trouver la documentation 
 
 ### Accès
 Tous les fichiers `.md` sont dans le répertoire racine :
 ```
 EasySave/
-? INDEX.md                          ? Vous êtes ici
-? QUICK_START.md                    ? Démarrage rapide
-? DOCUMENTATION.md                  ? Guide utilisateur
-? TECHNICAL_DOCUMENTATION.md        ? Guide technique
-? FAQ.md                            ? Questions fréquentes
-? README.md                         ? Infos générales
-? ...
+ INDEX.md                           Vous êtes ici
+ QUICK_START.md                     Démarrage rapide
+ DOCUMENTATION.md                   Guide utilisateur
+ TECHNICAL_DOCUMENTATION.md         Guide technique
+ FAQ.md                             Questions fréquentes
+ README.md                          Infos générales
+ ...
 ```
 
 ### Consultation
@@ -246,17 +246,17 @@ EasySave/
 
 ---
 
-## ? Qualité documentation
+##  Qualité documentation
 
 ### Critères respectés
-- ? **Clarté** : Langage simple et direct
-- ? **Exhaustivité** : Tous les cas d'usage couverts
-- ? **Organisation** : Structure logique et hiérarchisée
-- ? **Navigabilité** : Index et liens croisés
-- ? **Exemples** : Multiples exemples concrets
-- ? **Multilinguisme** : Termes français/anglais
-- ? **Visuels** : Diagrammes, tableaux, listes
-- ? **Maintenance** : Structure facile à mettre à jour
+-  **Clarté** : Langage simple et direct
+-  **Exhaustivité** : Tous les cas d'usage couverts
+-  **Organisation** : Structure logique et hiérarchisée
+-  **Navigabilité** : Index et liens croisés
+-  **Exemples** : Multiples exemples concrets
+-  **Multilinguisme** : Termes français/anglais
+-  **Visuels** : Diagrammes, tableaux, listes
+-  **Maintenance** : Structure facile à mettre à jour
 
 ### Points forts
 1. **Complétude** : Couvre tous les aspects (user + dev)
@@ -277,7 +277,7 @@ EasySave/
 ### Pour approfondir
 1.  Lire **DOCUMENTATION.md** complètement
 2.  Lire **TECHNICAL_DOCUMENTATION.md** si développeur
-3. ? Consulter **FAQ.md** au besoin
+3.  Consulter **FAQ.md** au besoin
 
 ### Pour trouver une réponse
 1. **Ctrl+F** dans INDEX.md pour table navigation
@@ -295,16 +295,16 @@ EasySave/
 
 ##  Checklist post-documentation
 
-- ? INDEX.md créé (navigation)
-- ? QUICK_START.md créé (démarrage 5 min)
-- ? DOCUMENTATION.md créé (guide complet)
-- ? TECHNICAL_DOCUMENTATION.md créé (architecture)
-- ? FAQ.md créé (30 Q&R)
-- ? Exemples inclus (6+)
-- ? Diagrammes inclus (3+)
-- ? Code d'erreur documenté
-- ? Guide dépannage inclus
-- ? Tous les fichiers déployés ?
+-  INDEX.md créé (navigation)
+-  QUICK_START.md créé (démarrage 5 min)
+-  DOCUMENTATION.md créé (guide complet)
+-  TECHNICAL_DOCUMENTATION.md créé (architecture)
+-  FAQ.md créé (30 Q&R)
+-  Exemples inclus (6+)
+-  Diagrammes inclus (3+)
+-  Code d'erreur documenté
+-  Guide dépannage inclus
+-  Tous les fichiers déployés 
 
 ---
 
@@ -320,15 +320,15 @@ EasySave/
 
 ##  Support documentation
 
-### Questions sur la doc ?
+### Questions sur la doc 
 - Ouvrir issue sur GitHub
 - Proposer améliorations
 
-### Trouver une erreur ?
+### Trouver une erreur 
 - Corriger localement
 - Soumettre Pull Request
 
-### Ajouter une section ?
+### Ajouter une section 
 - Maintenir structure cohérente
 - Respecter format Markdown
 - Ajouter references dans INDEX.md
@@ -342,10 +342,10 @@ EasySave/
 | **Version** | 1.0 |
 | **Date création** | Janvier 2024 |
 | **Langues** | Français |
-| **Accessibilité** | ? Tous niveaux |
-| **Complétude** | ? 100% |
-| **Maintenabilité** | ? Facile à mettre à jour |
-| **Extensibilité** | ? Prête pour évolutions |
+| **Accessibilité** |  Tous niveaux |
+| **Complétude** |  100% |
+| **Maintenabilité** |  Facile à mettre à jour |
+| **Extensibilité** |  Prête pour évolutions |
 
 ---
 
@@ -357,7 +357,7 @@ Vous avez maintenant :
 -  Tout ce qu'il faut pour **démarrer**
 -  Tout ce qu'il faut pour **utiliser**
 -  Tout ce qu'il faut pour **développer**
-- ? Tout ce qu'il faut pour **dépanner**
+-  Tout ce qu'il faut pour **dépanner**
 
 ---
 
@@ -368,4 +368,4 @@ Commencez par [QUICK_START.md](QUICK_START.md) ou consultez [INDEX.md](INDEX.md)
 ---
 
 **Dernière mise à jour** : Janvier 2024
-**Status** : Documentation complète et validée ?
+**Status** : Documentation complète et validée 

@@ -4,7 +4,7 @@
 
 ## Installation & Configuration
 
-### Q1: What are the prerequisites to install EasySave?
+### Q1: What are the prerequisites to install EasySave
 
 **A:** You need **.NET 8.0 or higher** installed on your machine.
 
@@ -16,7 +16,7 @@ Download .NET 8 from: https://dotnet.microsoft.com/download
 
 ---
 
-### Q2: Where are configuration files stored?
+### Q2: Where are configuration files stored
 
 **A:** Files are automatically created in:
 
@@ -31,7 +31,7 @@ Created files:
 
 ---
 
-### Q3: How do I change the language?
+### Q3: How do I change the language
 
 **A:** Edit `Program.cs` line 2:
 
@@ -50,35 +50,35 @@ dotnet run
 
 ## Backup Creation
 
-### Q4: What name format can I use?
+### Q4: What name format can I use
 
 **A:** The name can only contain:
-- ? Letters (a-z, A-Z)
-- ? Numbers (0-9)
-- ? Spaces
-- ? Hyphens (-)
-- ? Underscores (_)
-- ? Special characters (@, #, $, %, etc.)
-- ? Maximum 50 characters
+-  Letters (a-z, A-Z)
+-  Numbers (0-9)
+-  Spaces
+-  Hyphens (-)
+-  Underscores (_)
+-  Special characters (@, #, $, %, etc.)
+-  Maximum 50 characters
 
 **Valid examples**:
 ```
-? MyBackup
-? Backup-2024
-? Photos_Family
-? My Important Data
+ MyBackup
+ Backup-2024
+ Photos_Family
+ My Important Data
 ```
 
 **Invalid examples**:
 ```
-? My@Backup (contains @)
-? My/Backup (contains /)
-? MyBackupVeryLongNameThatExceedsFiftyCharactersLimit (too long)
+ My@Backup (contains @)
+ My/Backup (contains /)
+ MyBackupVeryLongNameThatExceedsFiftyCharactersLimit (too long)
 ```
 
 ---
 
-### Q5: How many backups can I create?
+### Q5: How many backups can I create
 
 **A:** **Maximum 5 backups** can be configured.
 
@@ -86,15 +86,15 @@ If you reach this limit, you must delete one before creating a new one.
 
 ---
 
-### Q6: Must source and target paths exist?
+### Q6: Must source and target paths exist
 
 **A:** **YES, both must exist** before creating a backup.
 
 ```bash
-# ? Error: Folder doesn't exist
+#  Error: Folder doesn't exist
 dotnet run -- create "Backup" "/nonexistent/path" "/backup" full
 
-# ? OK: Both folders exist
+#  OK: Both folders exist
 dotnet run -- create "Backup" "/existing/path" "/backup/existing" full
 ```
 
@@ -109,7 +109,7 @@ mkdir ~/Backups
 
 ---
 
-### Q7: Can I backup to a USB drive or network?
+### Q7: Can I backup to a USB drive or network
 
 **A:** **YES**, as long as the path is accessible as a local directory.
 
@@ -125,7 +125,7 @@ dotnet run -- create "Network-Backup" "/home/data" "/mnt/network/backup" full
 
 ## Backup Types
 
-### Q8: What's the difference between "Full" and "Diff"?
+### Q8: What's the difference between "Full" and "Diff"
 
 **A:**
 
@@ -139,7 +139,7 @@ dotnet run -- create "Network-Backup" "/home/data" "/mnt/network/backup" full
 
 ---
 
-### Q9: How are modified files detected in Diff mode?
+### Q9: How are modified files detected in Diff mode
 
 **A:** EasySave compares:
 
@@ -150,7 +150,7 @@ A file is copied if either condition is true.
 
 ---
 
-### Q10: Can I run multiple backups at once?
+### Q10: Can I run multiple backups at once
 
 **A:** **YES**, from the command line:
 
@@ -171,7 +171,7 @@ dotnet run -- execute 0-4
 
 ## Execution & Monitoring
 
-### Q11: How do I track backup progress?
+### Q11: How do I track backup progress
 
 **A:** State is updated in real-time in `state.json`:
 
@@ -197,7 +197,7 @@ Get-Content $env:PROGRAMDATA\EasySave\state.json -Wait
 
 ---
 
-### Q12: What happens if a backup fails?
+### Q12: What happens if a backup fails
 
 **A:** State changes to `Error` and:
 - Already copied files remain in place
@@ -210,7 +210,7 @@ dotnet run -- execute 0  # Restart
 
 ---
 
-### Q13: How do I cancel a running backup?
+### Q13: How do I cancel a running backup
 
 **A:** Press `Ctrl+C` (standard interrupt).
 
@@ -220,7 +220,7 @@ dotnet run -- execute 0  # Restart
 
 ## Command Line Mode
 
-### Q14: How do I create a backup via CLI?
+### Q14: How do I create a backup via CLI
 
 **A:**
 
@@ -248,7 +248,7 @@ dotnet run -- create "Videos" "/home/videos" "/backup/videos"
 
 ---
 
-### Q15: How do I execute multiple specific backups?
+### Q15: How do I execute multiple specific backups
 
 **A:** Use ranges and lists:
 
@@ -275,10 +275,10 @@ dotnet run -- execute 0,2-4,7
 
 **Solution**:
 ```bash
-# ? Wrong
+#  Wrong
 dotnet run -- create "My@Backup" ...
 
-# ? Correct
+#  Correct
 dotnet run -- create "My_Backup" ...
 ```
 
@@ -366,7 +366,7 @@ dotnet run -- create "Test" "/source" "/target" full
 
 ## Performance & Optimization
 
-### Q22: How do I speed up a backup?
+### Q22: How do I speed up a backup
 
 **A:**
 
@@ -383,12 +383,12 @@ dotnet run -- create "Test" "/source" "/target" full
 
 ---
 
-### Q23: How much disk space do I need?
+### Q23: How much disk space do I need
 
 **A:** Depends on your source:
 
 - **Required space** = Total source size
-- Example: 100 GB source ? 100 GB target minimum
+- Example: 100 GB source  100 GB target minimum
 - +10% margin recommended
 
 Check:
@@ -406,7 +406,7 @@ Get-Volume  # Free space
 
 ## Security & Reliability
 
-### Q24: Are my files encrypted?
+### Q24: Are my files encrypted
 
 **A:** **NO**, files are not encrypted by EasySave.
 
@@ -417,7 +417,7 @@ Files are copied as-is. To encrypt:
 
 ---
 
-### Q25: What happens if target disk is full?
+### Q25: What happens if target disk is full
 
 **A:** Backup stops with `Error` status.
 
@@ -428,7 +428,7 @@ Files are copied as-is. To encrypt:
 
 ---
 
-### Q26: Does EasySave preserve file permissions?
+### Q26: Does EasySave preserve file permissions
 
 **A:** **NO**, permissions are not preserved.
 
@@ -438,7 +438,7 @@ Files are copied with default target filesystem permissions.
 
 ## Maintenance
 
-### Q27: How do I clean old logs?
+### Q27: How do I clean old logs
 
 **A:**
 
@@ -452,7 +452,7 @@ EasySave will recreate the folder on next backup.
 
 ---
 
-### Q28: Can I manually edit backup_config.json?
+### Q28: Can I manually edit backup_config.json
 
 **A:** **Yes, but carefully**.
 
@@ -476,7 +476,7 @@ Format:
 
 ---
 
-### Q29: How do I reset EasySave?
+### Q29: How do I reset EasySave
 
 **A:**
 
@@ -494,7 +494,7 @@ Then restart application to recreate fresh configuration.
 
 ## Development
 
-### Q30: How do I contribute to the project?
+### Q30: How do I contribute to the project
 
 **A:**
 
@@ -510,7 +510,7 @@ Then restart application to recreate fresh configuration.
 
 ## Support
 
-### Didn't find your answer?
+### Didn't find your answer
 
 Check:
 -  **DOCUMENTATION.md** - Complete documentation
@@ -524,4 +524,4 @@ Or open an issue: [GitHub Issues](https://github.com/joanperreyprato/EasySave/is
 **Last Updated**: January 2024
 **Version**: 1.0
 
-Have another question?  Contact us on GitHub!
+Have another question  Contact us on GitHub!

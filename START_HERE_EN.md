@@ -1,10 +1,10 @@
 ```
-   ?   ?  ?   ?
-  ?   ?
-    ? ?   ?  
-     ?     
- ?  ?   ?   ?  ? ? 
- ?  ?   ?   ?  ?  ?  
+           
+     
+          
+          
+             
+               
                                                               v1.0
 ```
 
@@ -18,76 +18,76 @@
 
 You have access to complete, structured and easy-to-navigate documentation!
 
-### ? Documentation Files
+###  Documentation Files
 
 ```
- START_HERE.md                   ?  START HERE!
+ START_HERE.md                     START HERE!
     Centralized navigation guide
 
- QUICK_START_EN.md               ? ? 5 MINUTES TO GET STARTED
+ QUICK_START_EN.md                 5 MINUTES TO GET STARTED
     Quick installation + first steps
 
- DOCUMENTATION_EN.md             ?  COMPLETE USER GUIDE
+ DOCUMENTATION_EN.md               COMPLETE USER GUIDE
     Detailed usage + examples + troubleshooting
 
- TECHNICAL_DOCUMENTATION_EN.md   ?  DEVELOPER GUIDE
+ TECHNICAL_DOCUMENTATION_EN.md     DEVELOPER GUIDE
     Architecture + patterns + extensibility
 
- FAQ_EN.md                       ? ? 30 QUESTIONS-ANSWERS
+ FAQ_EN.md                         30 QUESTIONS-ANSWERS
     Immediate answers to your questions
 ```
 
 ---
 
-##  WHERE TO GO BASED ON YOUR NEEDS?
+##  WHERE TO GO BASED ON YOUR NEEDS
 
-###  You're a new user?
+###  You're a new user
 ```
-1. Read QUICK_START_EN.md (5 min)          ? Install and test
-2. Create your first backup                ? Practice
-3. Read DOCUMENTATION_EN.md (30 min)       ? Go deeper
-4. Check FAQ_EN.md as needed               ? Specific questions
+1. Read QUICK_START_EN.md (5 min)           Install and test
+2. Create your first backup                 Practice
+3. Read DOCUMENTATION_EN.md (30 min)        Go deeper
+4. Check FAQ_EN.md as needed                Specific questions
 ```
 ** Total time: ~45 minutes to be productive**
 
-###  You're in a hurry?
+###  You're in a hurry
 ```
 1. Run: dotnet run
-2. Menu 1 ? Create backup
-3. Menu 2 ? Execute
+2. Menu 1  Create backup
+3. Menu 2  Execute
 4. Check FAQ_EN.md as needed
 ```
 ** Total time: ~5 minutes**
 
-###  You're a developer?
+###  You're a developer
 ```
-1. Read QUICK_START_EN.md                 ? Dev installation
-2. Read TECHNICAL_DOCUMENTATION_EN.md     ? Understand architecture (60 min)
-3. Explore source code                    ? See details
-4. Check FAQ_EN.md for edge cases         ? Specific questions
+1. Read QUICK_START_EN.md                  Dev installation
+2. Read TECHNICAL_DOCUMENTATION_EN.md      Understand architecture (60 min)
+3. Explore source code                     See details
+4. Check FAQ_EN.md for edge cases          Specific questions
 ```
 ** Total time: ~90 minutes to master**
 
-### ? Looking for a quick answer?
+###  Looking for a quick answer
 ```
 1. Open FAQ_EN.md
-2. Ctrl+F ? Search your question
+2. Ctrl+F  Search your question
 3. Read direct answer
-4. If not found ? See INDEX.md for navigation
+4. If not found  See INDEX.md for navigation
 ```
 ** Total time: ~5 minutes**
 
 ---
 
-## ? DOCUMENTATION STRENGTHS
+##  DOCUMENTATION STRENGTHS
 
-? **Complete** - Covers all use cases (user + developer)
-? **Accessible** - Different depth levels (beginner ? expert)
-? **Organized** - Logical structure with centralized navigation
-? **Practical** - 10+ concrete examples
-? **Multilingual** - English and French
-? **Visual** - Diagrams, tables, lists
-? **Maintainable** - Easy to update
+ **Complete** - Covers all use cases (user + developer)
+ **Accessible** - Different depth levels (beginner  expert)
+ **Organized** - Logical structure with centralized navigation
+ **Practical** - 10+ concrete examples
+ **Multilingual** - English and French
+ **Visual** - Diagrams, tables, lists
+ **Maintainable** - Easy to update
 
 ---
 
@@ -110,14 +110,14 @@ You have access to complete, structured and easy-to-navigate documentation!
 
 ### For Everyone
 ```
-1 START_HERE.md          ? Understand doc structure (10 min)
-   ?
-2 QUICK_START_EN.md      ? Quick installation (5 min)
-   ?
+1 START_HERE.md           Understand doc structure (10 min)
+   
+2 QUICK_START_EN.md       Quick installation (5 min)
+   
 3 Choose your path based on profile
-    User ? DOCUMENTATION_EN.md
-    Developer ? TECHNICAL_DOCUMENTATION_EN.md
-    All ? FAQ_EN.md (as needed)
+    User  DOCUMENTATION_EN.md
+    Developer  TECHNICAL_DOCUMENTATION_EN.md
+    All  FAQ_EN.md (as needed)
 ```
 
 ---
@@ -132,7 +132,7 @@ You have access to complete, structured and easy-to-navigate documentation!
 - Recommended reading paths
 - Useful links
 
-### ? QUICK_START_EN.md
+###  QUICK_START_EN.md
 *Get started in 5 minutes*
 - Quick installation (3 commands)
 - First interactive steps
@@ -164,7 +164,7 @@ You have access to complete, structured and easy-to-navigate documentation!
 - Extensibility points
 - Test recommendations
 
-### ? FAQ_EN.md
+###  FAQ_EN.md
 *30 Frequently Asked Questions*
 - 7 pages of Q&A
 - **Q1-Q3**: Installation & Config
@@ -194,7 +194,7 @@ You have access to complete, structured and easy-to-navigate documentation!
 
 ---
 
-## ? QUICK CHECK
+##  QUICK CHECK
 
 Before starting, verify:
 - [ ] .NET 8 installed: `dotnet --version`
@@ -204,12 +204,12 @@ Before starting, verify:
 
 ---
 
-##  READY TO START?
+##  READY TO START
 
 ### Option 1: I want to start NOW (5 min)
 ```bash
 dotnet run
-# Interactive menu ? Create backup ? Execute
+# Interactive menu  Create backup  Execute
 ```
 
 ### Option 2: I want to read first (30 min)
@@ -239,19 +239,19 @@ dotnet run
 
 ---
 
-##  NEED HELP?
+##  NEED HELP
 
 ### Looking for quick answer
-? Check **FAQ_EN.md**
+ Check **FAQ_EN.md**
 
 ### Have an error
-? Read **DOCUMENTATION_EN.md** section "Troubleshooting"
+ Read **DOCUMENTATION_EN.md** section "Troubleshooting"
 
 ### Want to contribute
-? Read **TECHNICAL_DOCUMENTATION_EN.md**
+ Read **TECHNICAL_DOCUMENTATION_EN.md**
 
 ### It's urgent!
-? Open issue on GitHub
+ Open issue on GitHub
 
 ---
 
@@ -259,11 +259,11 @@ dotnet run
 
 | Question | Solution |
 |----------|----------|
-| How to start? | Read QUICK_START_EN.md |
-| How to use? | Read DOCUMENTATION_EN.md |
-| Error? | Check FAQ_EN.md + Troubleshooting |
-| Architecture? | Read TECHNICAL_DOCUMENTATION_EN.md |
-| Other question? | Open GitHub issue |
+| How to start | Read QUICK_START_EN.md |
+| How to use | Read DOCUMENTATION_EN.md |
+| Error | Check FAQ_EN.md + Troubleshooting |
+| Architecture | Read TECHNICAL_DOCUMENTATION_EN.md |
+| Other question | Open GitHub issue |
 
 ---
 
@@ -280,44 +280,44 @@ dotnet run
 ###  Developer
  [Go to TECHNICAL_DOCUMENTATION_EN.md](TECHNICAL_DOCUMENTATION_EN.md)
 
-### ? Quick questions
+###  Quick questions
  [Go to FAQ_EN.md](FAQ_EN.md)
 
-### ? Complete navigation
+###  Complete navigation
  [Go to INDEX.md](INDEX.md)
 
 ---
 
-## ? IN SUMMARY
+##  IN SUMMARY
 
 ```
-?
-?                    EASYSAVE v1.0                       ?
-?                                                             ?
-?  ? Backup application fully documented                   ?
-?  ? 6 structured documentation files                      ?
-?  ? Guides for all profiles (beginner ? expert)          ?
-?  ? 30+ Common questions with answers                    ?
-?  ? 10+ Practical examples                               ?
-?  ? Technical architecture fully explained               ?
-?  ? Ready to use now                                     ?
-?                                                             ?
-?               Start with START_HERE.md               ?
-?                                                             ?
-?
+
+                    EASYSAVE v1.0                       
+                                                             
+   Backup application fully documented                   
+   6 structured documentation files                      
+   Guides for all profiles (beginner  expert)          
+   30+ Common questions with answers                    
+   10+ Practical examples                               
+   Technical architecture fully explained               
+   Ready to use now                                     
+                                                             
+               Start with START_HERE.md               
+                                                             
+
 ```
 
 ---
 
 ##  GETTING STARTED CHECKLIST
 
-- [ ] Read this file (2 min) ?
+- [ ] Read this file (2 min) 
 - [ ] Read QUICK_START_EN.md (5 min)
 - [ ] Install EasySave (2 min)
 - [ ] Create first backup (5 min)
 - [ ] Read DOCUMENTATION_EN.md (30 min)
 - [ ] Check FAQ_EN.md as needed (variable)
-- [ ] Be productive! ?
+- [ ] Be productive! 
 
 ---
 
@@ -331,4 +331,4 @@ Enjoy!
 
 *Created: January 2024*
 *Version: 1.0*
-*Status: Complete Documentation ?*
+*Status: Complete Documentation *

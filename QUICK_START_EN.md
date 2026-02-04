@@ -4,7 +4,7 @@ Get started with EasySave in 5 minutes!
 
 ---
 
-## ? Quick Installation
+##  Quick Installation
 
 ### Windows
 ```bash
@@ -51,7 +51,7 @@ Select an option:
 ### 3. Execute the Backup
 - Press **2**
 - Select index: `0`
-- It's running! ?
+- It's running! 
 
 ### 4. List Your Backups
 - Press **3**
@@ -59,7 +59,7 @@ Select an option:
 
 ---
 
-## ? Command Line Mode
+##  Command Line Mode
 
 ### Create Quickly
 ```bash
@@ -87,8 +87,8 @@ dotnet run -- list
 
 | Type | First Time | Usage |
 |------|------------|-------|
-| **Full** | ? Do it | Complete backup (all files) |
-| **Diff** | ? Too long | Update (modified files only) |
+| **Full** |  Do it | Complete backup (all files) |
+| **Diff** |  Too long | Update (modified files only) |
 
 **Tip**: Do a `full` initially, then use `diff` for following ones.
 
@@ -207,7 +207,7 @@ Browse `logs/` folder for history
 
 ---
 
-## ? First Backup Checklist
+##  First Backup Checklist
 
 - [ ] Compile: `dotnet build`
 - [ ] Launch: `dotnet run`
@@ -215,12 +215,12 @@ Browse `logs/` folder for history
 - [ ] Specify source AND target
 - [ ] Type = `full`
 - [ ] Execute (menu 2)
-- [ ] Verify files copied ?
+- [ ] Verify files copied 
 - [ ] List (menu 3) for summary
 
 ---
 
-##  Need Help?
+##  Need Help
 
 - **Bug**: [Report on GitHub](https://github.com/joanperreyprato/EasySave/issues)
 - **Question**: See `DOCUMENTATION.md`

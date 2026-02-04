@@ -4,7 +4,7 @@
 
 ## Installation & Configuration
 
-### Q1 : Quel est le prérequis pour installer EasySave ?
+### Q1 : Quel est le prérequis pour installer EasySave 
 
 **R :** Vous avez besoin de **.NET 8.0 ou supérieur** installé sur votre machine.
 
@@ -16,7 +16,7 @@ Téléchargez .NET 8 sur : https://dotnet.microsoft.com/download
 
 ---
 
-### Q2 : Où sont stockés les fichiers de configuration ?
+### Q2 : Où sont stockés les fichiers de configuration 
 
 **R :** Les fichiers sont créés automatiquement dans :
 
@@ -31,7 +31,7 @@ Fichiers créés :
 
 ---
 
-### Q3 : Comment changer la langue ?
+### Q3 : Comment changer la langue 
 
 **R :** Modifiez `Program.cs` ligne 2 :
 
@@ -50,35 +50,35 @@ dotnet run
 
 ## Création de sauvegardes
 
-### Q4 : Quel format de nom puis-je utiliser ?
+### Q4 : Quel format de nom puis-je utiliser 
 
 **R :** Le nom doit contenir uniquement :
-- ? Lettres (a-z, A-Z)
-- ? Chiffres (0-9)
-- ? Espaces
-- ? Tirets (-)
-- ? Underscores (_)
-- ? Caractères spéciaux (@, #, $, %, etc.)
-- ? Maximum 50 caractères
+-  Lettres (a-z, A-Z)
+-  Chiffres (0-9)
+-  Espaces
+-  Tirets (-)
+-  Underscores (_)
+-  Caractères spéciaux (@, #, $, %, etc.)
+-  Maximum 50 caractères
 
 **Exemples valides** :
 ```
-? MonBackup
-? Backup-2024
-? Photos_Famille
-? My Important Data
+ MonBackup
+ Backup-2024
+ Photos_Famille
+ My Important Data
 ```
 
 **Exemples invalides** :
 ```
-? Mon@Backup (contient @)
-? My/Backup (contient /)
-? MyBackupVeryLongNameThatExceedsFiftyCharactersLimit (trop long)
+ Mon@Backup (contient @)
+ My/Backup (contient /)
+ MyBackupVeryLongNameThatExceedsFiftyCharactersLimit (trop long)
 ```
 
 ---
 
-### Q5 : Combien de sauvegardes puis-je créer ?
+### Q5 : Combien de sauvegardes puis-je créer 
 
 **R :** **Maximum 5 sauvegardes** peuvent être configurées.
 
@@ -86,15 +86,15 @@ Si vous atteindrez cette limite, vous devez en supprimer une avant d'en créer un
 
 ---
 
-### Q6 : Les chemins source et cible doivent-ils exister ?
+### Q6 : Les chemins source et cible doivent-ils exister 
 
 **R :** **OUI, les deux doivent exister** avant de créer une sauvegarde.
 
 ```bash
-# ? Erreur : Le dossier n'existe pas
+#  Erreur : Le dossier n'existe pas
 dotnet run -- create "Backup" "/chemin/inexistant" "/backup" full
 
-# ? OK : Les deux dossiers existent
+#  OK : Les deux dossiers existent
 dotnet run -- create "Backup" "/chemin/existant" "/backup/existant" full
 ```
 
@@ -109,7 +109,7 @@ mkdir ~/Backups
 
 ---
 
-### Q7 : Puis-je sauvegarder vers un disque USB ou un réseau ?
+### Q7 : Puis-je sauvegarder vers un disque USB ou un réseau 
 
 **R :** **OUI**, tant que le chemin est accessible comme répertoire local.
 
@@ -125,7 +125,7 @@ dotnet run -- create "Network-Backup" "/home/data" "/mnt/network/backup" full
 
 ## Types de sauvegarde
 
-### Q8 : Quelle est la différence entre "Full" et "Diff" ?
+### Q8 : Quelle est la différence entre "Full" et "Diff" 
 
 **R :**
 
@@ -139,7 +139,7 @@ dotnet run -- create "Network-Backup" "/home/data" "/mnt/network/backup" full
 
 ---
 
-### Q9 : Comment les fichiers modifiés sont-ils détectés en mode Diff ?
+### Q9 : Comment les fichiers modifiés sont-ils détectés en mode Diff 
 
 **R :** EasySave compare :
 
@@ -150,7 +150,7 @@ Un fichier est copié si l'une de ces conditions est vraie.
 
 ---
 
-### Q10 : Puis-je exécuter plusieurs sauvegardes à la fois ?
+### Q10 : Puis-je exécuter plusieurs sauvegardes à la fois 
 
 **R :** **OUI**, en ligne de commande :
 
@@ -171,7 +171,7 @@ dotnet run -- execute 0-4
 
 ## Exécution & Suivi
 
-### Q11 : Comment suivre la progression d'une sauvegarde ?
+### Q11 : Comment suivre la progression d'une sauvegarde 
 
 **R :** L'état est mis à jour en temps réel dans `state.json` :
 
@@ -197,7 +197,7 @@ Get-Content $env:PROGRAMDATA\EasySave\state.json -Wait
 
 ---
 
-### Q12 : Que se passe-t-il si une sauvegarde échoue ?
+### Q12 : Que se passe-t-il si une sauvegarde échoue 
 
 **R :** L'état passe à `Error` et :
 - Les fichiers déjà copiés restent en place
@@ -210,7 +210,7 @@ dotnet run -- execute 0  # Relancer
 
 ---
 
-### Q13 : Comment annuler une sauvegarde en cours ?
+### Q13 : Comment annuler une sauvegarde en cours 
 
 **R :** Appuyez sur `Ctrl+C` (interruption standard).
 
@@ -220,7 +220,7 @@ dotnet run -- execute 0  # Relancer
 
 ## Mode CLI (Ligne de commande)
 
-### Q14 : Comment créer une sauvegarde en mode CLI ?
+### Q14 : Comment créer une sauvegarde en mode CLI 
 
 **R :**
 
@@ -248,7 +248,7 @@ dotnet run -- create "Videos" "/home/videos" "/backup/videos"
 
 ---
 
-### Q15 : Comment exécuter plusieurs sauvegardes spécifiques ?
+### Q15 : Comment exécuter plusieurs sauvegardes spécifiques 
 
 **R :** Utilisez plages et listes :
 
@@ -275,10 +275,10 @@ dotnet run -- execute 0,2-4,7
 
 **Solution** :
 ```bash
-# ? Mauvais
+#  Mauvais
 dotnet run -- create "My@Backup" ...
 
-# ? Bon
+#  Bon
 dotnet run -- create "My_Backup" ...
 ```
 
@@ -366,7 +366,7 @@ dotnet run -- create "Test" "/source" "/target" full
 
 ## Performance & Optimisation
 
-### Q22 : Comment accélérer une sauvegarde ?
+### Q22 : Comment accélérer une sauvegarde 
 
 **R :**
 
@@ -383,12 +383,12 @@ dotnet run -- create "Test" "/source" "/target" full
 
 ---
 
-### Q23 : Combien d'espace disque faut-il ?
+### Q23 : Combien d'espace disque faut-il 
 
 **R :** Dépend de votre source :
 
 - **Espace requis** = Taille totale source
-- Exemple : 100 GB source ? 100 GB cible minimum
+- Exemple : 100 GB source  100 GB cible minimum
 - +10% de marge recommandée
 
 Vérifier :
@@ -406,7 +406,7 @@ Get-Volume  # Espace libre
 
 ## Sécurité & Fiabilité
 
-### Q24 : Mes données sont-elles chiffrées ?
+### Q24 : Mes données sont-elles chiffrées 
 
 **R :** **NON**, les données ne sont pas chiffrées par EasySave.
 
@@ -417,7 +417,7 @@ Les fichiers sont copiés tels quels. Pour chiffrer :
 
 ---
 
-### Q25 : Que se passe-t-il si le disque cible est plein ?
+### Q25 : Que se passe-t-il si le disque cible est plein 
 
 **R :** La sauvegarde s'arrête avec l'état `Error`.
 
@@ -428,7 +428,7 @@ Les fichiers sont copiés tels quels. Pour chiffrer :
 
 ---
 
-### Q26 : EasySave sauvegarde les permissions de fichiers ?
+### Q26 : EasySave sauvegarde les permissions de fichiers 
 
 **R :** **NON**, les permissions ne sont pas préservées.
 
@@ -438,7 +438,7 @@ Les fichiers sont copiés avec les permissions par défaut du système de fichiers 
 
 ## Maintenance
 
-### Q27 : Comment nettoyer les anciens logs ?
+### Q27 : Comment nettoyer les anciens logs 
 
 **R :**
 
@@ -452,7 +452,7 @@ EasySave recréera le dossier au prochain backup.
 
 ---
 
-### Q28 : Puis-je éditer backup_config.json manuellement ?
+### Q28 : Puis-je éditer backup_config.json manuellement 
 
 **R :** **Oui, mais avec prudence**.
 
@@ -476,7 +476,7 @@ Format :
 
 ---
 
-### Q29 : Comment réinitialiser EasySave ?
+### Q29 : Comment réinitialiser EasySave 
 
 **R :**
 
@@ -494,7 +494,7 @@ Puis relancer l'application pour recréer une configuration vierge.
 
 ## Développement
 
-### Q30 : Comment contribuer au projet ?
+### Q30 : Comment contribuer au projet 
 
 **R :**
 
@@ -524,4 +524,4 @@ Ou ouvrez une issue : [GitHub Issues](https://github.com/joanperreyprato/EasySav
 **Dernière mise à jour** : Janvier 2024
 **Version** : 1.0
 
-Vous avez une autre question ?  Contactez-nous sur GitHub !
+Vous avez une autre question   Contactez-nous sur GitHub !

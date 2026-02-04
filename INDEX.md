@@ -12,7 +12,7 @@ Bienvenue dans la documentation complète d'EasySave ! Trouvez rapidement ce que 
 - Premier backup en mode interactif
 - Premiers essais en CLI
 
-### Vous êtes pressé ?
+### Vous êtes pressé 
  **Commande pour démarrer** :
 ```bash
 git clone https://github.com/joanperreyprato/EasySave.git && cd EasySave && dotnet run
@@ -37,9 +37,9 @@ git clone https://github.com/joanperreyprato/EasySave.git && cd EasySave && dotn
 
 ---
 
-## ? FAQ - Questions fréquentes
+##  FAQ - Questions fréquentes
 
-### Vous vous posez une question ?
+### Vous vous posez une question 
  **[FAQ.md](FAQ.md)** - 30 questions/réponses
 - Installation & configuration
 - Création de sauvegardes
@@ -77,9 +77,9 @@ git clone https://github.com/joanperreyprato/EasySave.git && cd EasySave && dotn
 ### Installation & Configuration
 | Question | Document |
 |----------|----------|
-| Comment installer ? | [QUICK_START.md](QUICK_START.md) |
-| Où sont les fichiers ? | [FAQ.md - Q2](FAQ.md) |
-| Comment changer la langue ? | [FAQ.md - Q3](FAQ.md) |
+| Comment installer  | [QUICK_START.md](QUICK_START.md) |
+| Où sont les fichiers  | [FAQ.md - Q2](FAQ.md) |
+| Comment changer la langue  | [FAQ.md - Q3](FAQ.md) |
 | Installation détaillée | [DOCUMENTATION.md](DOCUMENTATION.md) |
 
 ### Utilisation
@@ -93,9 +93,9 @@ git clone https://github.com/joanperreyprato/EasySave.git && cd EasySave && dotn
 ### Sauvegardes
 | Question | Document |
 |----------|----------|
-| Full vs Diff ? | [FAQ.md - Q8](FAQ.md) |
+| Full vs Diff  | [FAQ.md - Q8](FAQ.md) |
 | Types de sauvegarde | [DOCUMENTATION.md](DOCUMENTATION.md) |
-| Combien de sauvegardes ? | [FAQ.md - Q5](FAQ.md) |
+| Combien de sauvegardes  | [FAQ.md - Q5](FAQ.md) |
 | Exécuter plusieurs | [FAQ.md - Q10](FAQ.md) |
 
 ### Erreurs & Dépannage
@@ -142,8 +142,8 @@ git clone https://github.com/joanperreyprato/EasySave.git && cd EasySave && dotn
 ### J'ai une question spécifique
 ```
 1. FAQ.md (chercher Q+numéro)
-2. Si non trouvé ? DOCUMENTATION.md
-3. Si technique ? TECHNICAL_DOCUMENTATION.md
+2. Si non trouvé  DOCUMENTATION.md
+3. Si technique  TECHNICAL_DOCUMENTATION.md
 ```
 
 ### Je veux contribuer
@@ -234,34 +234,34 @@ git clone https://github.com/joanperreyprato/EasySave.git && cd EasySave && dotn
 ##  Conseils de lecture
 
 ### Pour des réponses rapides
--  **5 min** ? QUICK_START.md
--  **2 min** ? FAQ.md (chercher votre question)
--  **Instantané** ? Ctrl+F dans le fichier
+-  **5 min**  QUICK_START.md
+-  **2 min**  FAQ.md (chercher votre question)
+-  **Instantané**  Ctrl+F dans le fichier
 
 ### Pour comprendre le projet
--  **30 min** ? DOCUMENTATION.md
--  **60 min** ? TECHNICAL_DOCUMENTATION.md
+-  **30 min**  DOCUMENTATION.md
+-  **60 min**  TECHNICAL_DOCUMENTATION.md
 
 ### Pour contribuer
--  **90 min** ? Tout lire + explorer code
--  **30 min** ? TECHNICAL_DOCUMENTATION.md + code
+-  **90 min**  Tout lire + explorer code
+-  **30 min**  TECHNICAL_DOCUMENTATION.md + code
 
 ---
 
 ##  Support & Contributions
 
-### Besoin d'aide ?
+### Besoin d'aide 
 1. Consulter FAQ.md
 2. Lire DOCUMENTATION.md (section Dépannage)
 3. Ouvrir une issue sur GitHub
 
-### Vous trouvez un bug ?
+### Vous trouvez un bug 
 [Signaler sur GitHub](https://github.com/joanperreyprato/EasySave/issues/new)
 
-### Vous avez une idée ?
+### Vous avez une idée 
 [Discuter sur GitHub Discussions](https://github.com/joanperreyprato/EasySave/discussions)
 
-### Vous voulez contribuer ?
+### Vous voulez contribuer 
 Voir FAQ.md - Q30 (Contribution)
 
 ---
@@ -305,22 +305,22 @@ Voir FAQ.md - Q30 (Contribution)
 
 ---
 
-## ? Checklist de documentation
+##  Checklist de documentation
 
 Documentation complète inclus :
-- ? Guide rapide (5 min)
-- ? Guide utilisateur complet
-- ? FAQ (30 questions)
-- ? Documentation technique
-- ? Exemples pratiques
-- ? Guide dépannage
-- ? Index de navigation (ce fichier)
+-  Guide rapide (5 min)
+-  Guide utilisateur complet
+-  FAQ (30 questions)
+-  Documentation technique
+-  Exemples pratiques
+-  Guide dépannage
+-  Index de navigation (ce fichier)
 
 ---
 
 **Dernière mise à jour** : Janvier 2024
 **Version** : 1.0
-**Statut** : Documentation complète ?
+**Statut** : Documentation complète 
 
  **Vous avez tout ce qu'il faut pour commencer !**
 

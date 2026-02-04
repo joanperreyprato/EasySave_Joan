@@ -23,34 +23,34 @@
 ### Diagramme UML simplifié
 
 ```
-?
-?                     Program.cs                           ?
-?              (Point d'entrée principal)                 ?
-?
-                 ?
-        ?
-        ?                 ?
-   ?    ?
-   ?ConsoleUI?    ?LanguageProvider
-   ?(UI)     ?    ?(Traduction)
-   ?    
-        ?
-   ?
-   ?  BackupManager        ?
-   ?  (Gestion tâches)     ?
-   ?
-        ?
-   ?
-   ?  BackupExecutor       ?
-   ?  (Exécution)          ?
-   ?
-        ?
-   ?
-   ?                       ?
-?    ?
-? StateManager  ?    ?JsonLogger    ?
-? (État)        ?    ?(Logs)        ?
-?    ?
+
+                     Program.cs                           
+              (Point d'entrée principal)                 
+
+                 
+        
+                         
+       
+   ConsoleUI    LanguageProvider
+   (UI)         (Traduction)
+       
+        
+   
+     BackupManager        
+     (Gestion tâches)     
+   
+        
+   
+     BackupExecutor       
+     (Exécution)          
+   
+        
+   
+                          
+    
+ StateManager      JsonLogger    
+ (État)            (Logs)        
+    
 ```
 
 ---
@@ -182,7 +182,7 @@ stateFilePath = "%ProgramData%\EasySave\state.json"
 **Méthodes** :
 ```csharp
 void UpdateJobState(string jobName, JobState state)
-JobState? GetJobState(string jobName)
+JobState GetJobState(string jobName)
 void SaveState()
 void LoadState()
 ```
@@ -244,8 +244,8 @@ File: languages.json (optionnel)
 ```
 
 **Fallback** :
-- Si clé non trouvée ? fallback EN
-- Si langue non existante ? fallback EN
+- Si clé non trouvée  fallback EN
+- Si langue non existante  fallback EN
 
 ---
 
@@ -259,13 +259,13 @@ File: languages.json (optionnel)
 **Syntaxe supportée** :
 ```bash
 # Plage
-execute 1-5        ? [1, 2, 3, 4, 5]
+execute 1-5         [1, 2, 3, 4, 5]
 
 # Liste
-execute 0,2,4      ? [0, 2, 4]
+execute 0,2,4       [0, 2, 4]
 
 # Combiné
-execute 0-2,5,7    ? [0, 1, 2, 5, 7]
+execute 0-2,5,7     [0, 1, 2, 5, 7]
 ```
 
 ---
@@ -276,34 +276,34 @@ execute 0-2,5,7    ? [0, 1, 2, 5, 7]
 
 ```
 START
-  ?
+  
 Initialiser services
-  ?
+  
 Afficher menu principal
-  ?
-?
-?  Boucle interactive         ?
-?     ?
-?  ? Attendre choix user  ?   ?
-?     ?
-?         ?                   ?
-?    ?  ?
-?    ?                     ?  ?
-?  (1)          (2)        (3) ?
-?   ?            ?         ?   ?
-?   ?            ?         ?   ?
-?  Créer       Exécuter   Lister
-?   ?            ?         ?   ?
-?      ?
-?         ?          ?         ?
-?      Sauvegarder configuration?
-?         ?                     ?
-?      Retour menu             ?
-?         ?                     ?
-?
-          ?
+  
+
+  Boucle interactive         
+     
+   Attendre choix user     
+     
+                            
+      
+                           
+  (1)          (2)        (3) 
+                           
+                           
+  Créer       Exécuter   Lister
+                           
+      
+                            
+      Sauvegarder configuration
+                              
+      Retour menu             
+                              
+
+          
        (4) EXIT
-          ?
+          
         END
 ```
 
@@ -311,45 +311,45 @@ Afficher menu principal
 
 ```
 CreateBackupJobMenu()
-  ?
+  
 Boucle :
    Demander nom, source, cible, type
    Valider avec BackupManager.CreateBackupJob()
-  ?   IsValidName()
-  ?   Vérifier duplicata
-  ?   Vérifier limite (5)
-  ?   IsValidPath(source)
-  ?   Vérifier source existe
-  ?   IsValidPath(cible)
-  ?   Vérifier cible existe
-  ?   Créer et ajouter à liste
-  ?
-   Si succès ? SaveConfiguration()
-  ?            ? Retour
-  ?
-   Si erreur ? DisplayCreationError()
-               ? Demander retry
+     IsValidName()
+     Vérifier duplicata
+     Vérifier limite (5)
+     IsValidPath(source)
+     Vérifier source existe
+     IsValidPath(cible)
+     Vérifier cible existe
+     Créer et ajouter à liste
+  
+   Si succès  SaveConfiguration()
+               Retour
+  
+   Si erreur  DisplayCreationError()
+                Demander retry
 ```
 
 ### 3. Exécution de sauvegarde
 
 ```
 ExecuteBackupJob(index)
-  ?
+  
 Vérifier index valide
-  ?
+  
 Récupérer job et type
-   Full ? ExecuteFullBackup()
-   Diff ? ExecuteDifferentialBackup()
+   Full  ExecuteFullBackup()
+   Diff  ExecuteDifferentialBackup()
   
   Chacun :
    Lister fichiers éligibles
    Calculer taille totale
    Créer état initial
    Pour chaque fichier :
-  ?   Copier
-  ?   Mettre à jour progression
-  ?   Sauvegarder état
+     Copier
+     Mettre à jour progression
+     Sauvegarder état
    Marquer complétée
    Logger résultat
 ```
@@ -384,11 +384,11 @@ Console.WriteLine(language.GetText("backup.create.error.invalid_name"));
 
 Structure hiérarchique recommandée :
 ```
-menu.*              ? Menu principal
-backup.create.*     ? Création sauvegarde
-backup.execute.*    ? Exécution sauvegarde
-backup.list.*       ? Listing sauvegardes
-error.*             ? Erreurs générales
+menu.*               Menu principal
+backup.create.*      Création sauvegarde
+backup.execute.*     Exécution sauvegarde
+backup.list.*        Listing sauvegardes
+error.*              Erreurs générales
 ```
 
 ### Ajout d'une nouvelle langue
@@ -415,12 +415,12 @@ var language = new LanguageProvider("es");
 
 ```
 Inactive (création)
-   ?
+   
 Active (exécution en cours)
     État mis à jour après chaque fichier
     Progression augmente
     Temps réel pour monitoring
-   ?
+   
 Completed (succès)
     Progress = 100%
     RemainingFiles = 0
@@ -541,7 +541,7 @@ catch
 // Erreurs d'état gérées
 try
 {
-    logger?.LogAction(log);
+    logger.LogAction(log);
 }
 catch
 {
@@ -600,7 +600,7 @@ public enum BackupType
 {
     Full,
     Differential,
-    Incremental  // ? Nouveau
+    Incremental  //  Nouveau
 }
 ```
 
