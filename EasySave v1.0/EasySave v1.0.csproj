@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
+    <OutputType>Library</OutputType>
     <TargetFramework>net8.0</TargetFramework>
     <RootNamespace>EasySave_v1._0</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -10,6 +10,12 @@
 
   <ItemGroup>
     <ProjectReference Include="..\EasyLog\EasyLog.csproj" />
+  </ItemGroup>
+
+  <!-- Exclude UI files from core project; they are compiled into the UI project -->
+  <ItemGroup>
+    <Compile Remove="Program.cs" />
+    <Compile Remove="ConsoleUI.cs" />
   </ItemGroup>
 
 </Project>
