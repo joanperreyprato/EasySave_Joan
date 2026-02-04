@@ -21,11 +21,11 @@ namespace EasySave_v1._0
         {
             if (string.IsNullOrWhiteSpace(key)) return string.Empty;
 
-            if (translations.TryGetValue(currentLanguage, out var dict) && dict.TryGetValue(key, out var value))
+            if (translations.TryGetValue(currentLanguage, out Dictionary<string, string>? dict) && dict.TryGetValue(key, out string? value))
                 return value;
 
             // fallback to english
-            if (translations.TryGetValue("en", out var eng) && eng.TryGetValue(key, out var engVal))
+            if (translations.TryGetValue("en", out Dictionary<string, string>? eng) && eng.TryGetValue(key, out string? engVal))
                 return engVal;
 
             return key;
@@ -43,12 +43,12 @@ namespace EasySave_v1._0
             // If it does not exist or fails, fall back to built-in defaults.
             try
             {
-                var path = Path.Combine(Directory.GetCurrentDirectory(), "languages.json");
+                string path = Path.Combine(Directory.GetCurrentDirectory(), "languages.json");
                 if (File.Exists(path))
                 {
-                    var json = File.ReadAllText(path);
+                    string json = File.ReadAllText(path);
                     // Utilisation de l'instance statique pour JsonSerializerOptions
-                    var data = JsonSerializer.Deserialize<Dictionary<string, Dictionary<string, string>>>(json, CachedJsonOptions);
+                    Dictionary<string, Dictionary<string, string>>? data = JsonSerializer.Deserialize<Dictionary<string, Dictionary<string, string>>>(json, CachedJsonOptions);
                     if (data != null)
                     {
                         translations = data;

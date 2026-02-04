@@ -41,8 +41,8 @@ namespace EasyLog
                 }
                 catch { }
 
-                var json = SerializeToJson(entry);
-                var path = Path.Combine(logDirectory, currentLogFile);
+                string json = SerializeToJson(entry);
+                string path = Path.Combine(logDirectory, currentLogFile);
 
                 File.AppendAllText(path, json + Environment.NewLine);
             }
@@ -53,10 +53,10 @@ namespace EasyLog
 
         public void CreateDailyLogFile()
         {
-            var fileName = DateTime.UtcNow.ToString("yyyy-MM-dd") + ".log.json";
+            string fileName = DateTime.UtcNow.ToString("yyyy-MM-dd") + ".log.json";
             currentLogFile = fileName;
 
-            var path = Path.Combine(logDirectory, currentLogFile);
+            string path = Path.Combine(logDirectory, currentLogFile);
             if (!File.Exists(path))
             {
                 try
@@ -71,7 +71,7 @@ namespace EasyLog
 
         public string SerializeToJson(LogEntry entry)
         {
-            var options = new JsonSerializerOptions
+            JsonSerializerOptions options = new JsonSerializerOptions
             {
                 WriteIndented = false,
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase

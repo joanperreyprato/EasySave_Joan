@@ -23,11 +23,11 @@ namespace EasySave_v1._0
         {
             ArgumentNullException.ThrowIfNull(job);
 
-            var source = job.GetSourcePath();
-            var target = job.GetTargetPath();
-            var state = job.GetState();
+            string source = job.GetSourcePath();
+            string target = job.GetTargetPath();
+            JobState state = job.GetState();
 
-            var files = GetEligibleFiles(source, target, BackupType.Full);
+            List<FileInfo> files = GetEligibleFiles(source, target, BackupType.Full);
             state.TotalFiles = files.Count;
             state.TotalSize = CalculateTotalSize(files);
             state.RemainingFiles = state.TotalFiles;
@@ -41,8 +41,8 @@ namespace EasySave_v1._0
 
             foreach (var fi in files)
             {
-                var relative = Path.GetRelativePath(source, fi.FullName);
-                var dest = Path.Combine(target, relative);
+                string relative = Path.GetRelativePath(source, fi.FullName);
+                string dest = Path.Combine(target, relative);
                 CreateDirectory(dest);
 
                 state.CurrentSourceFile = fi.FullName;
@@ -64,7 +64,7 @@ namespace EasySave_v1._0
             stateManager.UpdateJobState(job.GetName(), state);
             stateManager.SaveState();
 
-            var log = new LogEntry(job.GetName(), source, target, state.TotalSize, totalTransferMs);
+            LogEntry log = new LogEntry(job.GetName(), source, target, state.TotalSize, totalTransferMs);
             try { logger?.LogAction(log); } catch { }
         }
 
@@ -72,11 +72,11 @@ namespace EasySave_v1._0
         {
             ArgumentNullException.ThrowIfNull(job);
 
-            var source = job.GetSourcePath();
-            var target = job.GetTargetPath();
-            var state = job.GetState();
+            string source = job.GetSourcePath();
+            string target = job.GetTargetPath();
+            JobState state = job.GetState();
 
-            var files = GetEligibleFiles(source, target, BackupType.Differential);
+            List<FileInfo> files = GetEligibleFiles(source, target, BackupType.Differential);
             state.TotalFiles = files.Count;
             state.TotalSize = CalculateTotalSize(files);
             state.RemainingFiles = state.TotalFiles;
@@ -89,8 +89,8 @@ namespace EasySave_v1._0
 
             foreach (var fi in files)
             {
-                var relative = Path.GetRelativePath(source, fi.FullName);
-                var dest = Path.Combine(target, relative);
+                string relative = Path.GetRelativePath(source, fi.FullName);
+                string dest = Path.Combine(target, relative);
                 CreateDirectory(dest);
 
                 state.CurrentSourceFile = fi.FullName;
@@ -111,7 +111,7 @@ namespace EasySave_v1._0
             stateManager.UpdateJobState(job.GetName(), state);
             stateManager.SaveState();
 
-            var log = new LogEntry(job.GetName(), source, target, state.TotalSize, totalTransferMs);
+            LogEntry log = new LogEntry(job.GetName(), source, target, state.TotalSize, totalTransferMs);
             try { logger?.LogAction(log); } catch { }
         }
 
@@ -134,7 +134,7 @@ namespace EasySave_v1._0
         {
             try
             {
-                var dir = Path.GetDirectoryName(path);
+                string? dir = Path.GetDirectoryName(path);
                 if (string.IsNullOrWhiteSpace(dir)) return;
                 if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
             }
@@ -146,13 +146,13 @@ namespace EasySave_v1._0
 
         private static List<FileInfo> GetEligibleFiles(string sourcePath, string targetPath, BackupType type)
         {
-            var list = new List<FileInfo>();
+            List<FileInfo> list = new();
             if (!Directory.Exists(sourcePath)) return list;
 
-            var sourceFiles = Directory.GetFiles(sourcePath, "*", SearchOption.AllDirectories);
+            string[] sourceFiles = Directory.GetFiles(sourcePath, "*", SearchOption.AllDirectories);
             foreach (var s in sourceFiles)
             {
-                var fi = new FileInfo(s);
+                FileInfo fi = new FileInfo(s);
                 if (type == BackupType.Full)
                 {
                     list.Add(fi);
@@ -160,8 +160,8 @@ namespace EasySave_v1._0
                 }
 
                 // Differential: include when file does not exist in target or is newer
-                var relative = Path.GetRelativePath(sourcePath, s);
-                var targetFile = Path.Combine(targetPath, relative);
+                string relative = Path.GetRelativePath(sourcePath, s);
+                string targetFile = Path.Combine(targetPath, relative);
                 if (!File.Exists(targetFile))
                 {
                     list.Add(fi);
@@ -170,7 +170,7 @@ namespace EasySave_v1._0
 
                 try
                 {
-                    var tfi = new FileInfo(targetFile);
+                    FileInfo tfi = new FileInfo(targetFile);
                     if (fi.LastWriteTimeUtc > tfi.LastWriteTimeUtc || fi.Length != tfi.Length)
                     {
                         list.Add(fi);

@@ -46,7 +46,7 @@ namespace EasySave_v1._0
                 return;
             }
 
-            var files = Directory.GetFiles(sourcePath, "*", SearchOption.AllDirectories);
+            string[] files = Directory.GetFiles(sourcePath, "*", SearchOption.AllDirectories);
             state.TotalFiles = files.Length;
             state.TotalSize = files.Select(f => new FileInfo(f).Length).Sum();
             state.RemainingFiles = state.TotalFiles;
@@ -56,15 +56,15 @@ namespace EasySave_v1._0
             stateManager.UpdateJobState(name, state);
             stateManager.SaveState();
 
-            var sw = Stopwatch.StartNew();
+            Stopwatch sw = Stopwatch.StartNew();
 
             try
             {
                 foreach (var file in files)
                 {
-                    var relative = Path.GetRelativePath(sourcePath, file);
-                    var destPath = Path.Combine(targetPath, relative);
-                    var destDir = Path.GetDirectoryName(destPath) ?? string.Empty;
+                    string relative = Path.GetRelativePath(sourcePath, file);
+                    string destPath = Path.Combine(targetPath, relative);
+                    string destDir = Path.GetDirectoryName(destPath) ?? string.Empty;
                     if (!Directory.Exists(destDir))
                         Directory.CreateDirectory(destDir);
 
@@ -81,7 +81,7 @@ namespace EasySave_v1._0
                     }
 
                     // Update remaining counts/sizes
-                    var fi = new FileInfo(file);
+                    FileInfo fi = new FileInfo(file);
                     state.RemainingFiles = Math.Max(0, state.RemainingFiles - 1);
                     state.RemainingSize = Math.Max(0, state.RemainingSize - fi.Length);
                     state.Timestamp = DateTime.UtcNow;
@@ -97,7 +97,7 @@ namespace EasySave_v1._0
                 stateManager.SaveState();
 
                 // Log completion
-                var log = new LogEntry(name, sourcePath, targetPath, state.TotalSize, sw.ElapsedMilliseconds);
+                LogEntry log = new LogEntry(name, sourcePath, targetPath, state.TotalSize, sw.ElapsedMilliseconds);
                 try
                 {
                     logger?.LogAction(log);
