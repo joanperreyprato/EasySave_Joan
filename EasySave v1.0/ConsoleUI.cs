@@ -20,18 +20,69 @@ namespace EasySave_v1._0
 
         public void CreateBackupJobMenu()
         {
-            Console.WriteLine("-- Create Backup Job --");
-            var name = GetUserInput("Name: ");
-            var source = GetUserInput("Source path: ");
-            var target = GetUserInput("Target path: ");
-            var typeStr = GetUserInput("Type (full/diff): ");
+            Console.WriteLine(languageProvider.GetText("backup.create.title"));
+            bool jobCreated = false;
 
-            var type = BackupType.Full;
-            if (!string.IsNullOrWhiteSpace(typeStr) && typeStr.StartsWith("d", StringComparison.OrdinalIgnoreCase))
-                type = BackupType.Differential;
+            while (!jobCreated)
+            {
+                var name = GetUserInput(languageProvider.GetText("backup.create.name.prompt"));
+                var source = GetUserInput(languageProvider.GetText("backup.create.source.prompt"));
+                var target = GetUserInput(languageProvider.GetText("backup.create.target.prompt"));
+                var typeStr = GetUserInput(languageProvider.GetText("backup.create.type.prompt"));
 
-            var ok = backupManager.CreateBackupJob(name, source, target, type);
-            Console.WriteLine(ok ? "Backup job created." : "Failed to create backup job (duplicate name?).");
+                var type = BackupType.Full;
+                if (!string.IsNullOrWhiteSpace(typeStr) && typeStr.StartsWith("d", StringComparison.OrdinalIgnoreCase))
+                    type = BackupType.Differential;
+
+                // Use the new overload with error handling
+                if (backupManager.CreateBackupJob(name, source, target, type, out var error))
+                {
+                    Console.WriteLine(languageProvider.GetText("backup.create.success"));
+                    jobCreated = true;
+                }
+                else
+                {
+                    // Display specific error message and ask user to retry
+                    DisplayCreationError(error);
+                    var retry = GetUserInput(languageProvider.GetText("backup.create.retry.prompt"));
+                    if (!retry.StartsWith("y", StringComparison.OrdinalIgnoreCase))
+                    {
+                        jobCreated = true;
+                    }
+                }
+            }
+        }
+
+        private void DisplayCreationError(BackupManager.BackupCreationError error)
+        {
+            Console.WriteLine(languageProvider.GetText("backup.create.error.title"));
+            switch (error)
+            {
+                case BackupManager.BackupCreationError.InvalidName:
+                    Console.WriteLine(languageProvider.GetText("backup.create.error.invalid_name"));
+                    break;
+                case BackupManager.BackupCreationError.SourcePathInvalid:
+                    Console.WriteLine(languageProvider.GetText("backup.create.error.source_path_invalid"));
+                    break;
+                case BackupManager.BackupCreationError.SourcePathNotFound:
+                    Console.WriteLine(languageProvider.GetText("backup.create.error.source_path_not_found"));
+                    break;
+                case BackupManager.BackupCreationError.TargetPathInvalid:
+                    Console.WriteLine(languageProvider.GetText("backup.create.error.target_path_invalid"));
+                    break;
+                case BackupManager.BackupCreationError.TargetPathNotFound:
+                    Console.WriteLine(languageProvider.GetText("backup.create.error.target_path_not_found"));
+                    break;
+                case BackupManager.BackupCreationError.DuplicateName:
+                    Console.WriteLine(languageProvider.GetText("backup.create.error.duplicate_name"));
+                    break;
+                case BackupManager.BackupCreationError.MaxJobsExceeded:
+                    Console.WriteLine(languageProvider.GetText("backup.create.error.max_jobs_exceeded"));
+                    break;
+                default:
+                    Console.WriteLine(languageProvider.GetText("backup.create.error.unknown"));
+                    break;
+            }
         }
 
         public void ExecuteBackupMenu()

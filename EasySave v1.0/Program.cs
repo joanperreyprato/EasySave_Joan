@@ -46,8 +46,15 @@ if (args != null && args.Length > 0)
             if (tokens.Length > idx + 4 && tokens[idx + 4].StartsWith("d", StringComparison.OrdinalIgnoreCase))
                 type = BackupType.Differential;
 
-            bool created = backupManager.CreateBackupJob(name, source, target, type);
-            Console.WriteLine(created ? "Backup job created." : "Failed to create backup job.");
+            if (backupManager.CreateBackupJob(name, source, target, type, out var error))
+            {
+                Console.WriteLine(language.GetText("backup.create.success"));
+            }
+            else
+            {
+                Console.WriteLine(language.GetText("backup.create.error.title"));
+                Console.WriteLine(GetErrorMessage(error, language));
+            }
         }
         else
         {
@@ -102,4 +109,20 @@ while (running)
     }
 
     Console.WriteLine();
+}
+
+// Helper function to convert BackupCreationError to user-friendly message
+string GetErrorMessage(BackupManager.BackupCreationError error, ILanguageProvider languageProvider)
+{
+    return error switch
+    {
+        BackupManager.BackupCreationError.InvalidName => languageProvider.GetText("backup.create.error.invalid_name"),
+        BackupManager.BackupCreationError.SourcePathInvalid => languageProvider.GetText("backup.create.error.source_path_invalid"),
+        BackupManager.BackupCreationError.SourcePathNotFound => languageProvider.GetText("backup.create.error.source_path_not_found"),
+        BackupManager.BackupCreationError.TargetPathInvalid => languageProvider.GetText("backup.create.error.target_path_invalid"),
+        BackupManager.BackupCreationError.TargetPathNotFound => languageProvider.GetText("backup.create.error.target_path_not_found"),
+        BackupManager.BackupCreationError.DuplicateName => languageProvider.GetText("backup.create.error.duplicate_name"),
+        BackupManager.BackupCreationError.MaxJobsExceeded => languageProvider.GetText("backup.create.error.max_jobs_exceeded"),
+        _ => languageProvider.GetText("backup.create.error.unknown")
+    };
 }
