@@ -47,7 +47,7 @@ namespace EasySave_v1._0
             string idxStr = GetUserInput("Enter job index to execute: ");
             if (int.TryParse(idxStr, out int idx))
             {
-                backupManager.ExecuteBackupJob(idx-1);
+                backupManager.ExecuteBackupJob(idx);
                 Console.WriteLine("Execution requested.");
             }
             else
