@@ -132,8 +132,8 @@ dotnet run -- create "Network-Backup" "/home/data" "/mnt/network/backup" full
 | Aspect | Full | Diff |
 |--------|------|------|
 | **Fichiers copiés** | TOUS | Seulement nouveaux/modifiés |
-| **Temps** | ?? Plus long | ?? Très rapide |
-| **Espace disque** | ?? Beaucoup | ?? Moins |
+| **Temps** |  Plus long |  Très rapide |
+| **Espace disque** |  Beaucoup |  Moins |
 | **Quand l'utiliser** | 1ère fois | Mises à jour régulières |
 | **Exemples** | Backup initial | Backup hebdomadaire |
 
@@ -513,9 +513,9 @@ Puis relancer l'application pour recréer une configuration vierge.
 ### Je n'ai pas trouvé ma réponse
 
 Consultez :
-- ?? **DOCUMENTATION.md** - Documentation complète
-- ?? **QUICK_START.md** - Guide rapide
-- ?? **TECHNICAL_DOCUMENTATION.md** - Architecture technique
+-  **DOCUMENTATION.md** - Documentation complète
+-  **QUICK_START.md** - Guide rapide
+-  **TECHNICAL_DOCUMENTATION.md** - Architecture technique
 
 Ou ouvrez une issue : [GitHub Issues](https://github.com/joanperreyprato/EasySave/issues)
 
@@ -524,4 +524,4 @@ Ou ouvrez une issue : [GitHub Issues](https://github.com/joanperreyprato/EasySav
 **Dernière mise à jour** : Janvier 2024
 **Version** : 1.0
 
-Vous avez une autre question ? ?? Contactez-nous sur GitHub !
+Vous avez une autre question ?  Contactez-nous sur GitHub !

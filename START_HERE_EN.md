@@ -1,72 +1,72 @@
 ```
- ???????? ?????? ???????????   ??????????? ?????? ???   ???????????
- ???????????????????????????? ???????????????????????   ???????????
- ??????  ???????????????? ??????? ???????????????????   ?????????  
- ??????  ????????????????  ?????  ???????????????????? ??????????  
- ???????????  ???????????   ???   ???????????  ??? ??????? ????????
- ???????????  ???????????   ???   ???????????  ???  ?????  ????????
+   ?   ?  ?   ?
+  ?   ?
+    ? ?   ?  
+     ?     
+ ?  ?   ?   ?  ? ? 
+ ?  ?   ?   ?  ?  ?  
                                                               v1.0
 ```
 
-# ?? WELCOME TO EASYSAVE
+#  WELCOME TO EASYSAVE
 
-**Multilingual backup application - Complete documentation** ??
+**Multilingual backup application - Complete documentation** 
 
 ---
 
-## ?? COMPLETE DOCUMENTATION AVAILABLE
+##  COMPLETE DOCUMENTATION AVAILABLE
 
 You have access to complete, structured and easy-to-navigate documentation!
 
-### ??? Documentation Files
+### ? Documentation Files
 
 ```
-?? START_HERE.md                   ? ?? START HERE!
-   ?? Centralized navigation guide
+ START_HERE.md                   ?  START HERE!
+    Centralized navigation guide
 
-?? QUICK_START_EN.md               ? ? 5 MINUTES TO GET STARTED
-   ?? Quick installation + first steps
+ QUICK_START_EN.md               ? ? 5 MINUTES TO GET STARTED
+    Quick installation + first steps
 
-?? DOCUMENTATION_EN.md             ? ?? COMPLETE USER GUIDE
-   ?? Detailed usage + examples + troubleshooting
+ DOCUMENTATION_EN.md             ?  COMPLETE USER GUIDE
+    Detailed usage + examples + troubleshooting
 
-?? TECHNICAL_DOCUMENTATION_EN.md   ? ?? DEVELOPER GUIDE
-   ?? Architecture + patterns + extensibility
+ TECHNICAL_DOCUMENTATION_EN.md   ?  DEVELOPER GUIDE
+    Architecture + patterns + extensibility
 
-?? FAQ_EN.md                       ? ? 30 QUESTIONS-ANSWERS
-   ?? Immediate answers to your questions
+ FAQ_EN.md                       ? ? 30 QUESTIONS-ANSWERS
+    Immediate answers to your questions
 ```
 
 ---
 
-## ?? WHERE TO GO BASED ON YOUR NEEDS?
+##  WHERE TO GO BASED ON YOUR NEEDS?
 
-### ?? You're a new user?
+###  You're a new user?
 ```
 1. Read QUICK_START_EN.md (5 min)          ? Install and test
 2. Create your first backup                ? Practice
 3. Read DOCUMENTATION_EN.md (30 min)       ? Go deeper
 4. Check FAQ_EN.md as needed               ? Specific questions
 ```
-**?? Total time: ~45 minutes to be productive**
+** Total time: ~45 minutes to be productive**
 
-### ?? You're in a hurry?
+###  You're in a hurry?
 ```
 1. Run: dotnet run
 2. Menu 1 ? Create backup
 3. Menu 2 ? Execute
 4. Check FAQ_EN.md as needed
 ```
-**?? Total time: ~5 minutes**
+** Total time: ~5 minutes**
 
-### ?? You're a developer?
+###  You're a developer?
 ```
 1. Read QUICK_START_EN.md                 ? Dev installation
 2. Read TECHNICAL_DOCUMENTATION_EN.md     ? Understand architecture (60 min)
 3. Explore source code                    ? See details
 4. Check FAQ_EN.md for edge cases         ? Specific questions
 ```
-**?? Total time: ~90 minutes to master**
+** Total time: ~90 minutes to master**
 
 ### ? Looking for a quick answer?
 ```
@@ -75,7 +75,7 @@ You have access to complete, structured and easy-to-navigate documentation!
 3. Read direct answer
 4. If not found ? See INDEX.md for navigation
 ```
-**?? Total time: ~5 minutes**
+** Total time: ~5 minutes**
 
 ---
 
@@ -91,7 +91,7 @@ You have access to complete, structured and easy-to-navigate documentation!
 
 ---
 
-## ?? DOCUMENTATION STATISTICS
+##  DOCUMENTATION STATISTICS
 
 | Aspect | Value |
 |--------|-------|
@@ -106,25 +106,25 @@ You have access to complete, structured and easy-to-navigate documentation!
 
 ---
 
-## ?? RECOMMENDED READING ORDER
+##  RECOMMENDED READING ORDER
 
 ### For Everyone
 ```
-1?? START_HERE.md          ? Understand doc structure (10 min)
+1 START_HERE.md          ? Understand doc structure (10 min)
    ?
-2?? QUICK_START_EN.md      ? Quick installation (5 min)
+2 QUICK_START_EN.md      ? Quick installation (5 min)
    ?
-3?? Choose your path based on profile
-   ?? User ? DOCUMENTATION_EN.md
-   ?? Developer ? TECHNICAL_DOCUMENTATION_EN.md
-   ?? All ? FAQ_EN.md (as needed)
+3 Choose your path based on profile
+    User ? DOCUMENTATION_EN.md
+    Developer ? TECHNICAL_DOCUMENTATION_EN.md
+    All ? FAQ_EN.md (as needed)
 ```
 
 ---
 
-## ?? CONTENT BY DOCUMENT
+##  CONTENT BY DOCUMENT
 
-### ?? START_HERE.md
+###  START_HERE.md
 *Centralized navigation and starting point*
 - Guide by user profile
 - Navigation table by topic
@@ -141,7 +141,7 @@ You have access to complete, structured and easy-to-navigate documentation!
 - Practical examples
 - First backup checklist
 
-### ?? DOCUMENTATION_EN.md
+###  DOCUMENTATION_EN.md
 *Complete user guide*
 - 9 complete pages
 - Detailed features
@@ -152,7 +152,7 @@ You have access to complete, structured and easy-to-navigate documentation!
 - 6 usage examples
 - Complete troubleshooting
 
-### ?? TECHNICAL_DOCUMENTATION_EN.md
+###  TECHNICAL_DOCUMENTATION_EN.md
 *Technical specifications*
 - 10 technical pages
 - Complete UML architecture
@@ -178,19 +178,19 @@ You have access to complete, structured and easy-to-navigate documentation!
 
 ---
 
-## ?? USEFUL LINKS
+##  USEFUL LINKS
 
 ### Documentation
-- ?? **START_HERE.md** - Starting point
-- ?? **QUICK_START_EN.md** - Quick start
-- ?? **DOCUMENTATION_EN.md** - Complete guide
-- ?? **TECHNICAL_DOCUMENTATION_EN.md** - Technical arch
-- ?? **FAQ_EN.md** - Common questions
+-  **START_HERE.md** - Starting point
+-  **QUICK_START_EN.md** - Quick start
+-  **DOCUMENTATION_EN.md** - Complete guide
+-  **TECHNICAL_DOCUMENTATION_EN.md** - Technical arch
+-  **FAQ_EN.md** - Common questions
 
 ### External Resources
-- ?? **GitHub**: https://github.com/joanperreyprato/EasySave
-- ?? **.NET 8**: https://dotnet.microsoft.com
-- ?? **Git**: https://git-scm.com
+-  **GitHub**: https://github.com/joanperreyprato/EasySave
+-  **.NET 8**: https://dotnet.microsoft.com
+-  **Git**: https://git-scm.com
 
 ---
 
@@ -204,7 +204,7 @@ Before starting, verify:
 
 ---
 
-## ?? READY TO START?
+##  READY TO START?
 
 ### Option 1: I want to start NOW (5 min)
 ```bash
@@ -229,7 +229,7 @@ dotnet run
 
 ---
 
-## ?? USEFUL TIPS
+##  USEFUL TIPS
 
 1. **Full backup** = First time, all files
 2. **Diff backup** = Updates, modified files only
@@ -239,7 +239,7 @@ dotnet run
 
 ---
 
-## ?? NEED HELP?
+##  NEED HELP?
 
 ### Looking for quick answer
 ? Check **FAQ_EN.md**
@@ -255,7 +255,7 @@ dotnet run
 
 ---
 
-## ?? SUPPORT
+##  SUPPORT
 
 | Question | Solution |
 |----------|----------|
@@ -267,32 +267,32 @@ dotnet run
 
 ---
 
-## ?? YOUR NEXT STEP
+##  YOUR NEXT STEP
 
 **Click the link corresponding to your profile:**
 
-### ?? New user
-?? [Go to QUICK_START_EN.md](QUICK_START_EN.md)
+###  New user
+ [Go to QUICK_START_EN.md](QUICK_START_EN.md)
 
-### ?? Experienced user
-?? [Go to DOCUMENTATION_EN.md](DOCUMENTATION_EN.md)
+###  Experienced user
+ [Go to DOCUMENTATION_EN.md](DOCUMENTATION_EN.md)
 
-### ?? Developer
-?? [Go to TECHNICAL_DOCUMENTATION_EN.md](TECHNICAL_DOCUMENTATION_EN.md)
+###  Developer
+ [Go to TECHNICAL_DOCUMENTATION_EN.md](TECHNICAL_DOCUMENTATION_EN.md)
 
 ### ? Quick questions
-?? [Go to FAQ_EN.md](FAQ_EN.md)
+ [Go to FAQ_EN.md](FAQ_EN.md)
 
-### ??? Complete navigation
-?? [Go to INDEX.md](INDEX.md)
+### ? Complete navigation
+ [Go to INDEX.md](INDEX.md)
 
 ---
 
 ## ? IN SUMMARY
 
 ```
-???????????????????????????????????????????????????????????????
-?                   ?? EASYSAVE v1.0 ??                      ?
+?
+?                    EASYSAVE v1.0                       ?
 ?                                                             ?
 ?  ? Backup application fully documented                   ?
 ?  ? 6 structured documentation files                      ?
@@ -302,14 +302,14 @@ dotnet run
 ?  ? Technical architecture fully explained               ?
 ?  ? Ready to use now                                     ?
 ?                                                             ?
-?              ?? Start with START_HERE.md ??              ?
+?               Start with START_HERE.md               ?
 ?                                                             ?
-???????????????????????????????????????????????????????????????
+?
 ```
 
 ---
 
-## ?? GETTING STARTED CHECKLIST
+##  GETTING STARTED CHECKLIST
 
 - [ ] Read this file (2 min) ?
 - [ ] Read QUICK_START_EN.md (5 min)
@@ -321,11 +321,11 @@ dotnet run
 
 ---
 
-**Welcome to EasySave!** ??
+**Welcome to EasySave!** 
 
 Documentation is your best friend. Start with START_HERE.md and progress at your own pace.
 
-Enjoy! ??
+Enjoy! 
 
 ---
 

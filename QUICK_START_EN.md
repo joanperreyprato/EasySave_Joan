@@ -1,6 +1,6 @@
 # EasySave - Quick Start Guide (English)
 
-Get started with EasySave in 5 minutes! ??
+Get started with EasySave in 5 minutes! 
 
 ---
 
@@ -24,7 +24,7 @@ dotnet run
 
 ---
 
-## ?? First Steps
+##  First Steps
 
 ### 1. Launch in Interactive Mode
 ```bash
@@ -59,7 +59,7 @@ Select an option:
 
 ---
 
-## ??? Command Line Mode
+## ? Command Line Mode
 
 ### Create Quickly
 ```bash
@@ -83,7 +83,7 @@ dotnet run -- list
 
 ---
 
-## ?? Backup Types
+##  Backup Types
 
 | Type | First Time | Usage |
 |------|------------|-------|
@@ -94,7 +94,7 @@ dotnet run -- list
 
 ---
 
-## ?? Configuration
+##  Configuration
 
 Files auto-created in:
 - **Windows**: `C:\ProgramData\EasySave\`
@@ -108,7 +108,7 @@ Files auto-created in:
 
 ---
 
-## ?? Common Errors
+##  Common Errors
 
 | Problem | Solution |
 |---------|----------|
@@ -120,7 +120,7 @@ Files auto-created in:
 
 ---
 
-## ?? Change Language
+##  Change Language
 
 Edit `Program.cs` line 2:
 
@@ -140,7 +140,7 @@ dotnet run
 
 ---
 
-## ?? Practical Examples
+##  Practical Examples
 
 ### Example 1: Backup a drive
 ```bash
@@ -172,7 +172,7 @@ dotnet run -- execute 0-2
 
 ---
 
-## ?? Track Progress
+##  Track Progress
 
 During backup, app updates:
 - Files processed
@@ -191,7 +191,7 @@ Check in `state.json`:
 
 ---
 
-## ?? Quick Troubleshooting
+##  Quick Troubleshooting
 
 ### Reinstall
 ```bash
@@ -220,7 +220,7 @@ Browse `logs/` folder for history
 
 ---
 
-## ?? Need Help?
+##  Need Help?
 
 - **Bug**: [Report on GitHub](https://github.com/joanperreyprato/EasySave/issues)
 - **Question**: See `DOCUMENTATION.md`
@@ -230,4 +230,4 @@ Browse `logs/` folder for history
 
 **Version**: 1.0 | **Updated**: January 2024
 
-?? You're ready! Start your first backup now!
+ You're ready! Start your first backup now!
