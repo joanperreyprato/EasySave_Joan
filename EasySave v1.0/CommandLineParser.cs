@@ -23,9 +23,9 @@ namespace EasySave_v1._0
         {
             if (args == null || args.Length == 0) return Array.Empty<int>();
 
-            var results = new List<int>();
+            List<int> results = new();
 
-            foreach (var raw in args)
+            foreach (string raw in args)
             {
                 if (string.IsNullOrWhiteSpace(raw)) continue;
 
@@ -33,12 +33,12 @@ namespace EasySave_v1._0
                 if (IsValidCommand(raw)) continue;
 
                 // normalize separators: allow comma and semicolon
-                var normalized = raw.Replace(';', ',');
+                string normalized = raw.Replace(';', ',');
                 // handle comma separated values
                 if (normalized.Contains(','))
                 {
-                    var parts = normalized.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-                    foreach (var p in parts)
+                    string[] parts = normalized.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+                    foreach (string p in parts)
                         ParseTokenToList(p, results);
                 }
                 else
@@ -53,7 +53,7 @@ namespace EasySave_v1._0
         public static bool IsValidCommand(string arg)
         {
             if (string.IsNullOrWhiteSpace(arg)) return false;
-            var token = arg.Trim().ToLowerInvariant();
+            string token = arg.Trim().ToLowerInvariant();
             // treat option style tokens as commands too
             if (token.StartsWith("--") || token.StartsWith("-"))
                 token = token.TrimStart('-');
@@ -68,17 +68,17 @@ namespace EasySave_v1._0
             // range like 2-5
             if (token.Contains('-'))
             {
-                var parts = token.Split('-', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-                if (parts.Length == 2 && int.TryParse(parts[0], out var a) && int.TryParse(parts[1], out var b))
+                string[] parts = token.Split('-', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+                if (parts.Length == 2 && int.TryParse(parts[0], out int a) && int.TryParse(parts[1], out int b))
                 {
-                    var start = Math.Min(a, b);
-                    var end = Math.Max(a, b);
+                    int start = Math.Min(a, b);
+                    int end = Math.Max(a, b);
                     for (int i = start; i <= end; i++) list.Add(i);
                 }
                 return;
             }
 
-            if (int.TryParse(token, out var v))
+            if (int.TryParse(token, out int v))
                 list.Add(v);
         }
     }

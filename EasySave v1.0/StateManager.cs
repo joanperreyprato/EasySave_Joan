@@ -22,8 +22,8 @@ namespace EasySave_v1._0
         {
             if (string.IsNullOrWhiteSpace(stateFilePath))
             {
-                var appData = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
-                var dir = Path.Combine(appData, "EasySave");
+                string appData = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
+                string dir = Path.Combine(appData, "EasySave");
                 Directory.CreateDirectory(dir);
                 this.stateFilePath = Path.Combine(dir, "state.json");
             }
@@ -41,7 +41,7 @@ namespace EasySave_v1._0
             if (string.IsNullOrWhiteSpace(jobName) || state == null)
                 return;
 
-            var existing = jobStates.FirstOrDefault(j => string.Equals(j.Name, jobName, StringComparison.OrdinalIgnoreCase));
+            JobState? existing = jobStates.FirstOrDefault(j => string.Equals(j.Name, jobName, StringComparison.OrdinalIgnoreCase));
             if (existing != null)
             {
                 // replace properties
@@ -73,7 +73,7 @@ namespace EasySave_v1._0
         {
             try
             {
-                var json = SerializeToJson();
+                string json = SerializeToJson();
                 File.WriteAllText(stateFilePath, json);
             }
             catch
@@ -94,7 +94,7 @@ namespace EasySave_v1._0
                 }
 
                 string json = File.ReadAllText(stateFilePath);
-                var list = JsonSerializer.Deserialize<List<JobState>>(json, CachedJsonSerializerOptions);
+                List<JobState>? list = JsonSerializer.Deserialize<List<JobState>>(json, CachedJsonSerializerOptions);
                 jobStates = list ?? new List<JobState>();
             }
             catch
