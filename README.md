@@ -1,16 +1,16 @@
 # EasySave v1.0
 
-**[???? Français](#français) | [???? English](#english)**
+**[ Français](#français) | [ English](#english)**
 
 ---
 
 <a name="français"></a>
 
-# ???? EasySave - Documentation Française
+#  EasySave - Documentation Française
 
 **Application de sauvegarde multilingue et performante** - Développée en C# avec .NET 8
 
-## ?? Table des matières
+##  Table des matières
 
 - [Caractéristiques](#caractéristiques)
 - [Installation rapide](#installation-rapide)
@@ -20,22 +20,22 @@
 
 ---
 
-## ? Caractéristiques
+##  Caractéristiques
 
-- ? **Deux modes de fonctionnement** : interactif et ligne de commande
-- ? **Deux types de sauvegarde** :
+-  **Deux modes de fonctionnement** : interactif et ligne de commande
+-  **Deux types de sauvegarde** :
   - **Complète** (Full) : copie tous les fichiers
   - **Différentielle** (Diff) : copie uniquement les fichiers nouveaux ou modifiés
-- ? **Multilingue** : Support de l'anglais et du français
-- ? **Suivi d'état** : progression en temps réel des sauvegardes
-- ? **Journalisation** : enregistrement détaillé des opérations
-- ? **Configuration persistante** : sauvegarde des tâches de sauvegarde
-- ? **Gestion robuste des erreurs** : validation complète des chemins et paramètres
-- ? **Architecture modulaire** : Facile à étendre et maintenir
+-  **Multilingue** : Support de l'anglais et du français
+-  **Suivi d'état** : progression en temps réel des sauvegardes
+-  **Journalisation** : enregistrement détaillé des opérations
+-  **Configuration persistante** : sauvegarde des tâches de sauvegarde
+-  **Gestion robuste des erreurs** : validation complète des chemins et paramètres
+-  **Architecture modulaire** : Facile à étendre et maintenir
 
 ---
 
-## ?? Installation rapide
+##  Installation rapide
 
 ### Prérequis
 - **.NET 8.0 ou supérieur**
@@ -61,7 +61,7 @@
 
 ---
 
-## ?? Utilisation
+##  Utilisation
 
 ### Mode interactif
 
@@ -109,7 +109,7 @@ dotnet run -- list
 
 ---
 
-## ?? Types de sauvegarde
+##  Types de sauvegarde
 
 ### Sauvegarde complète (Full)
 - Copie **TOUS les fichiers** du dossier source
@@ -126,7 +126,7 @@ dotnet run -- list
 
 ---
 
-## ?? Configuration
+##  Configuration
 
 ### Fichiers automatiquement créés
 
@@ -148,25 +148,25 @@ var language = new LanguageProvider("en");  // Anglais
 
 ---
 
-## ? FAQ Français
+##  FAQ Français
 
 Pour 30 questions-réponses détaillées, consultez **[FAQ.md](FAQ.md)**
 
 **Questions couvertes** :
-- ? Installation & Configuration (Q1-Q3)
-- ? Création de sauvegardes (Q4-Q7)
-- ? Types de sauvegarde (Q8-Q10)
-- ? Exécution & Suivi (Q11-Q13)
-- ? Mode CLI (Q14-Q15)
-- ? Dépannage (Q16-Q21)
-- ? Performance (Q22-Q23)
-- ? Sécurité (Q24-Q26)
-- ? Maintenance (Q27-Q29)
-- ? Contribution (Q30)
+-  Installation & Configuration (Q1-Q3)
+-  Création de sauvegardes (Q4-Q7)
+-  Types de sauvegarde (Q8-Q10)
+-  Exécution & Suivi (Q11-Q13)
+-  Mode CLI (Q14-Q15)
+-  Dépannage (Q16-Q21)
+-  Performance (Q22-Q23)
+-  Sécurité (Q24-Q26)
+-  Maintenance (Q27-Q29)
+-  Contribution (Q30)
 
 ---
 
-## ?? Documentation complète
+##  Documentation complète
 
 - **[START_HERE.md](START_HERE.md)** - Guide visuel d'accueil
 - **[QUICK_START.md](QUICK_START.md)** - Démarrage 5 minutes
@@ -179,11 +179,11 @@ Pour 30 questions-réponses détaillées, consultez **[FAQ.md](FAQ.md)**
 
 <a name="english"></a>
 
-# ???? EasySave - English Documentation
+#  EasySave - English Documentation
 
 **Multilingual and efficient backup application** - Built with C# and .NET 8
 
-## ?? Table of Contents
+##  Table of Contents
 
 - [Features](#features)
 - [Quick Start](#quick-start)
@@ -193,22 +193,22 @@ Pour 30 questions-réponses détaillées, consultez **[FAQ.md](FAQ.md)**
 
 ---
 
-## ? Features
+##  Features
 
-- ? **Two operating modes** : interactive and command-line
-- ? **Two backup types** :
+-  **Two operating modes** : interactive and command-line
+-  **Two backup types** :
   - **Full** : copies all files
   - **Differential** : copies only new or modified files
-- ? **Multilingual** : English and French support
-- ? **Real-time tracking** : progress monitoring during backups
-- ? **Logging** : detailed operation records
-- ? **Persistent configuration** : saves backup tasks
-- ? **Robust error handling** : complete path and parameter validation
-- ? **Modular architecture** : Easy to extend and maintain
+-  **Multilingual** : English and French support
+-  **Real-time tracking** : progress monitoring during backups
+-  **Logging** : detailed operation records
+-  **Persistent configuration** : saves backup tasks
+-  **Robust error handling** : complete path and parameter validation
+-  **Modular architecture** : Easy to extend and maintain
 
 ---
 
-## ?? Quick Start
+##  Quick Start
 
 ### Requirements
 - **.NET 8.0 or higher**
@@ -234,7 +234,7 @@ Pour 30 questions-réponses détaillées, consultez **[FAQ.md](FAQ.md)**
 
 ---
 
-## ?? Usage
+##  Usage
 
 ### Interactive Mode
 
@@ -282,7 +282,7 @@ dotnet run -- list
 
 ---
 
-## ?? Backup Types
+##  Backup Types
 
 ### Full Backup
 - Copies **ALL files** from source folder
@@ -299,7 +299,7 @@ dotnet run -- list
 
 ---
 
-## ?? Configuration
+##  Configuration
 
 ### Auto-Created Files
 
@@ -321,25 +321,25 @@ var language = new LanguageProvider("fr");  // French
 
 ---
 
-## ? FAQ English
+##  FAQ English
 
 For 30 detailed Q&A, see **[FAQ.md](FAQ.md)**
 
 **Topics covered** :
-- ? Installation & Configuration (Q1-Q3)
-- ? Backup Creation (Q4-Q7)
-- ? Backup Types (Q8-Q10)
-- ? Execution & Monitoring (Q11-Q13)
-- ? CLI Mode (Q14-Q15)
-- ? Troubleshooting (Q16-Q21)
-- ? Performance (Q22-Q23)
-- ? Security (Q24-Q26)
-- ? Maintenance (Q27-Q29)
-- ? Contributing (Q30)
+-  Installation & Configuration (Q1-Q3)
+-  Backup Creation (Q4-Q7)
+-  Backup Types (Q8-Q10)
+-  Execution & Monitoring (Q11-Q13)
+-  CLI Mode (Q14-Q15)
+-  Troubleshooting (Q16-Q21)
+-  Performance (Q22-Q23)
+-  Security (Q24-Q26)
+-  Maintenance (Q27-Q29)
+-  Contributing (Q30)
 
 ---
 
-## ?? Complete Documentation
+##  Complete Documentation
 
 - **[START_HERE.md](START_HERE.md)** - Visual welcome guide
 - **[QUICK_START.md](QUICK_START.md)** - 5-minute start
@@ -350,55 +350,55 @@ For 30 detailed Q&A, see **[FAQ.md](FAQ.md)**
 
 ---
 
-## ?? Getting Started
+##  Getting Started
 
 ### Choose Your Path
 
-**I'm new to EasySave** ?
+**I'm new to EasySave** 
 1. Read [QUICK_START.md](QUICK_START.md) (5 min)
 2. Run `dotnet run`
 3. Create first backup
 
-**I have questions** ?
+**I have questions** 
 1. Check [FAQ.md](FAQ.md)
 2. Use Ctrl+F to search
 
-**I'm a developer** ?
+**I'm a developer** 
 1. Read [TECHNICAL_DOCUMENTATION.md](TECHNICAL_DOCUMENTATION.md)
 2. Explore source code
 
 ---
 
-## ?? Support
+##  Support
 
 ### Get Help
-- ?? Check [DOCUMENTATION.md](DOCUMENTATION.md)
-- ? See [FAQ.md](FAQ.md)
-- ?? Read [TECHNICAL_DOCUMENTATION.md](TECHNICAL_DOCUMENTATION.md)
-- ?? Browse [INDEX.md](INDEX.md)
+-  Check [DOCUMENTATION.md](DOCUMENTATION.md)
+-  See [FAQ.md](FAQ.md)
+-  Read [TECHNICAL_DOCUMENTATION.md](TECHNICAL_DOCUMENTATION.md)
+-  Browse [INDEX.md](INDEX.md)
 
 ### Report Issues
-- ?? [GitHub Issues](https://github.com/joanperreyprato/EasySave/issues)
+-  [GitHub Issues](https://github.com/joanperreyprato/EasySave/issues)
 
 ### Contribute
-- ?? Fork ? Branch ? Commit ? Pull Request
+-  Fork  Branch  Commit  Pull Request
 - See [FAQ.md](FAQ.md) Q30 for details
 
 ---
 
-## ?? Key Information
+##  Key Information
 
 | Aspect | Details |
 |--------|---------|
 | **Version** | 1.0 |
-| **Language** | Français / English ???? ???? |
+| **Language** | Français / English   |
 | **Built with** | C# .NET 8 |
 | **License** | [See LICENSE](LICENSE) |
 | **Repository** | [GitHub](https://github.com/joanperreyprato/EasySave) |
 
 ---
 
-## ? Documentation Statistics
+##  Documentation Statistics
 
 - **8 Markdown files** created
 - **~31 pages** of documentation
@@ -406,18 +406,18 @@ For 30 detailed Q&A, see **[FAQ.md](FAQ.md)**
 - **30+ Q&A**
 - **10+ practical examples**
 - **100% topic coverage**
-- **Bilingual** ???? ????
+- **Bilingual**  
 
 ---
 
-## ?? Ready to Start?
+##  Ready to Start
 
-?? **[Read START_HERE.md](START_HERE.md)** for visual guide
-?? **[Read QUICK_START.md](QUICK_START.md)** for 5-minute start
-?? **Run `dotnet run`** to begin now
+ **[Read START_HERE.md](START_HERE.md)** for visual guide
+ **[Read QUICK_START.md](QUICK_START.md)** for 5-minute start
+ **Run `dotnet run`** to begin now
 
 ---
 
 **Last Updated** : January 2024
 **Version** : 1.0
-**Status** : ? Complete Documentation
+**Status** :  Complete Documentation
