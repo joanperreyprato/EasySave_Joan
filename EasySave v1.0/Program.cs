@@ -1,0 +1,105 @@
+﻿using EasySave_v1._0;
+using System;
+using System.Linq;
+// Initialize core services
+var language = new LanguageProvider("en");
+var stateManager = new StateManager();
+stateManager.LoadState();
+
+var logger = new EasyLog.JsonLogger("logs");
+var backupManager = new BackupManager(stateManager, logger);
+            var ui = new ConsoleUI(backupManager, language);
+
+if (args != null && args.Length > 0)
+{
+    // Simple command-line support
+    var tokens = args.Select(a => a.Trim()).Where(a => !string.IsNullOrWhiteSpace(a)).ToArray();
+
+    if (tokens.Any(t => string.Equals(t, "list", StringComparison.OrdinalIgnoreCase)))
+    {
+        ui.DisplayBackupJobs();
+        return;
+    }
+
+    // If args are only indices (ex. "1-3" or "1;3" or "0,2"), execute those jobs directly
+    var directIndices = CommandLineParser.ParseArguments(tokens);
+    var hasExplicitCommand = tokens.Any(t => string.Equals(t, "create", StringComparison.OrdinalIgnoreCase)
+                                             || string.Equals(t, "list", StringComparison.OrdinalIgnoreCase)
+                                             || string.Equals(t, "execute", StringComparison.OrdinalIgnoreCase));
+
+    if (directIndices.Length > 0 && !hasExplicitCommand)
+    {
+        backupManager.ExecuteBackupJobs(directIndices);
+        return;
+    }
+
+    if (tokens.Any(t => string.Equals(t, "create", StringComparison.OrdinalIgnoreCase)))
+    {
+        // Expect: create <name> <source> <target> [full|diff]
+        var idx = Array.FindIndex(tokens, t => string.Equals(t, "create", StringComparison.OrdinalIgnoreCase));
+        if (idx >= 0 && tokens.Length > idx + 3)
+        {
+            var name = tokens[idx + 1];
+            var source = tokens[idx + 2];
+            var target = tokens[idx + 3];
+            var type = BackupType.Full;
+            if (tokens.Length > idx + 4 && tokens[idx + 4].StartsWith("d", StringComparison.OrdinalIgnoreCase))
+                type = BackupType.Differential;
+
+            var created = backupManager.CreateBackupJob(name, source, target, type);
+            Console.WriteLine(created ? "Backup job created." : "Failed to create backup job.");
+        }
+        else
+        {
+            Console.WriteLine("Usage: create <name> <source> <target> [full|diff]");
+        }
+
+        return;
+    }
+
+    if (tokens.Any(t => string.Equals(t, "execute", StringComparison.OrdinalIgnoreCase)))
+    {
+        // Parse indices from args
+                    var indices = CommandLineParser.ParseArguments(tokens);
+        if (indices.Length == 0)
+        {
+            Console.WriteLine("No indices provided. Use execute <index> or execute 0-2 or execute 0,2");
+            return;
+        }
+
+        backupManager.ExecuteBackupJobs(indices);
+        return;
+    }
+
+    // Unknown or help
+    Console.WriteLine("EasySave - commands: list | create | execute");
+    return;
+}
+
+// Interactive mode
+bool running = true;
+while (running)
+{
+    ui.DisplayMainMenu();
+    var choice = Console.ReadLine();
+    switch (choice)
+    {
+        case "1":
+            ui.CreateBackupJobMenu();
+            break;
+        case "2":
+            ui.ExecuteBackupMenu();
+            break;
+        case "3":
+            ui.DisplayBackupJobs();
+            break;
+        case "4":
+            running = false;
+            break;
+        default:
+            Console.WriteLine(language.GetText("error.notfound"));
+            break;
+    }
+
+    Console.WriteLine();
+}
