@@ -1,5 +1,6 @@
 ﻿using EasyLog;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 
 namespace EasySave_v1._0
 {
@@ -11,12 +12,25 @@ namespace EasySave_v1._0
 
         private readonly string configPath;
 
-        // Ajout d'une instance statique pour JsonSerializerOptions
+        // Cached JsonSerializerOptions instance
         private static readonly JsonSerializerOptions CachedJsonOptions = new()
         {
             PropertyNameCaseInsensitive = true,
             WriteIndented = true
         };
+
+        // Validation error types
+        public enum BackupCreationError
+        {
+            None,
+            InvalidName,
+            SourcePathInvalid,
+            SourcePathNotFound,
+            TargetPathInvalid,
+            TargetPathNotFound,
+            DuplicateName,
+            MaxJobsExceeded
+        }
 
         public BackupManager(StateManager stateManager, ILogger logger, string? configPath = null)
         {
@@ -39,17 +53,114 @@ namespace EasySave_v1._0
             LoadConfiguration();
         }
 
-        public bool CreateBackupJob(string name, string source, string target, BackupType type)
+        /// <summary>
+        /// Validates the backup job name.
+        /// </summary>
+        private bool IsValidName(string name)
         {
-            if (string.IsNullOrWhiteSpace(name)) return false;
+            if (string.IsNullOrWhiteSpace(name))
+                return false;
+
+            // Only alphanumeric characters, spaces, hyphens, and underscores allowed
+            var validNamePattern = @"^[a-zA-Z0-9\s\-_]+$";
+            if (!Regex.IsMatch(name, validNamePattern))
+                return false;
+
+            // Maximum 50 characters
+            if (name.Length > 50)
+                return false;
+
+            return true;
+        }
+
+        /// <summary>
+        /// Validates a directory path.
+        /// </summary>
+        private bool IsValidPath(string path)
+        {
+            if (string.IsNullOrWhiteSpace(path))
+                return false;
+
+            try
+            {
+                // Verify that the path is absolute and valid
+                var fullPath = Path.GetFullPath(path);
+                return !string.IsNullOrEmpty(fullPath);
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Creates a backup job with full validation.
+        /// </summary>
+        public bool CreateBackupJob(string name, string source, string target, BackupType type, out BackupCreationError error)
+        {
+            error = BackupCreationError.None;
+
+            // Validate job name
+            if (!IsValidName(name))
+            {
+                error = BackupCreationError.InvalidName;
+                return false;
+            }
+
+            // Check for duplicate names
             if (backupJobs.Any(b => string.Equals(b.GetName(), name, StringComparison.OrdinalIgnoreCase)))
-                return false; // duplicate name
-            if (backupJobs.Count >= 5) return false; // limit to 5 jobs
+            {
+                error = BackupCreationError.DuplicateName;
+                return false;
+            }
+
+            // Limit to 5 jobs
+            if (backupJobs.Count >= 5)
+            {
+                error = BackupCreationError.MaxJobsExceeded;
+                return false;
+            }
+
+            // Validate source path
+            if (!IsValidPath(source))
+            {
+                error = BackupCreationError.SourcePathInvalid;
+                return false;
+            }
+
+            // Verify source directory exists
+            if (!Directory.Exists(source))
+            {
+                error = BackupCreationError.SourcePathNotFound;
+                return false;
+            }
+
+            // Validate target path
+            if (!IsValidPath(target))
+            {
+                error = BackupCreationError.TargetPathInvalid;
+                return false;
+            }
+
+            // Verify target directory exists
+            if (!Directory.Exists(target))
+            {
+                error = BackupCreationError.TargetPathNotFound;
+                return false;
+            }
 
             var job = new BackupJob(name, source, target, type);
             backupJobs.Add(job);
             SaveConfiguration();
             return true;
+        }
+
+        /// <summary>
+        /// Creates a backup job (overload for backward compatibility).
+        /// </summary>
+        public bool CreateBackupJob(string name, string source, string target, BackupType type)
+        {
+            return CreateBackupJob(name, source, target, type, out _);
         }
 
         public bool DeleteBackupJob(int index)
@@ -93,7 +204,7 @@ namespace EasySave_v1._0
             {
                 if (!File.Exists(configPath)) return;
                 var json = File.ReadAllText(configPath);
-                // Utilisation de l'instance statique
+                // Using the cached JsonSerializerOptions instance
                 var entries = JsonSerializer.Deserialize<List<BackupConfigEntry>>(json, CachedJsonOptions);
                 if (entries == null) return;
 
@@ -106,7 +217,7 @@ namespace EasySave_v1._0
             }
             catch
             {
-                // ignore load errors
+                // Ignore load errors
             }
         }
 
@@ -122,13 +233,13 @@ namespace EasySave_v1._0
                     Type = b.GetBackupType()
                 }).ToList();
 
-                // Utilisation de l'instance statique
+                // Using the cached JsonSerializerOptions instance
                 var json = JsonSerializer.Serialize(entries, CachedJsonOptions);
                 File.WriteAllText(configPath, json);
             }
             catch
             {
-                // ignore save errors
+                // Ignore save errors
             }
         }
 
