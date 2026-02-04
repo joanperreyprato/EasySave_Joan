@@ -22,7 +22,7 @@ if (args != null && args.Length > 0)
         return;
     }
 
-    // If args are only indices (ex. "1-3" or "1;3" or "0,2"), execute those jobs directly
+    // If args are only indices (ex. "1-3" or "1;3"), execute those jobs directly
     int[] directIndices = CommandLineParser.ParseArguments(tokens);
     bool hasExplicitCommand = tokens.Any(t => string.Equals(t, "create", StringComparison.OrdinalIgnoreCase)
                                              || string.Equals(t, "list", StringComparison.OrdinalIgnoreCase)
@@ -71,7 +71,7 @@ if (args != null && args.Length > 0)
         int[] indices = CommandLineParser.ParseArguments(tokens);
         if (indices.Length == 0)
         {
-            Console.WriteLine("No indices provided. Use execute <index> or execute 0-2 or execute 0,2");
+            Console.WriteLine("No indices provided. Use execute <index> or execute 1-2 or execute 1,2");
             return;
         }
 

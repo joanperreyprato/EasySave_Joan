@@ -56,7 +56,7 @@ namespace EasySave_v1._0
             string idxStr = GetUserInput(languageProvider.GetText("ui.execute.prompt"));
             if (int.TryParse(idxStr, out int idx))
             {
-                backupManager.ExecuteBackupJob(idx-1);
+                backupManager.ExecuteBackupJob(idx);
                 Console.WriteLine(languageProvider.GetText("ui.execution.requested"));
             }
             else
