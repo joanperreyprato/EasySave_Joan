@@ -20,39 +20,48 @@ namespace EasySave_v1._0
             Console.WriteLine("1. " + languageProvider.GetText("menu.create"));
             Console.WriteLine("2. " + languageProvider.GetText("menu.execute"));
             Console.WriteLine("3. " + languageProvider.GetText("menu.list"));
-            Console.WriteLine("4. " + languageProvider.GetText("menu.exit"));
-            Console.Write("Select an option: ");
+            Console.WriteLine("4. " + languageProvider.GetText("menu.language"));
+            Console.WriteLine("5. " + languageProvider.GetText("menu.exit"));
+            Console.Write(languageProvider.GetText("ui.select.option"));
+        }
+
+        public void ChangeLanguageMenu()
+        {
+            Console.WriteLine("-- " + languageProvider.GetText("menu.language") + " --");
+            Console.WriteLine("1. " + languageProvider.GetText("language.english"));
+            Console.WriteLine("2. " + languageProvider.GetText("language.french"));
+            Console.Write(languageProvider.GetText("language.select"));
         }
 
         public void CreateBackupJobMenu()
         {
-            Console.WriteLine("-- Create Backup Job --");
-            string name = GetUserInput("Name: ");
-            string source = GetUserInput("Source path: ");
-            string target = GetUserInput("Target path: ");
-            string typeStr = GetUserInput("Type (full/diff): ");
+            Console.WriteLine(languageProvider.GetText("ui.backup.title"));
+            string name = GetUserInput(languageProvider.GetText("backup.create.name.prompt"));
+            string source = GetUserInput(languageProvider.GetText("backup.create.source.prompt"));
+            string target = GetUserInput(languageProvider.GetText("backup.create.target.prompt"));
+            string typeStr = GetUserInput(languageProvider.GetText("backup.create.type.prompt"));
 
             BackupType type = BackupType.Full;
             if (!string.IsNullOrWhiteSpace(typeStr) && typeStr.StartsWith("d", StringComparison.OrdinalIgnoreCase))
                 type = BackupType.Differential;
 
             bool ok = backupManager.CreateBackupJob(name, source, target, type);
-            Console.WriteLine(ok ? "Backup job created." : "Failed to create backup job (duplicate name?).");
+            Console.WriteLine(ok ? languageProvider.GetText("ui.backup.created") : languageProvider.GetText("ui.backup.failed"));
         }
 
         public void ExecuteBackupMenu()
         {
-            Console.WriteLine("-- Execute Backup Job --");
+            Console.WriteLine(languageProvider.GetText("ui.execute.title"));
             DisplayBackupJobs();
-            string idxStr = GetUserInput("Enter job index to execute: ");
+            string idxStr = GetUserInput(languageProvider.GetText("ui.execute.prompt"));
             if (int.TryParse(idxStr, out int idx))
             {
                 backupManager.ExecuteBackupJob(idx-1);
-                Console.WriteLine("Execution requested.");
+                Console.WriteLine(languageProvider.GetText("ui.execution.requested"));
             }
             else
             {
-                Console.WriteLine("Invalid index.");
+                Console.WriteLine(languageProvider.GetText("ui.invalid.index"));
             }
         }
 
@@ -61,7 +70,7 @@ namespace EasySave_v1._0
             List<BackupJob> jobs = backupManager.GetBackupJobs();
             if (jobs == null || jobs.Count == 0)
             {
-                Console.WriteLine("No backup jobs configured.");
+                Console.WriteLine(languageProvider.GetText("ui.no.backups"));
                 return;
             }
 
