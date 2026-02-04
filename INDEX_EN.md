@@ -12,7 +12,7 @@ Welcome to EasySave's complete documentation! Find what you need quickly.
 - First backup in interactive mode
 - First CLI trials
 
-### In a rush?
+### In a rush
  **Getting started command**:
 ```bash
 git clone https://github.com/joanperreyprato/EasySave.git && cd EasySave && dotnet run
@@ -39,9 +39,9 @@ git clone https://github.com/joanperreyprato/EasySave.git && cd EasySave && dotn
 
 ---
 
-## ? FAQ - Frequently Asked Questions
+##  FAQ - Frequently Asked Questions
 
-### Have a question?
+### Have a question
  **[FAQ_EN.md](FAQ_EN.md)** - 30 questions/answers
 - Installation & Configuration
 - Backup creation
@@ -81,9 +81,9 @@ git clone https://github.com/joanperreyprato/EasySave.git && cd EasySave && dotn
 ### Installation & Configuration
 | Question | Document |
 |----------|----------|
-| How to install? | [QUICK_START_EN.md](QUICK_START_EN.md) |
-| Where are files? | [FAQ_EN.md - Q2](FAQ_EN.md) |
-| How to change language? | [FAQ_EN.md - Q3](FAQ_EN.md) |
+| How to install | [QUICK_START_EN.md](QUICK_START_EN.md) |
+| Where are files | [FAQ_EN.md - Q2](FAQ_EN.md) |
+| How to change language | [FAQ_EN.md - Q3](FAQ_EN.md) |
 | Detailed installation | [DOCUMENTATION_EN.md](DOCUMENTATION_EN.md) |
 
 ### Usage
@@ -97,9 +97,9 @@ git clone https://github.com/joanperreyprato/EasySave.git && cd EasySave && dotn
 ### Backups
 | Question | Document |
 |----------|----------|
-| Full vs Diff? | [FAQ_EN.md - Q8](FAQ_EN.md) |
+| Full vs Diff | [FAQ_EN.md - Q8](FAQ_EN.md) |
 | Backup types | [DOCUMENTATION_EN.md](DOCUMENTATION_EN.md) |
-| How many backups? | [FAQ_EN.md - Q5](FAQ_EN.md) |
+| How many backups | [FAQ_EN.md - Q5](FAQ_EN.md) |
 | Execute multiple | [FAQ_EN.md - Q10](FAQ_EN.md) |
 
 ### Errors & Troubleshooting
@@ -146,8 +146,8 @@ git clone https://github.com/joanperreyprato/EasySave.git && cd EasySave && dotn
 ### I have a specific question
 ```
 1. FAQ_EN.md (search Q+number)
-2. If not found ? DOCUMENTATION_EN.md
-3. If technical ? TECHNICAL_DOCUMENTATION_EN.md
+2. If not found  DOCUMENTATION_EN.md
+3. If technical  TECHNICAL_DOCUMENTATION_EN.md
 ```
 
 ### I want to contribute
@@ -238,34 +238,34 @@ git clone https://github.com/joanperreyprato/EasySave.git && cd EasySave && dotn
 ##  Reading Tips
 
 ### For quick answers
--  **5 min** ? QUICK_START_EN.md
--  **2 min** ? FAQ_EN.md (search your question)
--  **Instant** ? Ctrl+F in document
+-  **5 min**  QUICK_START_EN.md
+-  **2 min**  FAQ_EN.md (search your question)
+-  **Instant**  Ctrl+F in document
 
 ### To understand the project
--  **30 min** ? DOCUMENTATION_EN.md
--  **60 min** ? TECHNICAL_DOCUMENTATION_EN.md
+-  **30 min**  DOCUMENTATION_EN.md
+-  **60 min**  TECHNICAL_DOCUMENTATION_EN.md
 
 ### To contribute
--  **90 min** ? Read all + explore code
--  **30 min** ? TECHNICAL_DOCUMENTATION_EN.md + code
+-  **90 min**  Read all + explore code
+-  **30 min**  TECHNICAL_DOCUMENTATION_EN.md + code
 
 ---
 
 ##  Support & Contributions
 
-### Need help?
+### Need help
 1. Check FAQ_EN.md
 2. Read DOCUMENTATION_EN.md (Troubleshooting section)
 3. Open an issue on GitHub
 
-### Found a bug?
+### Found a bug
 [Report on GitHub](https://github.com/joanperreyprato/EasySave/issues/new)
 
-### Have an idea?
+### Have an idea
 [Discuss on GitHub](https://github.com/joanperreyprato/EasySave/discussions)
 
-### Want to contribute?
+### Want to contribute
 See FAQ_EN.md - Q30 (Contributing)
 
 ---
@@ -309,22 +309,22 @@ See FAQ_EN.md - Q30 (Contributing)
 
 ---
 
-## ? Documentation Checklist
+##  Documentation Checklist
 
 Complete documentation includes:
-- ? Quick guide (5 min)
-- ? Complete user guide
-- ? FAQ (30 questions)
-- ? Technical documentation
-- ? Practical examples
-- ? Troubleshooting guide
-- ? Navigation index (this file)
+-  Quick guide (5 min)
+-  Complete user guide
+-  FAQ (30 questions)
+-  Technical documentation
+-  Practical examples
+-  Troubleshooting guide
+-  Navigation index (this file)
 
 ---
 
 **Last Updated**: January 2024
 **Version**: 1.0
-**Status**: Complete Documentation ?
+**Status**: Complete Documentation 
 
  **You have everything you need to get started!**
 

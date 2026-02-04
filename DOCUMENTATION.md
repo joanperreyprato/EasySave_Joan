@@ -15,17 +15,17 @@
 
 ---
 
-## ? Caractéristiques
+##  Caractéristiques
 
-- ? **Deux modes de fonctionnement** : interactif et ligne de commande
-- ? **Deux types de sauvegarde** :
+-  **Deux modes de fonctionnement** : interactif et ligne de commande
+-  **Deux types de sauvegarde** :
   - **Complète** : copie tous les fichiers
   - **Différentielle** : copie uniquement les fichiers nouveaux ou modifiés
-- ? **Multilingue** : Support de l'anglais et du français
-- ? **Suivi d'état** : progression en temps réel des sauvegardes
-- ? **Journalisation** : enregistrement détaillé des opérations
-- ? **Configuration persistante** : sauvegarde des tâches de sauvegarde
-- ? **Gestion robuste des erreurs** : validation complète des chemins et paramètres
+-  **Multilingue** : Support de l'anglais et du français
+-  **Suivi d'état** : progression en temps réel des sauvegardes
+-  **Journalisation** : enregistrement détaillé des opérations
+-  **Configuration persistante** : sauvegarde des tâches de sauvegarde
+-  **Gestion robuste des erreurs** : validation complète des chemins et paramètres
 
 ---
 
@@ -150,41 +150,41 @@ dotnet run -- list
 
 ---
 
-## ? Architecture
+##  Architecture
 
 ### Structure des composants
 
 ```
 EasySave
-? Program.cs              # Point d'entrée principal
-? ConsoleUI.cs            # Interface utilisateur console
-? BackupManager.cs        # Gestionnaire des tâches de sauvegarde
-? BackupExecutor.cs       # Exécuteur des sauvegardes
-? BackupJob.cs            # Représentation d'une tâche
-? StateManager.cs         # Gestion de l'état des sauvegardes
-? JobState.cs             # État d'une tâche en cours
-? LanguageProvider.cs     # Système de traduction
-? CommandLineParser.cs    # Analyse des arguments CLI
-? EasyLog/
-    ? JsonLogger.cs       # Enregistrement des logs
-    ? LogEntry.cs         # Entrée de log
-    ? ILogger.cs          # Interface du logger
+ Program.cs              # Point d'entrée principal
+ ConsoleUI.cs            # Interface utilisateur console
+ BackupManager.cs        # Gestionnaire des tâches de sauvegarde
+ BackupExecutor.cs       # Exécuteur des sauvegardes
+ BackupJob.cs            # Représentation d'une tâche
+ StateManager.cs         # Gestion de l'état des sauvegardes
+ JobState.cs             # État d'une tâche en cours
+ LanguageProvider.cs     # Système de traduction
+ CommandLineParser.cs    # Analyse des arguments CLI
+ EasyLog/
+     JsonLogger.cs       # Enregistrement des logs
+     LogEntry.cs         # Entrée de log
+     ILogger.cs          # Interface du logger
 ```
 
 ### Flux de données
 
 ```
 Program.cs (Point d'entrée)
-    ?
+    
 ConsoleUI (Interface utilisateur)
-    ?
+    
 BackupManager (Gestion des tâches)
-    ?
+    
 BackupExecutor (Exécution)
-    ?
-StateManager ? État des tâches
-    ?
-JsonLogger ? Fichiers journaux
+    
+StateManager  État des tâches
+    
+JsonLogger  Fichiers journaux
 ```
 
 ---
@@ -284,15 +284,15 @@ Chaque tâche possède un état avec les propriétés suivantes :
 ##  Validation des entrées
 
 ### Validation du nom de sauvegarde
-- ? Autorisé : caractères alphanumériques, espaces, tirets (`-`), underscores (`_`)
-- ? Interdit : caractères spéciaux (`@`, `#`, `$`, etc.)
-- ? Longueur : 1-50 caractères
-- ? Unicité : le nom ne doit pas exister déjà
+-  Autorisé : caractères alphanumériques, espaces, tirets (`-`), underscores (`_`)
+-  Interdit : caractères spéciaux (`@`, `#`, `$`, etc.)
+-  Longueur : 1-50 caractères
+-  Unicité : le nom ne doit pas exister déjà
 
 ### Validation des chemins
-- ? Format : chemin absolu valide
-- ? Existence : le répertoire doit exister
-- ? Permissions : l'application doit avoir accès en lecture/écriture
+-  Format : chemin absolu valide
+-  Existence : le répertoire doit exister
+-  Permissions : l'application doit avoir accès en lecture/écriture
 
 ---
 
