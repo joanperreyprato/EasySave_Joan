@@ -171,6 +171,88 @@ namespace EasySave_v1._0
             return true;
         }
 
+        /// <summary>
+        /// Update an existing backup job. Index is 1-based to match UI.
+        /// Fields that are null or empty will keep their current values.
+        /// </summary>
+        public bool UpdateBackupJob(int index, string? name, string? source, string? target, BackupType type, out BackupCreationError error)
+        {
+            error = BackupCreationError.None;
+
+            // Adjust for 0-based internal list
+            index -= 1;
+            if (index < 0 || index >= backupJobs.Count)
+            {
+                error = BackupCreationError.InvalidName; // reuse a generic error
+                return false;
+            }
+
+            BackupJob existing = backupJobs[index];
+            string newName = string.IsNullOrWhiteSpace(name) ? existing.GetName() : name!;
+            string newSource = string.IsNullOrWhiteSpace(source) ? existing.GetSourcePath() : source!;
+            string newTarget = string.IsNullOrWhiteSpace(target) ? existing.GetTargetPath() : target!;
+
+            // Validate name if changed
+            if (!string.Equals(newName, existing.GetName(), StringComparison.OrdinalIgnoreCase))
+            {
+                if (!IsValidName(newName))
+                {
+                    error = BackupCreationError.InvalidName;
+                    return false;
+                }
+
+                // Check for duplicates (excluding this index)
+                if (backupJobs.Where((b, i) => i != index).Any(b => string.Equals(b.GetName(), newName, StringComparison.OrdinalIgnoreCase)))
+                {
+                    error = BackupCreationError.DuplicateName;
+                    return false;
+                }
+            }
+
+            // Validate source if changed
+            if (!string.Equals(newSource, existing.GetSourcePath(), StringComparison.OrdinalIgnoreCase))
+            {
+                if (!IsValidPath(newSource))
+                {
+                    error = BackupCreationError.SourcePathInvalid;
+                    return false;
+                }
+
+                if (!Directory.Exists(newSource))
+                {
+                    error = BackupCreationError.SourcePathNotFound;
+                    return false;
+                }
+            }
+
+            // Validate target if changed
+            if (!string.Equals(newTarget, existing.GetTargetPath(), StringComparison.OrdinalIgnoreCase))
+            {
+                if (!IsValidPath(newTarget))
+                {
+                    error = BackupCreationError.TargetPathInvalid;
+                    return false;
+                }
+
+                if (!Directory.Exists(newTarget))
+                {
+                    error = BackupCreationError.TargetPathNotFound;
+                    return false;
+                }
+            }
+
+            // Replace job with updated values
+            BackupJob updated = new BackupJob(newName, newSource, newTarget, type);
+            backupJobs[index] = updated;
+            SaveConfiguration();
+            return true;
+        }
+
+        public bool UpdateBackupJob(int index, string? name, string? source, string? target, BackupType type)
+        {
+            return UpdateBackupJob(index, name, source, target, type, out _);
+        }
+
         public void ExecuteBackupJob(int index)
         {
             index -= 1; // Adjust for 0-based index
