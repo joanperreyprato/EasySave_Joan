@@ -72,22 +72,41 @@ namespace EasySave_v1._0
                     state.CurrentSourceFile = file;
                     state.CurrentTargetFile = destPath;
 
+                    long transferMs = 0;
+                    Stopwatch fileSw = Stopwatch.StartNew();
                     try
                     {
                         File.Copy(file, destPath, true);
+                        fileSw.Stop();
+                        transferMs = fileSw.ElapsedMilliseconds;
                     }
                     catch
                     {
-                        // ignore individual file errors, continue
+                        // mark as error for this file by using negative transfer time
+                        fileSw.Stop();
+                        transferMs = -1;
                     }
 
-                    // Update remaining counts/sizes
+                    // Update remaining counts/sizes (keep existing behaviour)
                     FileInfo fi = new FileInfo(file);
                     state.RemainingFiles = Math.Max(0, state.RemainingFiles - 1);
                     state.RemainingSize = Math.Max(0, state.RemainingSize - fi.Length);
                     state.Timestamp = DateTime.UtcNow;
                     state.UpdateProgress(state.RemainingFiles, state.RemainingSize);
                     stateManager.UpdateJobState(name, state);
+                    // Persist state in real-time
+                    try { stateManager.SaveState(); } catch { }
+
+                    // Log this file action (size and transfer time; negative if error)
+                    try
+                    {
+                        LogEntry fileLog = new LogEntry(name, file, destPath, fi.Length, transferMs, LogEntry.EntryType.File);
+                        logger.LogAction(fileLog);
+                    }
+                    catch
+                    {
+                        // ignore logging errors and continue
+                    }
                 }
 
                 sw.Stop();
@@ -97,8 +116,8 @@ namespace EasySave_v1._0
                 stateManager.UpdateJobState(name, state);
                 stateManager.SaveState();
 
-                // Log completion
-                LogEntry log = new LogEntry(name, sourcePath, targetPath, state.TotalSize, sw.ElapsedMilliseconds);
+                // Log overall completion
+                LogEntry log = new LogEntry(name, sourcePath, targetPath, state.TotalSize, sw.ElapsedMilliseconds, LogEntry.EntryType.Summary);
                 try
                 {
                     logger?.LogAction(log);

@@ -49,7 +49,19 @@ namespace EasySave_v1._0
                 state.CurrentTargetFile = dest;
 
                 long elapsed = CopyFile(fi.FullName, dest);
-                totalTransferMs += elapsed;
+                // add only non-negative times to totalTransferMs
+                if (elapsed > 0) totalTransferMs += elapsed;
+
+                // Log per-file action (transfer time negative indicates error)
+                try
+                {
+                    LogEntry fileLog = new LogEntry(job.GetName(), fi.FullName, dest, fi.Length, elapsed, LogEntry.EntryType.File);
+                    logger?.LogAction(fileLog);
+                }
+                catch
+                {
+                    // ignore logging errors
+                }
 
                 state.RemainingFiles = Math.Max(0, state.RemainingFiles - 1);
                 state.RemainingSize = Math.Max(0, state.RemainingSize - fi.Length);
@@ -64,7 +76,7 @@ namespace EasySave_v1._0
             stateManager.UpdateJobState(job.GetName(), state);
             stateManager.SaveState();
 
-            LogEntry log = new LogEntry(job.GetName(), source, target, state.TotalSize, totalTransferMs);
+            LogEntry log = new LogEntry(job.GetName(), source, target, state.TotalSize, totalTransferMs, LogEntry.EntryType.Summary);
             try { logger?.LogAction(log); } catch { }
         }
 
@@ -97,7 +109,16 @@ namespace EasySave_v1._0
                 state.CurrentTargetFile = dest;
 
                 long elapsed = CopyFile(fi.FullName, dest);
-                totalTransferMs += elapsed;
+                if (elapsed > 0) totalTransferMs += elapsed;
+
+                try
+                {
+                    LogEntry fileLog = new LogEntry(job.GetName(), fi.FullName, dest, fi.Length, elapsed, LogEntry.EntryType.File);
+                    logger?.LogAction(fileLog);
+                }
+                catch
+                {
+                }
 
                 state.RemainingFiles = Math.Max(0, state.RemainingFiles - 1);
                 state.RemainingSize = Math.Max(0, state.RemainingSize - fi.Length);
@@ -111,7 +132,7 @@ namespace EasySave_v1._0
             stateManager.UpdateJobState(job.GetName(), state);
             stateManager.SaveState();
 
-            LogEntry log = new LogEntry(job.GetName(), source, target, state.TotalSize, totalTransferMs);
+            LogEntry log = new LogEntry(job.GetName(), source, target, state.TotalSize, totalTransferMs, LogEntry.EntryType.Summary);
             try { logger?.LogAction(log); } catch { }
         }
 
@@ -121,13 +142,15 @@ namespace EasySave_v1._0
             try
             {
                 File.Copy(source, destination, true);
+                sw.Stop();
+                return sw.ElapsedMilliseconds;
             }
             catch
             {
-                // ignore individual copy errors
+                try { sw.Stop(); } catch { }
+                // indicate error with negative transfer time
+                return -1;
             }
-            sw.Stop();
-            return sw.ElapsedMilliseconds;
         }
 
         private static void CreateDirectory(string path)
