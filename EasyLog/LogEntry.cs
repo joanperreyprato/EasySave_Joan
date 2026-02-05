@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Text.Json.Serialization;
 
 namespace EasyLog
 {
@@ -11,8 +12,10 @@ namespace EasyLog
         public string TargetFilePath { get; set; }
         public long FileSize { get; set; }
         public long TransferTime { get; set; }
+        [JsonConverter(typeof(JsonStringEnumConverter))]
+        public EntryType Type { get; set; }
 
-        public LogEntry(string backupName, string source, string target, long size, long transferTime)
+        public LogEntry(string backupName, string source, string target, long size, long transferTime, EntryType type)
         {
             BackupName = backupName;
             SourceFilePath = source;
@@ -20,6 +23,13 @@ namespace EasyLog
             FileSize = size;
             TransferTime = transferTime;
             Timestamp = DateTime.UtcNow;
+            Type = type;
+        }
+
+        public enum EntryType
+        {
+            Summary,
+            File
         }
 
         public string ToUNCPath(string path)

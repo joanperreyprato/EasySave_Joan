@@ -53,7 +53,7 @@ namespace EasyLog
 
         public void CreateDailyLogFile()
         {
-            string fileName = DateTime.UtcNow.ToString("yyyy-MM-dd") + ".log.json";
+            string fileName = DateTime.UtcNow.ToString("yyyy-MM-dd") + ".json";
             currentLogFile = fileName;
 
             string path = Path.Combine(logDirectory, currentLogFile);

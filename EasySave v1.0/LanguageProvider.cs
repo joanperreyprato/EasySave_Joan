@@ -11,24 +11,50 @@ namespace EasySave_v1._0
         // Ajout d'une instance statique pour JsonSerializerOptions pour corriger CA1869
         private static readonly JsonSerializerOptions CachedJsonOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
 
-        public LanguageProvider(string language)
+        // Singleton support
+        private static readonly object sync = new();
+        private static LanguageProvider? instance;
+
+        // Private constructor for singleton
+        private LanguageProvider(string? language)
         {
             translations = new Dictionary<string, Dictionary<string, string>>(StringComparer.OrdinalIgnoreCase);
-            
+
             // Initialize language config path
             string appData = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
             string dir = Path.Combine(appData, "EasySave");
             Directory.CreateDirectory(dir);
             languageConfigPath = Path.Combine(dir, "language.json");
-            
+
             // Try to load saved language, otherwise use provided language
             string savedLanguage = LoadLanguageFromFile();
-            currentLanguage = string.IsNullOrWhiteSpace(savedLanguage) ? 
-                (string.IsNullOrWhiteSpace(language) ? "en" : language) : 
+            currentLanguage = string.IsNullOrWhiteSpace(savedLanguage) ?
+                (string.IsNullOrWhiteSpace(language) ? "en" : language!) :
                 savedLanguage;
-            
+
             LoadTranslations();
         }
+
+        // Get or create the singleton instance. If language is provided on first call it will be used.
+        public static LanguageProvider GetInstance(string? language = null)
+        {
+            lock (sync)
+            {
+                if (instance == null)
+                {
+                    instance = new LanguageProvider(language);
+                }
+                else if (!string.IsNullOrWhiteSpace(language))
+                {
+                    instance.SetLanguage(language!);
+                }
+
+                return instance;
+            }
+        }
+
+        // Convenience property
+        public static LanguageProvider Instance => GetInstance();
 
         public string GetText(string key)
         {
@@ -105,6 +131,7 @@ namespace EasySave_v1._0
                 ["backup.create.error.max_jobs_exceeded"] = "  - Maximum number of backup jobs (5) reached.",
                 ["backup.create.error.unknown"] = "  - An unknown error occurred.",
                 ["backup.create.retry.prompt"] = "\nDo you want to retry? (yes/no): ",
+                ["backup.modify.empty"] = " (leave empty to keep old value): ",
                 ["ui.select.option"] = "Select an option: ",
                 ["ui.backup.title"] = "-- Create Backup Job --",
                 ["ui.execute.title"] = "-- Execute Backup Job --",
@@ -113,7 +140,9 @@ namespace EasySave_v1._0
                 ["ui.backup.created"] = "Backup job created.",
                 ["ui.backup.failed"] = "Failed to create backup job (duplicate name?).",
                 ["ui.execution.requested"] = "Execution requested.",
-                ["ui.invalid.index"] = "Invalid index."
+                ["ui.invalid.index"] = "Invalid index.",
+                ["menu.edit"] = "Edit Backup",
+                ["ui.backup.updated"] = "Backup job updated."
             };
 
             translations["fr"] = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
@@ -143,6 +172,7 @@ namespace EasySave_v1._0
                 ["backup.create.error.max_jobs_exceeded"] = "  - Nombre maximum de sauvegardes (5) atteint.",
                 ["backup.create.error.unknown"] = "  - Une erreur inconnue s'est produite.",
                 ["backup.create.retry.prompt"] = "\nVoulez-vous réessayer ? (oui/non) : ",
+                ["backup.modify.empty"] = " (laissez vide pour garder l'ancienne valeure): ",
                 ["ui.select.option"] = "Sélectionnez une option : ",
                 ["ui.backup.title"] = "-- Créer une sauvegarde --",
                 ["ui.execute.title"] = "-- Exécuter une sauvegarde --",
@@ -151,7 +181,9 @@ namespace EasySave_v1._0
                 ["ui.backup.created"] = "Sauvegarde créée.",
                 ["ui.backup.failed"] = "Impossible de créer la sauvegarde (nom déjà existant?).",
                 ["ui.execution.requested"] = "Exécution lancée.",
-                ["ui.invalid.index"] = "Index invalide."
+                ["ui.invalid.index"] = "Index invalide.",
+                ["menu.edit"] = "Modifier une sauvegarde",
+                ["ui.backup.updated"] = "Sauvegarde mise à jour."
             };
         }
 
