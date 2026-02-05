@@ -1,20 +1,60 @@
 using EasySave_v1._0;
 using System;
+using System.IO;
 using System.Linq;
 
 // Initialize core services
-LanguageProvider language = new("en");
+LanguageProvider language = LanguageProvider.GetInstance("en");
 StateManager stateManager = new();
 stateManager.LoadState();
+// Precompute tokens so CLI options can be read early (e.g. --logdir)
+string[] tokens = args != null && args.Length > 0
+    ? args.Select(a => a.Trim()).Where(a => !string.IsNullOrWhiteSpace(a)).ToArray()
+    : Array.Empty<string>();
 
-var logger = new EasyLog.JsonLogger("logs");
+// Determine log directory: prefer explicit CLI option --logdir or --logdir=path, otherwise use CommonApplicationData\EasySave\logs
+string defaultLogDir;
+try
+{
+    string appData = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
+    defaultLogDir = Path.Combine(appData, "EasySave", "logs");
+}
+catch
+{
+    defaultLogDir = Path.Combine(Directory.GetCurrentDirectory(), "logs");
+}
+
+string logDir = defaultLogDir;
+for (int i = 0; i < tokens.Length; i++)
+{
+    string t = tokens[i];
+    if (t.StartsWith("--logdir=", StringComparison.OrdinalIgnoreCase))
+    {
+        logDir = t.Substring("--logdir=".Length);
+        break;
+    }
+    if (string.Equals(t, "--logdir", StringComparison.OrdinalIgnoreCase) && i + 1 < tokens.Length)
+    {
+        logDir = tokens[i + 1];
+        break;
+    }
+    if (t.StartsWith("-l=", StringComparison.OrdinalIgnoreCase))
+    {
+        logDir = t.Substring(3);
+        break;
+    }
+}
+
+try { logDir = Path.GetFullPath(string.IsNullOrWhiteSpace(logDir) ? defaultLogDir : logDir); } catch { logDir = defaultLogDir; }
+Directory.CreateDirectory(logDir);
+
+var logger = new EasyLog.JsonLogger(logDir);
 BackupManager backupManager = new(stateManager, logger);
 ConsoleUI ui = new(backupManager, language);
 
-if (args != null && args.Length > 0)
+if (tokens != null && tokens.Length > 0)
 {
     // Simple command-line support
-    string[] tokens = args.Select(a => a.Trim()).Where(a => !string.IsNullOrWhiteSpace(a)).ToArray();
 
     if (tokens.Any(t => string.Equals(t, "list", StringComparison.OrdinalIgnoreCase)))
     {
@@ -102,6 +142,9 @@ while (running)
             ui.DisplayBackupJobs();
             break;
         case "4":
+            ui.EditBackupJobMenu();
+            break;
+        case "5":
             ui.ChangeLanguageMenu();
             string? langChoice = Console.ReadLine();
             switch (langChoice)
@@ -119,7 +162,7 @@ while (running)
                     break;
             }
             break;
-        case "5":
+        case "6":
             running = false;
             break;
         default:
