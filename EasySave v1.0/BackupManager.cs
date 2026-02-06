@@ -36,7 +36,7 @@ namespace EasySave_v1._0
         {
             this.stateManager = stateManager ?? throw new ArgumentNullException(nameof(stateManager));
             this.logger = logger;
-            this.backupJobs = [];
+            this.backupJobs = new List<BackupJob>();
 
             if (string.IsNullOrWhiteSpace(configPath))
             {
@@ -278,7 +278,7 @@ namespace EasySave_v1._0
 
         public List<BackupJob> GetBackupJobs()
         {
-            return [.. backupJobs];
+            return backupJobs.ToList();
         }
 
         public void LoadConfiguration()
