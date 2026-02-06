@@ -1,0 +1,66 @@
+# Build outputs
+bin/
+obj/
+**/bin/
+**/obj/
+
+# Visual Studio files
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Rider / IntelliJ
+.idea/
+*.iml
+
+# VS Code
+.vscode/
+
+# NuGet
+*.nupkg
+.packages/
+.nuget/
+
+# Logs
+*.log
+logs/
+
+# Publish folders
+publish/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Rider cache
+.idea/
+
+# Backup & tooling
+*.backup
+*.tmp
+
+# EasyLog / project outputs
+EasyLog/bin/
+EasyLog/obj/
+"EasySave v1.0"/bin/
+"EasySave v1.0"/obj/
+
+# JetBrains Rider
+*.sln.iml
+
+# Dotnet user-specific files
+*.userprefs
+
+# Local secrets
+secrets.json
+appsettings.Development.json
+
+# Temporary test files
+TestResults/
+
+# Logs and state files created by the app (if you prefer to ignore them)
+# Uncomment if you want to ignore runtime-generated files
+# state.json
+# backup_config.json
