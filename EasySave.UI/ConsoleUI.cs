@@ -122,10 +122,13 @@ namespace EasySave_v1._0
                 return;
             }
 
+            Console.WriteLine();
+
             for (int i = 0; i < jobs.Count; i++)
             {
                 BackupJob j = jobs[i];
-                Console.WriteLine($"[{i+1}] {j.GetName()} -> {j.GetSourcePath()} => {j.GetTargetPath()} ({j.GetType()})");
+                Console.WriteLine($"[{i+1}] {j.GetName()} -> {j.GetSourcePath()} => {j.GetTargetPath()} ({j.GetBackupType()})\n");
+                
             }
         }
 
