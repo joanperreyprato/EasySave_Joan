@@ -8,6 +8,7 @@ namespace EasyLog
     {
         private readonly string logDirectory;
         private string currentLogFile;
+        public LogFormat Format => LogFormat.Json;
 
         public JsonLogger(string logDirectory)
         {

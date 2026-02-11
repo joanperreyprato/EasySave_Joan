@@ -14,15 +14,17 @@ namespace EasySave_v1._0
         private readonly string sourcePath;
         private readonly string targetPath;
         private readonly BackupType type;
+        private readonly EasyLog.LogFormat logFormat;
 
         private JobState state;
 
-        public BackupJob(string name, string source, string target, BackupType type)
+        public BackupJob(string name, string source, string target, BackupType type, EasyLog.LogFormat logFormat = EasyLog.LogFormat.Json)
         {
             this.name = name ?? string.Empty;
             this.sourcePath = source ?? string.Empty;
             this.targetPath = target ?? string.Empty;
             this.type = type;
+            this.logFormat = logFormat;
 
             this.state = new JobState(this.name)
             {
@@ -142,5 +144,6 @@ namespace EasySave_v1._0
         public string GetTargetPath() => targetPath;
         public BackupType GetBackupType() => type;
         public JobState GetState() => state;
+        public EasyLog.LogFormat GetLogFormat() => logFormat;
     }
 }
