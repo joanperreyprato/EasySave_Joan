@@ -4,5 +4,6 @@ namespace EasyLog
     {
         void LogAction(LogEntry message);
         void CreateDailyLogFile();
+        LogFormat Format { get; }
     }
 }
