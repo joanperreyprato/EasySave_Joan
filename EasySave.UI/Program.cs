@@ -174,7 +174,7 @@ while (running)
 }
 
 // Helper function to convert BackupCreationError to user-friendly message
-string GetErrorMessage(BackupManager.BackupCreationError error, ILanguageProvider languageProvider)
+string GetErrorMessage(BackupManager.BackupCreationError error, LanguageProvider languageProvider)
 {
     return error switch
     {
