@@ -53,6 +53,9 @@ namespace EasySave_v1._0
             LoadConfiguration();
         }
 
+        // Expose config path for diagnostics
+        public string ConfigPath => configPath;
+
         /// <summary>
         /// Validates the backup job name.
         /// </summary>
@@ -97,6 +100,11 @@ namespace EasySave_v1._0
         /// Creates a backup job with full validation.
         /// </summary>
         public bool CreateBackupJob(string name, string source, string target, BackupType type, out BackupCreationError error)
+        {
+            return CreateBackupJob(name, source, target, type, EasyLog.LogFormat.Json, out error);
+        }
+
+        public bool CreateBackupJob(string name, string source, string target, BackupType type, EasyLog.LogFormat logFormat, out BackupCreationError error)
         {
             error = BackupCreationError.None;
 
@@ -149,7 +157,7 @@ namespace EasySave_v1._0
                 return false;
             }
 
-            BackupJob job = new BackupJob(name, source, target, type);
+            BackupJob job = new BackupJob(name, source, target, type, logFormat);
             backupJobs.Add(job);
             SaveConfiguration();
             return true;
@@ -272,7 +280,7 @@ namespace EasySave_v1._0
             if (indices == null) return;
             foreach (var idx in indices)
             {
-                ExecuteBackupJob(idx-1);
+                ExecuteBackupJob(idx);
             }
         }
 
@@ -294,7 +302,16 @@ namespace EasySave_v1._0
                 backupJobs.Clear();
                 foreach (BackupConfigEntry e in entries)
                 {
-                    BackupJob job = new BackupJob(e.Name, e.SourcePath, e.TargetPath, e.Type);
+                    // determine log format if provided
+                    EasyLog.LogFormat fmt = EasyLog.LogFormat.Json;
+                    try
+                    {
+                        if (!string.IsNullOrWhiteSpace(e.LogFormat) && string.Equals(e.LogFormat, "xml", StringComparison.OrdinalIgnoreCase))
+                            fmt = EasyLog.LogFormat.Xml;
+                    }
+                    catch { }
+
+                    BackupJob job = new BackupJob(e.Name, e.SourcePath, e.TargetPath, e.Type, fmt);
                     backupJobs.Add(job);
                 }
             }
@@ -313,7 +330,8 @@ namespace EasySave_v1._0
                     Name = b.GetName(),
                     SourcePath = b.GetSourcePath(),
                     TargetPath = b.GetTargetPath(),
-                    Type = b.GetBackupType()
+                    Type = b.GetBackupType(),
+                    LogFormat = b.GetLogFormat() == EasyLog.LogFormat.Xml ? "xml" : "json"
                 }).ToList();
 
                 // Utilisation de l'instance statique
@@ -332,6 +350,7 @@ namespace EasySave_v1._0
             public required string SourcePath { get; set; }
             public required string TargetPath { get; set; }
             public BackupType Type { get; set; }
+            public string? LogFormat { get; set; }
         }
     }
 }

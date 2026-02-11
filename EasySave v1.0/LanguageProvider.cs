@@ -2,7 +2,7 @@
 
 namespace EasySave_v1._0
 {
-    public class LanguageProvider : ILanguageProvider
+    public class LanguageProvider
     {
         private string currentLanguage;
         private Dictionary<string, Dictionary<string, string>> translations;
@@ -143,6 +143,26 @@ namespace EasySave_v1._0
                 ["ui.invalid.index"] = "Invalid index.",
                 ["menu.edit"] = "Edit Backup",
                 ["ui.backup.updated"] = "Backup job updated."
+                ,
+                // UI elements
+                ["window.title"] = "EasySave 2.0",
+                ["col.name"] = "Name",
+                ["col.source"] = "Source",
+                ["col.target"] = "Target",
+                ["col.state"] = "State",
+                ["btn.add"] = "Add job",
+                ["btn.startall"] = "Start all",
+                ["btn.stopall"] = "Stop all",
+                ["btn.startsel"] = "Start selected",
+                ["btn.stopsel"] = "Stop selected",
+                ["status.ready"] = "Ready",
+                ["addjob.title"] = "Add Backup Job",
+                ["addjob.name"] = "Name:",
+                ["addjob.source"] = "Source:",
+                ["addjob.target"] = "Destination:",
+                ["addjob.log"] = "Log:",
+                ["button.ok"] = "Ok",
+                ["button.cancel"] = "Cancel"
             };
 
             translations["fr"] = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
@@ -184,6 +204,26 @@ namespace EasySave_v1._0
                 ["ui.invalid.index"] = "Index invalide.",
                 ["menu.edit"] = "Modifier une sauvegarde",
                 ["ui.backup.updated"] = "Sauvegarde mise à jour."
+                ,
+                // UI elements
+                ["window.title"] = "EasySave 2.0",
+                ["col.name"] = "Nom",
+                ["col.source"] = "Source",
+                ["col.target"] = "Cible",
+                ["col.state"] = "Etat",
+                ["btn.add"] = "Ajouter un travail",
+                ["btn.startall"] = "Lancer tous",
+                ["btn.stopall"] = "Arreter tous",
+                ["btn.startsel"] = "Lancer sélection",
+                ["btn.stopsel"] = "Arrêter sélection",
+                ["status.ready"] = "Prêt",
+                ["addjob.title"] = "Ajouter un travail",
+                ["addjob.name"] = "Nom:",
+                ["addjob.source"] = "Source:",
+                ["addjob.target"] = "Cible:",
+                ["addjob.log"] = "Log:",
+                ["button.ok"] = "Ok",
+                ["button.cancel"] = "Annuler"
             };
         }
 
