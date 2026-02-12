@@ -1,14 +1,16 @@
 using System;
 using System.Collections.Generic;
+using EasyLog;
+using EasyLog;
 
 namespace EasySave_v1._0
 {
     public class ConsoleUI
     {
         private readonly BackupManager backupManager;
-        private readonly ILanguageProvider languageProvider; // Updated to use singleton instance
+        private readonly LanguageProvider languageProvider; // use concrete LanguageProvider
 
-        public ConsoleUI(BackupManager manager, ILanguageProvider language)
+        public ConsoleUI(BackupManager manager, LanguageProvider language)
         {
             this.backupManager = manager ?? throw new ArgumentNullException(nameof(manager));
             this.languageProvider = language ?? throw new ArgumentNullException(nameof(language));
@@ -42,12 +44,26 @@ namespace EasySave_v1._0
             string target = GetUserInput(languageProvider.GetText("backup.create.target.prompt"));
             string typeStr = GetUserInput(languageProvider.GetText("backup.create.type.prompt"));
 
+            // Prompt for log format (json/xml)
+            string logPrompt = languageProvider.GetText("backup.create.log.prompt");
+            if (string.IsNullOrWhiteSpace(logPrompt)) logPrompt = "Log format (json/xml): ";
+            string logStr = GetUserInput(logPrompt);
+            EasyLog.LogFormat logFormat = EasyLog.LogFormat.Json;
+            if (!string.IsNullOrWhiteSpace(logStr) && logStr.Trim().StartsWith("x", StringComparison.OrdinalIgnoreCase))
+                logFormat = EasyLog.LogFormat.Xml;
+
             BackupType type = BackupType.Full;
             if (!string.IsNullOrWhiteSpace(typeStr) && typeStr.StartsWith("d", StringComparison.OrdinalIgnoreCase))
                 type = BackupType.Differential;
 
-            bool ok = backupManager.CreateBackupJob(name, source, target, type);
-            Console.WriteLine(ok ? languageProvider.GetText("ui.backup.created") : languageProvider.GetText("ui.backup.failed"));
+            bool ok = backupManager.CreateBackupJob(name, source, target, type, logFormat, out var error);
+            if (ok)
+                Console.WriteLine(languageProvider.GetText("ui.backup.created"));
+            else
+            {
+                Console.WriteLine(languageProvider.GetText("backup.create.error.title"));
+                Console.WriteLine(GetErrorMessage(error));
+            }
         }
 
         public void ExecuteBackupMenu()
