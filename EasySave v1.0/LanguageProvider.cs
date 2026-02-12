@@ -132,6 +132,7 @@ namespace EasySave_v1._0
                 ["backup.create.error.unknown"] = "  - An unknown error occurred.",
                 ["backup.create.retry.prompt"] = "\nDo you want to retry? (yes/no): ",
                 ["backup.modify.empty"] = " (leave empty to keep old value): ",
+                ["backup.create.log.prompt"] = "Log format (json/xml): ",
                 ["ui.select.option"] = "Select an option: ",
                 ["ui.backup.title"] = "-- Create Backup Job --",
                 ["ui.execute.title"] = "-- Execute Backup Job --",
