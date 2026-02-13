@@ -1,715 +1,497 @@
-# EasySave v1.0 - Documentation Technique
+# EasySave 2.0 - Documentation Technique
 
-##  Guide pour les développeurs
-
----
-
-## Table des matières
-
-1. [Architecture générale](#architecture-générale)
-2. [Description des composants](#description-des-composants)
-3. [Flux d'exécution](#flux-dexécution)
-4. [Système de traduction](#système-de-traduction)
-5. [Gestion d'état](#gestion-détat)
-6. [Validation des données](#validation-des-données)
-7. [Gestion des erreurs](#gestion-des-erreurs)
-8. [Patterns utilisés](#patterns-utilisés)
-9. [Extensibilité](#extensibilité)
+Guide pour les développeurs et contributeurs
 
 ---
 
-## Architecture générale
+## Architecture
 
-### Diagramme UML simplifié
+### Vue d'Ensemble
 
 ```
 
-                     Program.cs                           
-              (Point d'entrée principal)                 
+           Interface Utilisateur             
 
-                 
-        
-                         
+   EasySave.WPF         EasySave.UI         
+   (GUI WPF)            (Console CLI)       
+
+                            
+         
+                    
+         
+            EasySave v1.0       
+            (Bibliothèque Core) 
+                                
+           - BackupManager      
+           - BackupJob          
+           - BackupExecutor     
+           - StateManager       
+           - LanguageProvider   
+         
+                        
        
-   ConsoleUI    LanguageProvider
-   (UI)         (Traduction)
+        EasyLog      CryptoSoft 
+       (Logging)    (Encryption)
        
-        
-   
-     BackupManager        
-     (Gestion tâches)     
-   
-        
-   
-     BackupExecutor       
-     (Exécution)          
-   
-        
-   
-                          
-    
- StateManager      JsonLogger    
- (État)            (Logs)        
-    
 ```
 
 ---
 
-## Description des composants
+## Composants Principaux
 
-### 1. **Program.cs** - Point d'entrée
+### 1. EasySave.WPF (Interface Graphique)
 
-**Responsabilités** :
-- Initialisation des services (logger, StateManager, BackupManager, LanguageProvider)
-- Routage entre mode interactif et mode CLI
-- Gestion des arguments en ligne de commande
+**MainWindow.xaml.cs**
+- Gère l'interface WPF
+- `ObservableCollection<JobViewModel>` pour binding
+- Gestion des événements boutons
+- Onglet chiffrement
+- Changement de langue dynamique
 
-**Interfaces clés** :
+**Fonctionnalités clés** :
 ```csharp
-var language = new LanguageProvider("en");
-var stateManager = new StateManager();
-var logger = new JsonLogger("logs");
-var backupManager = new BackupManager(stateManager, logger);
-var ui = new ConsoleUI(backupManager, language);
-```
+// Ajouter un travail
+BtnAddJob.Click += (_, __) => AddJob();
 
-**Commandes supportées** :
-- `list` - Affiche les sauvegardes
-- `create <nom> <source> <cible> [full|diff]` - Crée une sauvegarde
-- `execute <indices>` - Exécute des sauvegardes
-
----
-
-### 2. **ConsoleUI.cs** - Interface utilisateur
-
-**Responsabilités** :
-- Affichage du menu interactif
-- Collecte des entrées utilisateur
-- Affichage des erreurs localisés
-- Gestion du flux utilisateur
-
-**Méthodes principales** :
-
-```csharp
-public void DisplayMainMenu()        // Affiche le menu principal
-public void CreateBackupJobMenu()    // Crée une sauvegarde interactive
-public void ExecuteBackupMenu()      // Exécute une sauvegarde interactive
-public void DisplayBackupJobs()      // Liste les sauvegardes
-```
-
-**Dépendances** :
-- `BackupManager` - Gestion des tâches
-- `ILanguageProvider` - Traduction
-
----
-
-### 3. **BackupManager.cs** - Gestionnaire des tâches
-
-**Responsabilités** :
-- Validation des paramètres de création
-- Gestion de la liste des tâches
-- Persistance de la configuration (JSON)
-- Orchestration de l'exécution
-
-**Enum d'erreurs** :
-```csharp
-public enum BackupCreationError
-{
-    None,
-    InvalidName,
-    SourcePathInvalid,
-    SourcePathNotFound,
-    TargetPathInvalid,
-    TargetPathNotFound,
-    DuplicateName,
-    MaxJobsExceeded
+// Exécuter avec chiffrement optionnel
+void StartBackupByIndex(int oneBasedIndex) {
+    // Demande à l'utilisateur
+    // Execute backup
+    // Si chiffrement : chiffre fichiers après copie
 }
 ```
 
-**Validation** :
-- Nom : alphanumérique, espaces, tirets, underscores (max 50 caractères)
-- Chemins : format absolu valide, répertoires doivent exister
-- Unicité : pas de doublon de nom
-- Limite : maximum 5 sauvegardes
+### 2. EasySave.UI (Console)
 
----
+**Program.cs**
+- Mode interactif (menu)
+- Mode commande (`create`, `execute`, `list`)
+- Parsing des arguments CLI
+- Gestion multilingue
 
-### 4. **BackupExecutor.cs** - Exécuteur des sauvegardes
+**Commandes** :
+```csharp
+// Parsing indices : "1-3" ou "1,3,5"
+int[] indices = CommandLineParser.ParseArguments(tokens);
 
-**Responsabilités** :
-- Exécution des sauvegardes complètes
-- Exécution des sauvegardes différentielles
-- Mise à jour d'état en temps réel
+// Exécution
+backupManager.ExecuteBackupJobs(indices);
+```
+
+### 3. EasySave v1.0 (Bibliothèque Core)
+
+#### BackupManager
+- Création et validation des travaux
+- Persistance dans `backup_config.json`
+- Orchestration des exécutions
+
+```csharp
+public enum BackupCreationError {
+    None, InvalidName, SourcePathInvalid, 
+    SourcePathNotFound, TargetPathInvalid, 
+    TargetPathNotFound, DuplicateName, MaxJobsExceeded
+}
+
+public bool CreateBackupJob(string name, string source, 
+    string target, BackupType type, out BackupCreationError error)
+```
+
+#### BackupJob
+- Représente un travail de sauvegarde
+- Méthode `Execute()` effectue la copie
+- Met à jour l'état en temps réel
+
+```csharp
+public void Execute(ILogger logger, StateManager stateManager) {
+    // Liste fichiers
+    // Copie fichier par fichier
+    // Met à jour progression
+    // Logs actions
+}
+```
+
+#### BackupExecutor
+- Exécution des sauvegardes Full et Differential
 - Calcul de progression
+- Gestion des erreurs silencieuses
 
-**Algorithme de sauvegarde complète** :
-```
-1. Lister tous les fichiers du source (récursif)
-2. Calculer taille totale et nombre fichiers
-3. Pour chaque fichier :
-   a. Créer les répertoires destination si besoin
-   b. Copier le fichier
-   c. Mettre à jour progression et état
-4. Marquer complétée, sauvegarder logs
-```
+#### StateManager
+- Charge/sauvegarde `state.json`
+- Met à jour l'état en temps réel
+- Fournit état actuel pour monitoring
 
-**Algorithme de sauvegarde différentielle** :
-```
-1. Lister tous les fichiers du source
-2. Pour chaque fichier :
-   a. Vérifier si existe en cible
-   b. Si n'existe pas : inclure
-   c. Si existe : comparer date/taille
-      - Si différent : inclure
-3. Copier uniquement les fichiers inclus
-4. Mettre à jour progression
-```
-
----
-
-### 5. **StateManager.cs** - Gestion d'état
-
-**Responsabilités** :
-- Chargement/sauvegarde de l'état JSON
-- Mise à jour de l'état des tâches
-- Récupération de l'état actuel
-
-**Persistance** :
 ```csharp
-stateFilePath = "%ProgramData%\EasySave\state.json"
-```
-
-**Méthodes** :
-```csharp
-void UpdateJobState(string jobName, JobState state)
-JobState GetJobState(string jobName)
-void SaveState()
-void LoadState()
-```
-
----
-
-### 6. **JobState.cs** - État d'une tâche
-
-**Propriétés** :
-```csharp
-public string Name              // Nom de la tâche
-public DateTime Timestamp       // Horodatage
-public StateStatus Status       // État (Inactive, Active, Completed, Error)
-public int TotalFiles          // Nombre total fichiers
-public long TotalSize          // Taille totale (octets)
-public int RemainingFiles      // Fichiers restants
-public long RemainingSize      // Taille restante (octets)
-public string CurrentSourceFile // Fichier source courant
-public string CurrentTargetFile // Fichier destination courant
-public double Progress         // % progression (0-100)
-```
-
-**Calcul de progression** :
-```csharp
-Progress = (TotalFiles - RemainingFiles) / TotalFiles * 100
-// ou par taille si TotalFiles = 0
-Progress = (TotalSize - RemainingSize) / TotalSize * 100
-```
-
----
-
-### 7. **LanguageProvider.cs** - Traduction
-
-**Responsabilités** :
-- Chargement des traductions (fichier JSON ou defaults)
-- Récupération de texte localisé
-- Changement de langue
-
-**Structure de traduction** :
-```json
-{
-  "en": {
-    "menu.create": "Create Backup",
-    "menu.execute": "Execute Backup",
-    ...
-  },
-  "fr": {
-    "menu.create": "Créer une sauvegarde",
-    "menu.execute": "Exécuter la sauvegarde",
-    ...
-  }
+public class JobState {
+    public string Name { get; set; }
+    public DateTime Timestamp { get; set; }
+    public StateStatus Status { get; set; }
+    public int TotalFiles { get; set; }
+    public long TotalSize { get; set; }
+    public int RemainingFiles { get; set; }
+    public long RemainingSize { get; set; }
+    public double Progress { get; set; }
 }
 ```
 
-**Fichier de configuration** :
-```
-Directory: %ProgramData%\EasySave\
-File: languages.json (optionnel)
+#### LanguageProvider
+- Singleton multilingue
+- Support FR et EN
+- Fallback automatique
+
+```csharp
+public static LanguageProvider GetInstance(string language = "en")
+public string GetText(string key)
+public void SetLanguage(string languageCode)
 ```
 
-**Fallback** :
-- Si clé non trouvée  fallback EN
-- Si langue non existante  fallback EN
+### 4. EasyLog (Système de Logs)
+
+**ILogger Interface**
+```csharp
+public interface ILogger {
+    void LogAction(LogEntry entry);
+}
+```
+
+**JsonLogger / XmlLogger**
+- Logs dans `C:\ProgramData\EasySave\logs\`
+- Format JSON ou XML
+- Timestamp automatique
+
+**LogEntry**
+```csharp
+public class LogEntry {
+    public string JobName { get; set; }
+    public string SourcePath { get; set; }
+    public string TargetPath { get; set; }
+    public long FileSize { get; set; }
+    public long TransferTime { get; set; }
+    public long EncryptionTime { get; set; } // -1 si erreur
+    public EntryType Type { get; set; } // File ou Summary
+}
+```
+
+### 5. CryptoSoft (Chiffrement)
+
+**CryptoService**
+```csharp
+public static class CryptoService {
+    // Chiffre fichier avec AES-256-CBC
+    public static void EncryptFile(string input, string output, string key)
+    
+    // Déchiffre fichier
+    public static void DecryptFile(string input, string output, string key)
+    
+    // Chiffre stream, retourne bytes
+    public static byte[] Encrypt(Stream inputStream, string key)
+    
+    // Déchiffre stream, retourne bytes
+    public static byte[] Decrypt(Stream inputStream, string key)
+}
+```
+
+**Format chiffré** :
+```
+[1 byte: IV length][IV bytes][Ciphertext][32 bytes: HMAC-SHA256]
+```
+
+**Algorithme** :
+- Clé dérivée : `SHA256(key_text)`
+- Chiffrement : AES-256-CBC
+- Intégrité : HMAC-SHA256
 
 ---
 
-### 8. **CommandLineParser.cs** - Analyse CLI
+## Flux d'Exécution
 
-**Responsabilités** :
-- Parsing des arguments en ligne de commande
-- Support des plages (1-3) et listes (0,2,4)
-- Identification des commandes valides
-
-**Syntaxe supportée** :
-```bash
-# Plage
-execute 1-5         [1, 2, 3, 4, 5]
-
-# Liste
-execute 0,2,4       [0, 2, 4]
-
-# Combiné
-execute 0-2,5,7     [0, 1, 2, 5, 7]
-```
-
----
-
-## Flux d'exécution
-
-### 1. Mode interactif
+### Création d'un Travail (WPF)
 
 ```
-START
+User clicks "Add job"
   
-Initialiser services
   
-Afficher menu principal
+AddJobWindow dialog
   
+  
+User fills form  OK
+  
+  
+BackupManager.CreateBackupJob()
+  
+   Validate name (alphanumeric)
+   Check source exists
+   Check target exists
+   Check no duplicate
+   Check limit (5 jobs)
+  
+  
+Add to Jobs list
+  
+  
+Save to backup_config.json
+  
+  
+Update UI
+```
 
-  Boucle interactive         
-     
-   Attendre choix user     
-     
-                            
+### Exécution avec Chiffrement (WPF)
+
+```
+User clicks "Start selected"
+  
+  
+For each selected job:
+  
+   Ask user: "Encrypt"
       
-                           
-  (1)          (2)        (3) 
-                           
-                           
-  Créer       Exécuter   Lister
-                           
+       No  Execute backup normally
       
-                            
-      Sauvegarder configuration
-                              
-      Retour menu             
-                              
-
-          
-       (4) EXIT
-          
-        END
+       Yes
+           
+            Check encryption key exists
+           
+            Execute backup (copy files)
+           
+            For each copied file:
+                
+                 Check extension in filter list
+                
+                 If match:
+                    
+                     CryptoService.EncryptFile()
+                     Measure encryption time
+                     Replace original with encrypted
+                     Log encryption time
+                
+                 Continue with next file
+  
+  
+Update state to "Completed"
 ```
 
-### 2. Création de sauvegarde
+### Sauvegarde Différentielle
 
 ```
-CreateBackupJobMenu()
+BackupExecutor.ExecuteDifferentialBackup()
   
-Boucle :
-   Demander nom, source, cible, type
-   Valider avec BackupManager.CreateBackupJob()
-     IsValidName()
-     Vérifier duplicata
-     Vérifier limite (5)
-     IsValidPath(source)
-     Vérifier source existe
-     IsValidPath(cible)
-     Vérifier cible existe
-     Créer et ajouter à liste
+   List all files in source
   
-   Si succès  SaveConfiguration()
-               Retour
+   For each file:
+      
+       Check if exists in target
+      
+       If not exists  Include
+      
+       If exists:
+           
+            Compare modification date
+            Compare size
+           
+            If different  Include
   
-   Si erreur  DisplayCreationError()
-                Demander retry
-```
-
-### 3. Exécution de sauvegarde
-
-```
-ExecuteBackupJob(index)
+   Copy only included files
   
-Vérifier index valide
-  
-Récupérer job et type
-   Full  ExecuteFullBackup()
-   Diff  ExecuteDifferentialBackup()
-  
-  Chacun :
-   Lister fichiers éligibles
-   Calculer taille totale
-   Créer état initial
-   Pour chaque fichier :
-     Copier
-     Mettre à jour progression
-     Sauvegarder état
-   Marquer complétée
-   Logger résultat
+   Log results
 ```
 
 ---
 
-## Système de traduction
+## Validation des Données
 
-### Implémentation
-
-Le système utilise `ILanguageProvider` pour abstraction :
-
+### Nom de Travail
 ```csharp
-public interface ILanguageProvider
-{
-    string GetText(string key);
-    void SetLanguage(string languageCode);
-}
+Regex.IsMatch(name, @"^[a-zA-Z0-9\s\-_]+$")
+name.Length <= 50
 ```
 
-### Utilisation
-
+### Chemins
 ```csharp
-// Dans ConsoleUI
-Console.WriteLine(languageProvider.GetText("menu.create"));
-
-// Dans Program.cs
-Console.WriteLine(language.GetText("backup.create.error.invalid_name"));
-```
-
-### Clés de traduction
-
-Structure hiérarchique recommandée :
-```
-menu.*               Menu principal
-backup.create.*      Création sauvegarde
-backup.execute.*     Exécution sauvegarde
-backup.list.*        Listing sauvegardes
-error.*              Erreurs générales
-```
-
-### Ajout d'une nouvelle langue
-
-1. Ajouter dans `LanguageProvider.cs` :
-```csharp
-translations["es"] = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-{
-    ["menu.create"] = "Crear Copia de Seguridad",
-    ...
-};
-```
-
-2. Utiliser en changeant `Program.cs` :
-```csharp
-var language = new LanguageProvider("es");
+Path.GetFullPath(path) // Valide format
+Directory.Exists(path)  // Vérifie existence
 ```
 
 ---
 
-## Gestion d'état
+## Gestion des Erreurs
 
-### Cycle de vie d'une tâche
+### Stratégie
+- **Validation précoce** : Avant persistance
+- **Erreurs silencieuses** : Continue malgré erreur fichier individuel
+- **Logs** : `transferTime: -1` ou `encryptionTime: -1` indiquent erreur
+- **Messages localisés** : Selon langue active
 
-```
-Inactive (création)
-   
-Active (exécution en cours)
-    État mis à jour après chaque fichier
-    Progression augmente
-    Temps réel pour monitoring
-   
-Completed (succès)
-    Progress = 100%
-    RemainingFiles = 0
-    RemainingSize = 0
-   
-   OU
-   
-Error (erreur)
-    Pas de fin
-```
-
-### Sérialisation JSON
-
-```json
-{
-  "name": "MonBackup",
-  "timestamp": "2024-01-15T10:30:00Z",
-  "status": "Completed",
-  "totalFiles": 100,
-  "totalSize": 1073741824,
-  "remainingFiles": 0,
-  "remainingSize": 0,
-  "currentSourceFile": "",
-  "currentTargetFile": "",
-  "progress": 100.0
-}
+### Codes d'Erreur Création
+```csharp
+InvalidName              "Nom invalide"
+SourcePathNotFound       "Source introuvable"
+TargetPathNotFound       "Destination introuvable"
+DuplicateName            "Nom déjà utilisé"
+MaxJobsExceeded          "Limite atteinte (5 max)"
 ```
 
 ---
 
-## Validation des données
+## Patterns Utilisés
 
-### 1. Validation du nom
-
+### 1. Singleton
 ```csharp
-private bool IsValidName(string name)
-{
-    // Vérifier non-vide
-    if (string.IsNullOrWhiteSpace(name)) return false;
-    
-    // Regex : alphanumérique, espace, tiret, underscore
-    if (!Regex.IsMatch(name, @"^[a-zA-Z0-9\s\-_]+$")) return false;
-    
-    // Longueur : max 50
-    if (name.Length > 50) return false;
-    
-    return true;
-}
+// LanguageProvider
+public static LanguageProvider GetInstance(string language = "en")
 ```
 
-### 2. Validation de chemin
-
-```csharp
-private bool IsValidPath(string path)
-{
-    if (string.IsNullOrWhiteSpace(path)) return false;
-    
-    try
-    {
-        var fullPath = Path.GetFullPath(path);
-        return !string.IsNullOrEmpty(fullPath);
-    }
-    catch
-    {
-        return false;
-    }
-}
-```
-
-### 3. Vérification d'existence
-
-```csharp
-// Source
-if (!Directory.Exists(source))
-    error = BackupCreationError.SourcePathNotFound;
-
-// Cible
-if (!Directory.Exists(target))
-    error = BackupCreationError.TargetPathNotFound;
-```
-
----
-
-## Gestion des erreurs
-
-### Stratégie générale
-
-- **Validation précoce** : Erreurs détectées avant persistance
-- **Messages localisés** : Erreurs en langue actuelle
-- **Recovery** : Possibilité de retry après erreur
-- **Silent failures** : Erreurs I/O silencieuses (continue)
-
-### Codes d'erreur création
-
-| Code | Cause | Action |
-|------|-------|--------|
-| `InvalidName` | Format invalide | Re-prompt |
-| `DuplicateName` | Nom existe | Re-prompt |
-| `SourcePathInvalid` | Format invalide | Re-prompt |
-| `SourcePathNotFound` | Répertoire absent | Re-prompt |
-| `TargetPathInvalid` | Format invalide | Re-prompt |
-| `TargetPathNotFound` | Répertoire absent | Re-prompt |
-| `MaxJobsExceeded` | Limite atteinte | Erreur fatale |
-
-### Gestion pendant exécution
-
-```csharp
-// Erreurs individuelles ignorées
-try
-{
-    File.Copy(source, destination, true);
-}
-catch
-{
-    // Continuer avec fichier suivant
-}
-
-// Erreurs d'état gérées
-try
-{
-    logger.LogAction(log);
-}
-catch
-{
-    // Silencieuse
-}
-```
-
----
-
-## Patterns utilisés
-
-### 1. **Dependency Injection**
-
+### 2. Dependency Injection
 ```csharp
 public ConsoleUI(BackupManager manager, ILanguageProvider language)
-{
-    this.backupManager = manager  throw new ArgumentNullException(nameof(manager));
-    this.languageProvider = language  throw new ArgumentNullException(nameof(language));
-}
+public BackupManager(StateManager stateManager, ILogger logger = null)
 ```
 
-### 2. **Interface Segregation**
-
+### 3. Observer (via WPF)
 ```csharp
-public interface ILanguageProvider
-{
-    string GetText(string key);
-    void SetLanguage(string languageCode);
-}
+public ObservableCollection<JobViewModel> Jobs { get; }
 ```
 
-### 3. **Enum pour états**
-
+### 4. Strategy
 ```csharp
-public enum BackupCreationError { ... }
-public enum StateStatus { ... }
-public enum BackupType { ... }
-```
-
-### 4. **Factory Pattern (implicit)**
-
-```csharp
-var job = new BackupJob(name, source, target, type);
-var executor = new BackupExecutor(logger, stateManager);
+ILogger logger = useXml  new XmlLogger(logDir) : new JsonLogger(logDir);
 ```
 
 ---
 
 ## Extensibilité
 
-### Ajouter un nouveau type de sauvegarde
+### Ajouter un Nouveau Type de Sauvegarde
 
-1. Ajouter à `BackupType.cs` :
+1. Ajouter à enum :
 ```csharp
-public enum BackupType
-{
-    Full,
-    Differential,
-    Incremental  //  Nouveau
+public enum BackupType {
+    Full = 0,
+    Differential = 1,
+    Incremental = 2  // Nouveau
 }
 ```
 
-2. Implémenter dans `BackupExecutor.cs` :
+2. Implémenter dans BackupExecutor :
 ```csharp
-public void ExecuteIncrementalBackup(BackupJob job)
-{
+public void ExecuteIncrementalBackup(BackupJob job) {
     // Implémentation
 }
 ```
 
-3. Ajouter routage dans `BackupManager.cs` :
+3. Router dans BackupManager :
 ```csharp
-if (job.GetBackupType() == BackupType.Incremental)
+if (type == BackupType.Incremental)
     executor.ExecuteIncrementalBackup(job);
 ```
 
-### Ajouter un nouveau format de configuration
+### Ajouter une Nouvelle Langue
 
-1. Créer interface :
+1. Modifier LanguageProvider :
 ```csharp
-public interface IConfigurationStorage
-{
-    void Save(List<BackupJob> jobs);
-    List<BackupJob> Load();
-}
+translations["es"] = new Dictionary<string, string> {
+    ["window.title"] = "EasySave 2.0",
+    // ... autres clés
+};
 ```
 
-2. Implémenter (XML, DB, etc.) :
-```csharp
-public class XmlConfigurationStorage : IConfigurationStorage
-{
-    // Implémentation XML
-}
-```
+2. Ajouter option UI (WPF ou CLI)
 
-3. Utiliser dans `BackupManager` :
-```csharp
-private IConfigurationStorage storage;
-storage.Save(backupJobs);
-```
+---
 
-### Ajouter un nouveau logger
+## Tests
 
-1. Implémenter `ILogger` :
-```csharp
-public class DatabaseLogger : ILogger
-{
-    public void LogAction(LogEntry entry) { ... }
-}
-```
+### Tests Unitaires Recommandés
 
-2. Utiliser dans `Program.cs` :
 ```csharp
-var logger = new DatabaseLogger();
+// Validation
+[Test] void IsValidName_ValidName_ReturnsTrue()
+[Test] void IsValidName_InvalidChars_ReturnsFalse()
+[Test] void IsValidPath_InvalidPath_ReturnsFalse()
+
+// Création
+[Test] void CreateBackupJob_ValidParams_Succeeds()
+[Test] void CreateBackupJob_DuplicateName_Fails()
+
+// Exécution
+[Test] void ExecuteFullBackup_CopiesAllFiles()
+[Test] void ExecuteDifferentialBackup_OnlyModifiedFiles()
+
+// Chiffrement
+[Test] void EncryptFile_ValidKey_Succeeds()
+[Test] void DecryptFile_CorrectKey_RestoresOriginal()
+[Test] void DecryptFile_WrongKey_ThrowsException()
 ```
 
 ---
 
 ## Performance
 
-### Optimisations actuelles
+### Optimisations Actuelles
+- `File.Copy()` natif (optimisé OS)
+- Logs bufferisés
+- État sauvegardé seulement après chaque fichier
 
-- **Cached JsonSerializerOptions** : Réutilisation objet options
-- **Streaming fichiers** : `File.Copy()` optimisée OS
-- **Calcul progressif** : Progression mise à jour fichier par fichier
+### Limitations
+- Mono-thread (fichiers copiés séquentiellement)
+- Pas de compression
+- Chiffrement ajoute ~30-50% de temps
 
-### Points d'amélioration futurs
-
-- Parallélisation des copies (limitation I/O)
-- Compression avant transfert
-- Synchronisation delta avancée
-- Cache de métadonnées fichiers
+### Améliorations Futures
+- Multi-threading pour copie parallèle
+- Compression optionnelle avant chiffrement
+- Cache métadonnées fichiers pour Differential
+- Progression UI temps réel (polling state.json)
 
 ---
 
-## Tests recommandés
+## Configuration Build
 
-```csharp
-// Test création sauvegarde
-[Test]
-public void CreateBackupJob_WithValidParams_Succeeds()
+### Projets
+```
+EasySave.WPF          .NET 8.0, WPF, Windows
+EasySave.UI           .NET 8.0, Console, Cross-platform
+EasySave v1.0         .NET 8.0, Class Library
+EasyLog               .NET 8.0, Class Library
+CryptoSoft            .NET 8.0, Class Library
+EasySave.Tests        xUnit, .NET 8.0
+```
 
-// Test validation nom
-[Test]
-public void IsValidName_InvalidChars_ReturnsFalse()
-
-// Test exécution complète
-[Test]
-public void ExecuteFullBackup_CopiesAllFiles()
-
-// Test sauvegarde différentielle
-[Test]
-public void ExecuteDifferentialBackup_OnlyNewFiles()
-
-// Test traduction
-[Test]
-public void GetText_WithValidKey_ReturnsTranslation()
-
-// Test persistance état
-[Test]
-public void SaveState_WritesJsonFile()
+### Dépendances
+```
+EasySave.WPF      Référence EasySave v1.0, EasyLog, CryptoSoft
+EasySave.UI       Référence EasySave v1.0, EasyLog
+EasySave v1.0     Référence EasyLog
 ```
 
 ---
 
-## Conclusion
+## Contribution
 
-EasySave est architecturé de façon modulaire et extensible, permettant ajouts et modifications sans impacter code existant. Le respect des principes SOLID facilite maintenance et évolution futures.
+### Structure de Branche
+```
+main              Production stable
+develop           Intégration features
+feature/*         Nouvelles fonctionnalités
+bugfix/*          Corrections de bugs
+```
 
-**Dernière mise à jour** : Janvier 2024
-**Version** : 1.0
+### Pull Request
+1. Fork le projet
+2. Créer branche feature
+3. Commiter changements
+4. Tester (dotnet test)
+5. Soumettre PR vers develop
+
+---
+
+## Support
+
+- **Issues GitHub** : [github.com/joanperreyprato/EasySave/issues](https://github.com/joanperreyprato/EasySave/issues)
+- **Documentation utilisateur** : [DOCUMENTATION.md](DOCUMENTATION.md)
+- **FAQ** : [FAQ.md](FAQ.md)
+
+---
+
+**Version** : 2.0  
+**Dernière mise à jour** : Janvier 2025
+
+ Documentation technique complète pour développeurs
