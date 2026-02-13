@@ -3,53 +3,78 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="EasySave 2.0" Height="450" Width="800">
     <Grid Margin="10">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-            <RowDefinition Height="Auto" />
-        </Grid.RowDefinitions>
+        <TabControl>
+            <TabItem Header="Jobs">
+                <Grid Margin="0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
 
-        <StackPanel Orientation="Horizontal" Grid.Row="0" Margin="0,0,0,10">
-            <Button x:Name="BtnAddJob" Content="Add job" Margin="0,0,10,0" Width="140" />
-            <Button x:Name="BtnStartSelected" Content="Start selected" Margin="0,0,10,0" Width="140" />
-            <Button x:Name="BtnStopSelected" Content="Stop selected" Margin="0,0,10,0" Width="140" />
-            <Button x:Name="BtnStartAll" Content="Start all" Margin="0,0,10,0" Width="100" />
-            <Button x:Name="BtnStopAll" Content="Stop all" Width="100" />
-            <ComboBox x:Name="CbLanguage" Width="120" Margin="10,0,0,0">
-                <ComboBoxItem Tag="en">English</ComboBoxItem>
-                <ComboBoxItem Tag="fr">Francais</ComboBoxItem>
-            </ComboBox>
-        </StackPanel>
+                    <StackPanel Orientation="Horizontal" Grid.Row="0" Margin="0,0,0,10">
+                        <Button x:Name="BtnAddJob" Content="Add job" Margin="0,0,10,0" Width="140" />
+                        <Button x:Name="BtnStartSelected" Content="Start selected" Margin="0,0,10,0" Width="140" />
+                        <Button x:Name="BtnStopSelected" Content="Stop selected" Margin="0,0,10,0" Width="140" />
+                        <Button x:Name="BtnStartAll" Content="Start all" Margin="0,0,10,0" Width="100" />
+                        <Button x:Name="BtnStopAll" Content="Stop all" Width="100" />
+                        <ComboBox x:Name="CbLanguage" Width="120" Margin="10,0,0,0">
+                            <ComboBoxItem Tag="en">English</ComboBoxItem>
+                            <ComboBoxItem Tag="fr">Francais</ComboBoxItem>
+                        </ComboBox>
+                    </StackPanel>
 
-        <ListView x:Name="JobsList" Grid.Row="1" SelectionMode="Extended">
-            <ListView.View>
-                <GridView>
-                    <GridViewColumn Width="200" DisplayMemberBinding="{Binding Name}">
-                        <GridViewColumn.Header>
-                            <TextBlock x:Name="ColNameHeader">Nom</TextBlock>
-                        </GridViewColumn.Header>
-                    </GridViewColumn>
-                    <GridViewColumn Width="200" DisplayMemberBinding="{Binding Source}">
-                        <GridViewColumn.Header>
-                            <TextBlock x:Name="ColSourceHeader">Source</TextBlock>
-                        </GridViewColumn.Header>
-                    </GridViewColumn>
-                    <GridViewColumn Width="200" DisplayMemberBinding="{Binding Destination}">
-                        <GridViewColumn.Header>
-                            <TextBlock x:Name="ColTargetHeader">Cible</TextBlock>
-                        </GridViewColumn.Header>
-                    </GridViewColumn>
-                    <GridViewColumn Width="100" DisplayMemberBinding="{Binding State}">
-                        <GridViewColumn.Header>
-                            <TextBlock x:Name="ColStateHeader">Etat</TextBlock>
-                        </GridViewColumn.Header>
-                    </GridViewColumn>
-                </GridView>
-            </ListView.View>
-        </ListView>
+                    <ListView x:Name="JobsList" Grid.Row="1" SelectionMode="Extended">
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn Width="200" DisplayMemberBinding="{Binding Name}">
+                                    <GridViewColumn.Header>
+                                        <TextBlock x:Name="ColNameHeader">Nom</TextBlock>
+                                    </GridViewColumn.Header>
+                                </GridViewColumn>
+                                <GridViewColumn Width="200" DisplayMemberBinding="{Binding Source}">
+                                    <GridViewColumn.Header>
+                                        <TextBlock x:Name="ColSourceHeader">Source</TextBlock>
+                                    </GridViewColumn.Header>
+                                </GridViewColumn>
+                                <GridViewColumn Width="200" DisplayMemberBinding="{Binding Destination}">
+                                    <GridViewColumn.Header>
+                                        <TextBlock x:Name="ColTargetHeader">Cible</TextBlock>
+                                    </GridViewColumn.Header>
+                                </GridViewColumn>
+                                <GridViewColumn Width="100" DisplayMemberBinding="{Binding State}">
+                                    <GridViewColumn.Header>
+                                        <TextBlock x:Name="ColStateHeader">Etat</TextBlock>
+                                    </GridViewColumn.Header>
+                                </GridViewColumn>
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
 
-        <StatusBar Grid.Row="2">
-            <TextBlock x:Name="StatusText">Pret</TextBlock>
-        </StatusBar>
+                    <StatusBar Grid.Row="2">
+                        <TextBlock x:Name="StatusText">Pret</TextBlock>
+                    </StatusBar>
+                </Grid>
+            </TabItem>
+
+            <TabItem x:Name="TabEncryption" Header="Chiffrement">
+                <StackPanel Margin="10">
+                    <TextBlock x:Name="LblEncryptionHeader" Text="Code de chiffrement" Margin="0,0,0,4" />
+                    <PasswordBox x:Name="PbEncryptionKey" Width="300" />
+                    <TextBlock x:Name="TbEncryptionDesc" Text="Entrez un code ici. Lors du lancement des travaux, vous serez invite à chiffrer ou non." TextWrapping="Wrap" Margin="0,8,0,0" Width="400" />
+
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,30,0,0">
+                        <TextBox x:Name="TbNewExt" Width="200" VerticalAlignment="Center" Margin="0,0,8,0" />
+                        <Button x:Name="BtnAddExt" Content="Ajouter" Width="80" />
+                        <Button x:Name="BtnRemoveExt" Content="Supprimer" Width="80" Margin="8,0,0,0" />
+                    </StackPanel>
+
+                    <ListBox x:Name="LbEncryptionTypes" Height="120" Width="300" Margin="0,8,0,0" HorizontalAlignment="Center" />
+
+                    <TextBlock x:Name="LblEncryptionListDesc" Text="Liste des extensions qui seront chiffrées." Margin="0,8,0,0" Width="400" TextWrapping="Wrap" HorizontalAlignment="Center" />
+
+                </StackPanel>
+            </TabItem>
+        </TabControl>
     </Grid>
 </Window>

@@ -163,6 +163,18 @@ namespace EasySave_v1._0
                 ["addjob.log"] = "Log:",
                 ["button.ok"] = "Ok",
                 ["button.cancel"] = "Cancel"
+                ,
+                // Encryption tab texts
+                ["encryption.code.label"] = "Encryption key",
+                ["encryption.description"] = "Enter a key here. When starting jobs you will be asked whether to encrypt or not.",
+                ["tab.encryption"] = "Encryption",
+                ["encryption.prompt.encrypt"] = "Encrypt files after copy?",
+                ["encryption.key.missing"] = "No encryption key provided. Encryption will be skipped.",
+                ["encryption.prompt.title"] = "Encryption"
+                ,
+                ["encryption.add"] = "Add",
+                ["encryption.remove"] = "Remove",
+                ["encryption.list.desc"] = "List of extensions that will be encrypted."
             };
 
             translations["fr"] = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
@@ -224,6 +236,18 @@ namespace EasySave_v1._0
                 ["addjob.log"] = "Log:",
                 ["button.ok"] = "Ok",
                 ["button.cancel"] = "Annuler"
+                ,
+                // Textes pour l'onglet chiffrement
+                ["encryption.code.label"] = "Code de chiffrement",
+                ["encryption.description"] = "Entrez un code ici. Lors du lancement des travaux, vous serez invité à chiffrer ou non.",
+                ["tab.encryption"] = "Chiffrement",
+                ["encryption.prompt.encrypt"] = "Voulez-vous chiffrer les fichiers après copie ?",
+                ["encryption.key.missing"] = "Aucun code de chiffrement fourni. Le chiffrement sera ignoré.",
+                ["encryption.prompt.title"] = "Chiffrement"
+                ,
+                ["encryption.add"] = "Ajouter",
+                ["encryption.remove"] = "Supprimer",
+                ["encryption.list.desc"] = "Liste des extensions qui seront chiffrées."
             };
         }
 
