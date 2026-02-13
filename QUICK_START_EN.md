@@ -4,7 +4,7 @@ Get started with EasySave 2.0 in minutes!
 
 ---
 
-## ?? Installation
+##  Installation
 
 ### Windows
 ```bash
@@ -29,7 +29,7 @@ dotnet run
 
 ---
 
-## ??? Graphical Interface (WPF)
+##  Graphical Interface (WPF)
 
 ### 1. Create a backup job
 1. Click **Add job**
@@ -55,7 +55,7 @@ Use the dropdown menu at the top right (English / Français)
 
 ---
 
-## ?? Console Interface (CLI)
+##  Console Interface (CLI)
 
 ### Interactive mode
 ```bash
@@ -85,7 +85,7 @@ dotnet run -- list
 
 ---
 
-## ? Key Features
+##  Key Features
 
 ### Backup types
 | Type | Description |
@@ -105,7 +105,7 @@ dotnet run -- list
 
 ---
 
-## ?? Configuration
+##  Configuration
 
 Files stored in:
 - **Windows**: `C:\ProgramData\EasySave\`
@@ -118,7 +118,7 @@ Files stored in:
 
 ---
 
-## ?? Common Errors
+##  Common Errors
 
 | Problem | Solution |
 |---------|----------|
@@ -129,7 +129,7 @@ Files stored in:
 
 ---
 
-## ?? Usage Examples
+##  Usage Examples
 
 ### Backup documents with encryption
 1. WPF Interface: Add the job
@@ -147,21 +147,21 @@ dotnet run -- execute 1,2
 
 ---
 
-## ?? Tips
+##  Tips
 
-?? **First backup**: Always use **Full**
+ **First backup**: Always use **Full**
 
-?? **Regular updates**: Use **Differential** to save time
+ **Regular updates**: Use **Differential** to save time
 
-?? **Sensitive files**: Enable encryption with a strong key
+ **Sensitive files**: Enable encryption with a strong key
 
-?? **Monitoring**: State is updated in real-time in `state.json`
+ **Monitoring**: State is updated in real-time in `state.json`
 
-?? **Logs**: Choose XML for compatibility, JSON for performance
+ **Logs**: Choose XML for compatibility, JSON for performance
 
 ---
 
-## ?? Need Help?
+##  Need Help
 
 - **Full documentation**: `DOCUMENTATION.md`
 - **Technical documentation**: `TECHNICAL_DOCUMENTATION.md`
@@ -172,4 +172,4 @@ dotnet run -- execute 1,2
 
 **Version**: 2.0 | **Updated**: January 2025
 
-? You're ready! Launch EasySave now!
+ You're ready! Launch EasySave now!

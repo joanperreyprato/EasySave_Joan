@@ -371,15 +371,15 @@ dotnet run
 
 ## Conseils d'Utilisation
 
-?? **Première utilisation** : Toujours faire une sauvegarde Full
+ **Première utilisation** : Toujours faire une sauvegarde Full
 
-?? **Fichiers sensibles** : Utilisez le chiffrement avec une clé forte (12+ caractères)
+ **Fichiers sensibles** : Utilisez le chiffrement avec une clé forte (12+ caractères)
 
-?? **Sauvegardes régulières** : Full hebdomadaire + Differential quotidien
+ **Sauvegardes régulières** : Full hebdomadaire + Differential quotidien
 
-?? **Performance** : JSON est plus rapide que XML
+ **Performance** : JSON est plus rapide que XML
 
-?? **Surveillance** : Consultez `state.json` pour suivre la progression
+ **Surveillance** : Consultez `state.json` pour suivre la progression
 
 ---
 
@@ -394,4 +394,4 @@ dotnet run
 **Version** : 2.0  
 **Dernière mise à jour** : Janvier 2025
 
-? Documentation complète - Prêt à utiliser EasySave !
+ Documentation complète - Prêt à utiliser EasySave !
