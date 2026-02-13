@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -19,6 +20,8 @@ namespace EasySave.WPF
         readonly ILogger _logger;
         readonly string _logDir;
         List<BackupJob> _backupJobs = new();
+        // encryption key from UI (may be empty)
+        public string EncryptionKey => PbEncryptionKey?.Password ?? string.Empty;
 
         public MainWindow()
         {
@@ -87,6 +90,33 @@ namespace EasySave.WPF
 
             // Apply UI texts after initialization
             ApplyLanguage(lp);
+            // Wire up encryption list handlers
+            BtnAddExt.Click -= (_, __) => { };
+            BtnRemoveExt.Click -= (_, __) => { };
+            BtnAddExt.Click += (_, __) =>
+            {
+                string ext = TbNewExt.Text?.Trim();
+                if (string.IsNullOrWhiteSpace(ext)) return;
+                if (!ext.StartsWith('.')) ext = "." + ext;
+                if (!LbEncryptionTypes.Items.Contains(ext)) LbEncryptionTypes.Items.Add(ext);
+                TbNewExt.Text = string.Empty;
+            };
+            BtnRemoveExt.Click += (_, __) =>
+            {
+                if (LbEncryptionTypes.SelectedItem != null)
+                {
+                    LbEncryptionTypes.Items.Remove(LbEncryptionTypes.SelectedItem);
+                }
+            };
+            // Localize add/remove buttons and list description
+            try
+            {
+                var l = EasySave_v1._0.LanguageProvider.GetInstance();
+                BtnAddExt.Content = l.GetText("encryption.add");
+                BtnRemoveExt.Content = l.GetText("encryption.remove");
+                LblEncryptionListDesc.Text = l.GetText("encryption.list.desc");
+            }
+            catch { }
             void ChangeLanguage()
             {
                 if (CbLanguage.SelectedItem is System.Windows.Controls.ComboBoxItem it && it.Tag is string code)
@@ -122,6 +152,25 @@ namespace EasySave.WPF
                 ColSourceHeader.Text = lp.GetText("col.source");
                 ColTargetHeader.Text = lp.GetText("col.target");
                 ColStateHeader.Text = lp.GetText("col.state");
+                // Update encryption tab texts
+                try
+                {
+                    LblEncryptionHeader.Text = lp.GetText("encryption.code.label");
+                    TbEncryptionDesc.Text = lp.GetText("encryption.description");
+                    // Update tab header if translation exists
+                    string tabHeader = lp.GetText("tab.encryption");
+                    if (!string.IsNullOrWhiteSpace(tabHeader) && tabHeader != "tab.encryption")
+                        TabEncryption.Header = tabHeader;
+                    // Update add/remove button texts and list description
+                    try
+                    {
+                        BtnAddExt.Content = lp.GetText("encryption.add");
+                        BtnRemoveExt.Content = lp.GetText("encryption.remove");
+                        LblEncryptionListDesc.Text = lp.GetText("encryption.list.desc");
+                    }
+                    catch { }
+                }
+                catch { }
             }
             catch { }
             }
@@ -193,7 +242,111 @@ namespace EasySave.WPF
                 {
                     try
                     {
-                        _backupManager.ExecuteBackupJob(oneBasedIndex);
+                        // Ask user whether to encrypt (on UI thread)
+                        bool encrypt = false;
+                        Dispatcher.Invoke(() => {
+                            var lpLocal = EasySave_v1._0.LanguageProvider.GetInstance();
+                            string prompt = lpLocal.GetText("encryption.prompt.encrypt");
+                            string title = lpLocal.GetText("encryption.prompt.title");
+                            var res = MessageBox.Show(prompt, title, MessageBoxButton.YesNo, MessageBoxImage.Question);
+                            encrypt = (res == MessageBoxResult.Yes);
+                        });
+
+                        if (encrypt && string.IsNullOrEmpty(EncryptionKey))
+                        {
+                            Dispatcher.Invoke(() => {
+                                var lpLocal = EasySave_v1._0.LanguageProvider.GetInstance();
+                                string missing = lpLocal.GetText("encryption.key.missing");
+                                string title = lpLocal.GetText("encryption.prompt.title");
+                                MessageBox.Show(missing, title, MessageBoxButton.OK, MessageBoxImage.Information);
+                            });
+                            encrypt = false;
+                        }
+
+                        if (!encrypt)
+                        {
+                            _backupManager.ExecuteBackupJob(oneBasedIndex);
+                        }
+                        else
+                        {
+                            // Execute then encrypt copied files in target directory
+                            _backupManager.ExecuteBackupJob(oneBasedIndex);
+                            try
+                            {
+                                // find job and encrypt files in target
+                                var job = _backupJobs.ElementAtOrDefault(oneBasedIndex - 1);
+                                if (job != null)
+                                {
+                                    // collect extension filters from UI
+                                    List<string> extFilters = new();
+                                    Dispatcher.Invoke(() =>
+                                    {
+                                        foreach (var it in LbEncryptionTypes.Items)
+                                        {
+                                            if (it is string s)
+                                            {
+                                                var norm = s.Trim();
+                                                if (!norm.StartsWith('.')) norm = "." + norm;
+                                                extFilters.Add(norm.ToLowerInvariant());
+                                            }
+                                        }
+                                    });
+
+                                    var files = Directory.GetFiles(job.GetTargetPath(), "*", SearchOption.AllDirectories);
+                                    foreach (var f in files)
+                                    {
+                                        try
+                                        {
+                                            string fileExt = Path.GetExtension(f).ToLowerInvariant();
+                                            if (extFilters.Count > 0 && !extFilters.Contains(fileExt))
+                                                continue;
+
+                                            // measure encryption time
+                                            long encTime = 0;
+                                            string tmp = f + ".esenc";
+                                            var swEnc = Stopwatch.StartNew();
+                                            try
+                                            {
+                                                CryptoSoft.CryptoService.EncryptFile(f, tmp, EncryptionKey);
+                                                swEnc.Stop();
+                                                encTime = swEnc.ElapsedMilliseconds;
+                                            }
+                                            catch
+                                            {
+                                                try { swEnc.Stop(); } catch { }
+                                                encTime = -1; // indicate error
+                                            }
+
+                                            try
+                                            {
+                                                if (encTime > 0 && File.Exists(tmp))
+                                                {
+                                                    File.Delete(f);
+                                                    File.Move(tmp, f);
+                                                }
+                                                else
+                                                {
+                                                    if (File.Exists(tmp)) File.Delete(tmp);
+                                                }
+                                            }
+                                            catch { }
+
+                                            // log encryption time for this file (use File entry type)
+                                            try
+                                            {
+                                                long fsize = 0;
+                                                try { fsize = new FileInfo(f).Length; } catch { }
+                                                var elog = new LogEntry(job.GetName(), f, f, fsize, 0, LogEntry.EntryType.File, encTime);
+                                                _logger?.LogAction(elog);
+                                            }
+                                            catch { }
+                                        }
+                                        catch { }
+                                    }
+                                }
+                            }
+                            catch { }
+                        }
                     }
                     catch { }
                     finally

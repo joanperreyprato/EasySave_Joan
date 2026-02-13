@@ -80,7 +80,7 @@ namespace EasyLog
 
             try
             {
-                return JsonSerializer.Serialize(entry, options);
+                return JsonSerializer.Serialize(entry, options); 
             }
             catch
             {
