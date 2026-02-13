@@ -1,111 +1,111 @@
-# EasySave v1.0 - Documentation
+# EasySave 2.0 - Documentation
 
-**EasySave** est une application console de sauvegarde de fichiers multilingue et performante, développée en C# avec .NET 8.
-
-##  Table des matières
-
-- [Caractéristiques](#caractéristiques)
-- [Installation](#installation)
-- [Utilisation](#utilisation)
-  - [Mode interactif](#mode-interactif)
-  - [Mode ligne de commande](#mode-ligne-de-commande)
-- [Types de sauvegarde](#types-de-sauvegarde)
-- [Architecture](#architecture)
-- [Configuration](#configuration)
+Application de sauvegarde de fichiers professionnelle avec interface graphique WPF et chiffrement AES-256.
 
 ---
 
-##  Caractéristiques
+## Table des Matières
 
--  **Deux modes de fonctionnement** : interactif et ligne de commande
--  **Deux types de sauvegarde** :
-  - **Complète** : copie tous les fichiers
-  - **Différentielle** : copie uniquement les fichiers nouveaux ou modifiés
--  **Multilingue** : Support de l'anglais et du français
--  **Suivi d'état** : progression en temps réel des sauvegardes
--  **Journalisation** : enregistrement détaillé des opérations
--  **Configuration persistante** : sauvegarde des tâches de sauvegarde
--  **Gestion robuste des erreurs** : validation complète des chemins et paramètres
+1. [Installation](#installation)
+2. [Interface Graphique (WPF)](#interface-graphique-wpf)
+3. [Interface Console (CLI)](#interface-console-cli)
+4. [Types de Sauvegarde](#types-de-sauvegarde)
+5. [Chiffrement](#chiffrement)
+6. [Configuration](#configuration)
+7. [Logs](#logs)
+8. [Dépannage](#dépannage)
 
 ---
 
-##  Installation
+## Installation
 
 ### Prérequis
-- .NET 8.0 ou supérieur
-- Windows, Linux ou macOS
+- **.NET 8.0** ou supérieur
+- **Windows** (pour WPF) ou **Windows/Linux/macOS** (pour CLI)
 
-### Étapes d'installation
-
-1. **Cloner le repository**
-   ```bash
-   git clone https://github.com/joanperreyprato/EasySave.git
-   cd EasySave
-   ```
-
-2. **Compiler le projet**
-   ```bash
-   dotnet build
-   ```
-
-3. **Exécuter l'application**
-   ```bash
-   dotnet run
-   ```
+### Compilation
+```bash
+git clone https://github.com/joanperreyprato/EasySave.git
+cd EasySave
+dotnet build
+```
 
 ---
 
-##  Utilisation
+## Interface Graphique (WPF)
 
-### Mode interactif
-
-Lancez l'application sans arguments pour accéder au menu principal :
-
+### Lancement
 ```bash
+cd EasySave.WPF
 dotnet run
 ```
 
-#### Menu principal
-```
-=== EasySave ===
-1. Create Backup
-2. Execute Backup
-3. List Backups
-4. Exit
-```
+### Créer un Travail de Sauvegarde
 
-#### Options disponibles
+1. Cliquez sur **Add job**
+2. Remplissez le formulaire :
+   - **Nom** : Alphanumérique, espaces, tirets (max 50 caractères)
+   - **Source** : Chemin du dossier source (doit exister)
+   - **Destination** : Chemin du dossier destination (doit exister)
+   - **Format de log** : JSON (rapide) ou XML (compatible)
+3. Cliquez **OK**
 
-**1. Créer une sauvegarde**
-- Entrez un nom unique (alphanumérique, espaces, tirets, underscores - max 50 caractères)
-- Spécifiez le chemin source (doit exister)
-- Spécifiez le chemin cible (doit exister)
-- Choisissez le type : `full` (complète) ou `diff` (différentielle)
+### Exécuter des Sauvegardes
 
-**2. Exécuter une sauvegarde**
-- Sélectionnez la sauvegarde par son index
+| Action | Bouton |
+|--------|--------|
+| Exécuter une sauvegarde | Sélectionner + **Start selected** |
+| Exécuter toutes | **Start all** |
+| Arrêter (non supporté) | Notification affichée |
 
-**3. Lister les sauvegardes**
-- Affiche toutes les sauvegardes configurées avec leurs détails
+### Chiffrement
 
-**4. Quitter**
-- Ferme l'application
+1. Allez dans l'onglet **Chiffrement**
+2. Entrez une clé de chiffrement dans le champ PasswordBox
+3. Ajoutez des extensions à chiffrer :
+   - Tapez l'extension (ex: `.docx`)
+   - Cliquez **Ajouter**
+4. Pour retirer : Sélectionner + **Supprimer**
+5. Lors de l'exécution, une boîte de dialogue demande si vous voulez chiffrer
+
+### Changer de Langue
+
+Utilisez le menu déroulant en haut à droite :
+- **English**
+- **Français**
 
 ---
 
-### Mode ligne de commande
+## Interface Console (CLI)
 
-Utilisez les commandes suivantes :
+### Lancement
+```bash
+cd EasySave.UI
+dotnet run
+```
+
+### Mode Interactif
+
+Menu principal :
+```
+1. Create Backup    - Créer une sauvegarde
+2. Execute Backup   - Exécuter une sauvegarde
+3. List Backups     - Lister les sauvegardes
+4. Edit Backup      - Modifier une sauvegarde
+5. Change Language  - Changer la langue
+6. Exit             - Quitter
+```
+
+### Mode Commande
 
 #### Créer une sauvegarde
 ```bash
-dotnet run -- create <nom> <source> <cible> [full|diff]
+dotnet run -- create <nom> <source> <destination> <type>
 ```
 
-**Exemples:**
+Exemple :
 ```bash
-dotnet run -- create "Mes Documents" "C:\Users\Documents" "D:\Backups" full
-dotnet run -- create "Photos" "/home/user/Photos" "/mnt/backup/photos" diff
+dotnet run -- create "MesDocs" "C:\Documents" "D:\Backup" full
 ```
 
 #### Exécuter une sauvegarde
@@ -113,16 +113,16 @@ dotnet run -- create "Photos" "/home/user/Photos" "/mnt/backup/photos" diff
 dotnet run -- execute <index>
 ```
 
-**Exemples:**
+Exemples :
 ```bash
-# Exécuter la sauvegarde à l'index 0
-dotnet run -- execute 0
+# Une seule
+dotnet run -- execute 1
 
-# Exécuter plusieurs sauvegardes (indices 0, 1, 2)
-dotnet run -- execute 0-2
+# Plusieurs (plage)
+dotnet run -- execute 1-3
 
-# Exécuter des sauvegardes spécifiques (indices 0, 2, 4)
-dotnet run -- execute 0,2,4
+# Plusieurs (liste)
+dotnet run -- execute 1,3,5
 ```
 
 #### Lister les sauvegardes
@@ -132,244 +132,266 @@ dotnet run -- list
 
 ---
 
-##  Types de sauvegarde
+## Types de Sauvegarde
 
-### Sauvegarde complète (Full)
-- Copie **tous les fichiers** du dossier source
-- Écrase les fichiers existants dans la cible
-- Idéale pour les premières sauvegardes ou les restaurations complètes
-- Temps d'exécution plus long (première exécution)
+### Sauvegarde Complète (Full)
 
-### Sauvegarde différentielle (Differential)
-- Copie uniquement les fichiers **nouveaux ou modifiés**
-- Détecte les modifications par :
-  - Date de dernière modification
-  - Taille du fichier
-- Idéale pour les sauvegardes régulières et incrémentielles
-- Temps d'exécution beaucoup plus rapide
+- **Quand** : Première sauvegarde ou sauvegarde complète périodique
+- **Comportement** : Copie TOUS les fichiers de la source vers la destination
+- **Durée** : Plus longue
+- **Avantage** : Restauration simple (tout est dans la destination)
 
----
+### Sauvegarde Différentielle (Differential)
 
-##  Architecture
+- **Quand** : Mises à jour régulières après une sauvegarde complète
+- **Comportement** : Copie uniquement les fichiers nouveaux ou modifiés
+- **Critère** : Comparaison de la date de modification et de la taille
+- **Durée** : Plus rapide
+- **Avantage** : Économise du temps et de l'espace
 
-### Structure des composants
+### Recommandation
 
 ```
-EasySave
- Program.cs              # Point d'entrée principal
- ConsoleUI.cs            # Interface utilisateur console
- BackupManager.cs        # Gestionnaire des tâches de sauvegarde
- BackupExecutor.cs       # Exécuteur des sauvegardes
- BackupJob.cs            # Représentation d'une tâche
- StateManager.cs         # Gestion de l'état des sauvegardes
- JobState.cs             # État d'une tâche en cours
- LanguageProvider.cs     # Système de traduction
- CommandLineParser.cs    # Analyse des arguments CLI
- EasyLog/
-     JsonLogger.cs       # Enregistrement des logs
-     LogEntry.cs         # Entrée de log
-     ILogger.cs          # Interface du logger
-```
-
-### Flux de données
-
-```
-Program.cs (Point d'entrée)
-    
-ConsoleUI (Interface utilisateur)
-    
-BackupManager (Gestion des tâches)
-    
-BackupExecutor (Exécution)
-    
-StateManager  État des tâches
-    
-JsonLogger  Fichiers journaux
+Jour 1   : Full backup       (tout copier)
+Jour 2-7 : Differential      (mises à jour rapides)
+Jour 8   : Full backup       (nouvelle base)
 ```
 
 ---
 
-##  Configuration
+## Chiffrement
 
-### Fichiers de configuration
+### Algorithme
 
-Les fichiers sont automatiquement créés dans :
-- **Windows**: `%ProgramData%\EasySave\`
-- **Linux/macOS**: `~/.local/share/EasySave/` (ou dossier équivalent)
+- **AES-256-CBC** : Chiffrement symétrique standard
+- **HMAC-SHA256** : Vérification d'intégrité
+- **Clé dérivée** : SHA-256 de la clé texte
 
-#### `backup_config.json`
-Contient la liste de toutes les tâches de sauvegarde configurées.
+### Utilisation WPF
 
-**Exemple:**
-```json
-[
-  {
-    "name": "Mes Documents",
-    "sourcePath": "C:\\Users\\User\\Documents",
-    "targetPath": "D:\\Backups\\Documents",
-    "type": "Full"
-  }
-]
+1. Définir la clé dans l'onglet **Chiffrement**
+2. Ajouter les extensions à chiffrer (ex: `.pdf`, `.docx`, `.xlsx`)
+3. Lancer la sauvegarde
+4. Choisir "Oui" à la question de chiffrement
+
+### Fonctionnement
+
+1. La sauvegarde est exécutée normalement
+2. Si chiffrement activé :
+   - Pour chaque fichier copié
+   - Si extension correspond au filtre
+   - Le fichier est chiffré sur place
+   - Le temps de chiffrement est loggé
+
+### Format de Fichier Chiffré
+
+```
+[1 byte: IV length][IV][Ciphertext][32 bytes: HMAC]
 ```
 
-#### `state.json`
-Contient l'état actuel de chaque tâche (progression, fichiers restants, etc.).
+### Déchiffrement
 
-**Exemple:**
-```json
-[
-  {
-    "name": "Mes Documents",
-    "timestamp": "2024-01-15T10:30:00Z",
-    "status": "Completed",
-    "totalFiles": 150,
-    "totalSize": 1048576000,
-    "remainingFiles": 0,
-    "remainingSize": 0,
-    "currentSourceFile": "",
-    "currentTargetFile": "",
-    "progress": 100.0
-  }
-]
-```
-
-#### `logs/`
-Dossier contenant les fichiers journaux JSON avec l'historique des sauvegardes.
-
-### Langues supportées
-
-Deux langues disponibles : **Anglais** (par défaut) et **Français**
-
-Pour changer la langue, modifiez le code dans `Program.cs` :
+Le projet inclut `CryptoSoft` avec méthode `DecryptFile` :
 ```csharp
-var language = new LanguageProvider("fr");  // Français
-var language = new LanguageProvider("en");  // Anglais
+CryptoService.DecryptFile(input, output, key);
 ```
 
 ---
 
-##  Codes d'erreur de création de sauvegarde
+## Configuration
 
-| Erreur | Description |
-|--------|-------------|
-| `InvalidName` | Le nom contient des caractères non autorisés ou dépasse 50 caractères |
-| `SourcePathInvalid` | Le chemin source est invalide ou mal formé |
-| `SourcePathNotFound` | Le répertoire source n'existe pas |
-| `TargetPathInvalid` | Le chemin cible est invalide ou mal formé |
-| `TargetPathNotFound` | Le répertoire cible n'existe pas |
-| `DuplicateName` | Une sauvegarde avec ce nom existe déjà |
-| `MaxJobsExceeded` | Maximum de 5 sauvegardes atteint |
+### Emplacement des Fichiers
+
+- **Windows** : `C:\ProgramData\EasySave\`
+
+### Fichiers de Configuration
+
+#### backup_config.json
+Stocke les travaux de sauvegarde :
+```json
+[
+  {
+    "name": "MesDocs",
+    "sourcePath": "C:\\Documents",
+    "targetPath": "D:\\Backup",
+    "type": 0,
+    "logFormat": 0
+  }
+]
+```
+
+| Champ | Description |
+|-------|-------------|
+| `name` | Nom du travail |
+| `sourcePath` | Chemin source |
+| `targetPath` | Chemin destination |
+| `type` | 0=Full, 1=Differential |
+| `logFormat` | 0=JSON, 1=XML |
+
+#### state.json
+État en temps réel des sauvegardes :
+```json
+{
+  "name": "MesDocs",
+  "timestamp": "2025-01-20T10:30:00Z",
+  "status": 1,
+  "totalFiles": 100,
+  "totalSize": 104857600,
+  "remainingFiles": 50,
+  "remainingSize": 52428800,
+  "currentSourceFile": "C:\\Documents\\file.txt",
+  "currentTargetFile": "D:\\Backup\\file.txt",
+  "progress": 50.0
+}
+```
+
+| Statut | Valeur |
+|--------|--------|
+| Inactive | 0 |
+| Active | 1 |
+| Completed | 2 |
+| Error | 3 |
 
 ---
 
-##  État des tâches (JobState)
+## Logs
 
-Chaque tâche possède un état avec les propriétés suivantes :
+### Formats Disponibles
 
-| Propriété | Type | Description |
-|-----------|------|-------------|
-| `Name` | string | Nom de la tâche |
-| `Timestamp` | DateTime | Horodatage du dernier changement |
-| `Status` | StateStatus | État actuel (Inactive, Active, Completed, Error) |
-| `TotalFiles` | int | Nombre total de fichiers à sauvegarder |
-| `TotalSize` | long | Taille totale en octets |
-| `RemainingFiles` | int | Fichiers restant à traiter |
-| `RemainingSize` | long | Taille restante en octets |
-| `CurrentSourceFile` | string | Fichier source en cours de copie |
-| `CurrentTargetFile` | string | Fichier destination en cours de copie |
-| `Progress` | double | Pourcentage de progression (0-100) |
+| Format | Avantages | Inconvénients |
+|--------|-----------|---------------|
+| **JSON** | Facile à parser, compact | Moins lisible visuellement |
+| **XML** | Standard, compatible outils legacy | Plus verbeux |
+
+### Emplacement
+
+`C:\ProgramData\EasySave\logs\`
+
+### Structure de Log
+
+#### Entrée Fichier
+Loggée après chaque fichier copié :
+```json
+{
+  "timestamp": "2025-01-20T10:30:15Z",
+  "jobName": "MesDocs",
+  "sourcePath": "C:\\Documents\\file.txt",
+  "targetPath": "D:\\Backup\\file.txt",
+  "fileSize": 1024000,
+  "transferTime": 150,
+  "encryptionTime": 50,
+  "entryType": "File"
+}
+```
+
+#### Entrée Résumé
+Loggée à la fin de la sauvegarde :
+```json
+{
+  "timestamp": "2025-01-20T10:35:00Z",
+  "jobName": "MesDocs",
+  "sourcePath": "C:\\Documents",
+  "targetPath": "D:\\Backup",
+  "fileSize": 104857600,
+  "transferTime": 30000,
+  "entryType": "Summary"
+}
+```
+
+| Champ | Description |
+|-------|-------------|
+| `transferTime` | Temps de transfert (ms) |
+| `encryptionTime` | Temps de chiffrement (ms), -1 si erreur |
+| `entryType` | File ou Summary |
 
 ---
 
-##  Validation des entrées
+## Dépannage
 
-### Validation du nom de sauvegarde
--  Autorisé : caractères alphanumériques, espaces, tirets (`-`), underscores (`_`)
--  Interdit : caractères spéciaux (`@`, `#`, `$`, etc.)
--  Longueur : 1-50 caractères
--  Unicité : le nom ne doit pas exister déjà
+### Erreurs Courantes
 
-### Validation des chemins
--  Format : chemin absolu valide
--  Existence : le répertoire doit exister
--  Permissions : l'application doit avoir accès en lecture/écriture
+#### "Source path invalid"
+**Cause** : Chemin source mal formaté ou inexistant  
+**Solution** : Vérifiez que le chemin existe et est accessible
 
----
+#### "Target path invalid"
+**Cause** : Chemin destination mal formaté ou inexistant  
+**Solution** : Créez le dossier de destination ou vérifiez les permissions
 
-##  Exemples d'utilisation
+#### "Invalid job name"
+**Cause** : Caractères non autorisés dans le nom  
+**Solution** : Utilisez uniquement alphanumérique, espaces, tirets, underscores
 
-### Exemple 1 : Sauvegarde complète initiale
+#### "Duplicate name"
+**Cause** : Un travail avec ce nom existe déjà  
+**Solution** : Choisissez un nom unique
+
+#### "Encryption key missing"
+**Cause** : Chiffrement demandé mais clé non définie  
+**Solution** : Définissez une clé dans l'onglet Chiffrement
+
+### Réinitialiser la Configuration
+
 ```bash
-# Création
-dotnet run -- create "MonBackup" "/home/user/data" "/mnt/backup/data" full
+# Supprimer le dossier de configuration
+Remove-Item -Recurse -Force "$env:ProgramData\EasySave"
 
-# Exécution
-dotnet run -- execute 0
-
-# Vérification
-dotnet run -- list
+# Relancer l'application
+dotnet run
 ```
 
-### Exemple 2 : Sauvegardes régulières différentielles
-```bash
-# Première sauvegarde (complète)
-dotnet run -- create "Photos" "/home/user/Pictures" "/external/backup/pictures" full
-dotnet run -- execute 0
+### Vérifier les Logs
 
-# Sauvegardes suivantes (différentielles - plus rapides)
-dotnet run -- create "Photos-Weekly" "/home/user/Pictures" "/external/backup/pictures-weekly" diff
-dotnet run -- execute 1
-```
+1. Ouvrez `C:\ProgramData\EasySave\logs\`
+2. Consultez les fichiers JSON ou XML
+3. Recherchez les erreurs (`transferTime: -1` ou `encryptionTime: -1`)
 
-### Exemple 3 : Exécution multiple
-```bash
-# Exécuter les sauvegardes 0, 1 et 2
-dotnet run -- execute 0-2
-```
+### Performance Lente
 
----
+**Problèmes possibles** :
+- Disque source ou destination lent
+- Fichiers très nombreux ou très gros
+- Chiffrement activé (ajoute du temps)
 
-##  Dépannage
-
-### Le répertoire source n'existe pas
-**Cause** : Le chemin indiqué n'existe pas ou a été supprimé.
-**Solution** : Vérifiez que le chemin est correct et que le répertoire existe.
-
-### Permission refusée
-**Cause** : L'application n'a pas les permissions nécessaires.
-**Solution** : Vérifiez les permissions en lecture/écriture sur les répertoires source et cible.
-
-### Nom en doublon
-**Cause** : Une sauvegarde avec ce nom existe déjà.
-**Solution** : Utilisez un nom différent ou supprimez l'ancienne sauvegarde.
-
-### Maximum de sauvegardes atteint
-**Cause** : Vous avez créé 5 sauvegardes (limite actuelle).
-**Solution** : Supprimez une sauvegarde existante avant d'en créer une nouvelle.
+**Solutions** :
+- Utilisez Differential après la première Full
+- Désactivez le chiffrement si non nécessaire
+- Vérifiez l'utilisation disque dans le Gestionnaire des tâches
 
 ---
 
-##  Licence
+## Limitations Connues
 
-Ce projet est fourni à titre informatif.
-
----
-
-##  Contribution
-
-Les contributions sont bienvenues ! N'hésitez pas à :
-- Signaler des bugs
-- Proposer des améliorations
-- Soumettre des pull requests
+- **Pas d'annulation** : Impossible d'arrêter une sauvegarde en cours
+- **Pas de pause** : Les sauvegardes doivent se terminer
+- **Limite de travaux** : Maximum 5 travaux (modifiable dans le code)
+- **Mono-thread** : Les fichiers sont copiés séquentiellement
 
 ---
 
-##  Support
+## Conseils d'Utilisation
 
-Pour toute question ou problème, consultez le repository GitHub officiel :
-[https://github.com/joanperreyprato/EasySave](https://github.com/joanperreyprato/EasySave)
+?? **Première utilisation** : Toujours faire une sauvegarde Full
+
+?? **Fichiers sensibles** : Utilisez le chiffrement avec une clé forte (12+ caractères)
+
+?? **Sauvegardes régulières** : Full hebdomadaire + Differential quotidien
+
+?? **Performance** : JSON est plus rapide que XML
+
+?? **Surveillance** : Consultez `state.json` pour suivre la progression
 
 ---
 
-**Dernière mise à jour** : Janvier 2024
-**Version** : 1.0
+## Support
+
+- **Documentation technique** : [TECHNICAL_DOCUMENTATION.md](TECHNICAL_DOCUMENTATION.md)
+- **FAQ** : [FAQ.md](FAQ.md)
+- **Issues GitHub** : [github.com/joanperreyprato/EasySave/issues](https://github.com/joanperreyprato/EasySave/issues)
+
+---
+
+**Version** : 2.0  
+**Dernière mise à jour** : Janvier 2025
+
+? Documentation complète - Prêt à utiliser EasySave !
