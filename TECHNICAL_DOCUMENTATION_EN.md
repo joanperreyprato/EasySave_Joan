@@ -9,30 +9,30 @@ Guide for developers and contributors
 ### Overview
 
 ```
-???????????????????????????????????????????????
-?           User Interface                    ?
-???????????????????????????????????????????????
-?   EasySave.WPF   ?      EasySave.UI         ?
-?   (WPF GUI)      ?      (Console CLI)       ?
-???????????????????????????????????????????????
-         ?                   ?
-         ?????????????????????
-                    ?
-         ?????????????????????????
-         ?   EasySave v1.0       ?
-         ?   (Core Library)      ?
-         ?                       ?
-         ?  - BackupManager      ?
-         ?  - BackupJob          ?
-         ?  - BackupExecutor     ?
-         ?  - StateManager       ?
-         ?  - LanguageProvider   ?
-         ?????????????????????????
-              ?          ?
-     ???????????????  ??????????????
-     ?   EasyLog   ?  ? CryptoSoft ?
-     ?  (Logging)  ?  ?(Encryption)?
-     ???????????????  ??????????????
+
+           User Interface                    
+
+   EasySave.WPF         EasySave.UI         
+   (WPF GUI)            (Console CLI)       
+
+                            
+         
+                    
+         
+            EasySave v1.0       
+            (Core Library)      
+                                
+           - BackupManager      
+           - BackupJob          
+           - BackupExecutor     
+           - StateManager       
+           - LanguageProvider   
+         
+                        
+       
+        EasyLog      CryptoSoft 
+       (Logging)    (Encryption)
+       
 ```
 
 ---
@@ -208,29 +208,29 @@ public static class CryptoService {
 
 ```
 User clicks "Add job"
-  ?
-  ?
+  
+  
 AddJobWindow dialog
-  ?
-  ?
-User fills form ? OK
-  ?
-  ?
+  
+  
+User fills form  OK
+  
+  
 BackupManager.CreateBackupJob()
-  ?
-  ??? Validate name (alphanumeric)
-  ??? Check source exists
-  ??? Check target exists
-  ??? Check no duplicate
-  ??? Check limit (5 jobs)
-  ?
-  ?
+  
+   Validate name (alphanumeric)
+   Check source exists
+   Check target exists
+   Check no duplicate
+   Check limit (5 jobs)
+  
+  
 Add to Jobs list
-  ?
-  ?
+  
+  
 Save to backup_config.json
-  ?
-  ?
+  
+  
 Update UI
 ```
 
@@ -238,34 +238,34 @@ Update UI
 
 ```
 User clicks "Start selected"
-  ?
-  ?
+  
+  
 For each selected job:
-  ?
-  ??? Ask user: "Encrypt?"
-  ?    ?
-  ?    ??? No ? Execute backup normally
-  ?    ?
-  ?    ??? Yes
-  ?         ?
-  ?         ??? Check encryption key exists
-  ?         ?
-  ?         ??? Execute backup (copy files)
-  ?         ?
-  ?         ??? For each copied file:
-  ?              ?
-  ?              ??? Check extension in filter list
-  ?              ?
-  ?              ??? If match:
-  ?              ?    ?
-  ?              ?    ??? CryptoService.EncryptFile()
-  ?              ?    ??? Measure encryption time
-  ?              ?    ??? Replace original with encrypted
-  ?              ?    ??? Log encryption time
-  ?              ?
-  ?              ??? Continue with next file
-  ?
-  ?
+  
+   Ask user: "Encrypt"
+      
+       No  Execute backup normally
+      
+       Yes
+           
+            Check encryption key exists
+           
+            Execute backup (copy files)
+           
+            For each copied file:
+                
+                 Check extension in filter list
+                
+                 If match:
+                    
+                     CryptoService.EncryptFile()
+                     Measure encryption time
+                     Replace original with encrypted
+                     Log encryption time
+                
+                 Continue with next file
+  
+  
 Update state to "Completed"
 ```
 
@@ -273,25 +273,25 @@ Update state to "Completed"
 
 ```
 BackupExecutor.ExecuteDifferentialBackup()
-  ?
-  ??? List all files in source
-  ?
-  ??? For each file:
-  ?    ?
-  ?    ??? Check if exists in target
-  ?    ?
-  ?    ??? If not exists ? Include
-  ?    ?
-  ?    ??? If exists:
-  ?         ?
-  ?         ??? Compare modification date
-  ?         ??? Compare size
-  ?         ?
-  ?         ??? If different ? Include
-  ?
-  ??? Copy only included files
-  ?
-  ??? Log results
+  
+   List all files in source
+  
+   For each file:
+      
+       Check if exists in target
+      
+       If not exists  Include
+      
+       If exists:
+           
+            Compare modification date
+            Compare size
+           
+            If different  Include
+  
+   Copy only included files
+  
+   Log results
 ```
 
 ---
@@ -322,11 +322,11 @@ Directory.Exists(path)  // Check existence
 
 ### Creation Error Codes
 ```csharp
-InvalidName             ? "Invalid name"
-SourcePathNotFound      ? "Source not found"
-TargetPathNotFound      ? "Destination not found"
-DuplicateName           ? "Name already used"
-MaxJobsExceeded         ? "Limit reached (5 max)"
+InvalidName              "Invalid name"
+SourcePathNotFound       "Source not found"
+TargetPathNotFound       "Destination not found"
+DuplicateName            "Name already used"
+MaxJobsExceeded          "Limit reached (5 max)"
 ```
 
 ---
@@ -352,7 +352,7 @@ public ObservableCollection<JobViewModel> Jobs { get; }
 
 ### 4. Strategy
 ```csharp
-ILogger logger = useXml ? new XmlLogger(logDir) : new JsonLogger(logDir);
+ILogger logger = useXml  new XmlLogger(logDir) : new JsonLogger(logDir);
 ```
 
 ---
@@ -447,19 +447,19 @@ translations["es"] = new Dictionary<string, string> {
 
 ### Projects
 ```
-EasySave.WPF         ? .NET 8.0, WPF, Windows
-EasySave.UI          ? .NET 8.0, Console, Cross-platform
-EasySave v1.0        ? .NET 8.0, Class Library
-EasyLog              ? .NET 8.0, Class Library
-CryptoSoft           ? .NET 8.0, Class Library
-EasySave.Tests       ? xUnit, .NET 8.0
+EasySave.WPF          .NET 8.0, WPF, Windows
+EasySave.UI           .NET 8.0, Console, Cross-platform
+EasySave v1.0         .NET 8.0, Class Library
+EasyLog               .NET 8.0, Class Library
+CryptoSoft            .NET 8.0, Class Library
+EasySave.Tests        xUnit, .NET 8.0
 ```
 
 ### Dependencies
 ```
-EasySave.WPF     ? References EasySave v1.0, EasyLog, CryptoSoft
-EasySave.UI      ? References EasySave v1.0, EasyLog
-EasySave v1.0    ? References EasyLog
+EasySave.WPF      References EasySave v1.0, EasyLog, CryptoSoft
+EasySave.UI       References EasySave v1.0, EasyLog
+EasySave v1.0     References EasyLog
 ```
 
 ---
@@ -468,10 +468,10 @@ EasySave v1.0    ? References EasyLog
 
 ### Branch Structure
 ```
-main             ? Stable production
-develop          ? Feature integration
-feature/*        ? New features
-bugfix/*         ? Bug fixes
+main              Stable production
+develop           Feature integration
+feature/*         New features
+bugfix/*          Bug fixes
 ```
 
 ### Pull Request
@@ -494,4 +494,4 @@ bugfix/*         ? Bug fixes
 **Version**: 2.0  
 **Last updated**: January 2025
 
-? Complete technical documentation for developers
+ Complete technical documentation for developers

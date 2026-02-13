@@ -371,15 +371,15 @@ dotnet run
 
 ## Usage Tips
 
-?? **First use**: Always do a Full backup
+ **First use**: Always do a Full backup
 
-?? **Sensitive files**: Use encryption with strong key (12+ characters)
+ **Sensitive files**: Use encryption with strong key (12+ characters)
 
-?? **Regular backups**: Weekly Full + Daily Differential
+ **Regular backups**: Weekly Full + Daily Differential
 
-?? **Performance**: JSON is faster than XML
+ **Performance**: JSON is faster than XML
 
-?? **Monitoring**: Check `state.json` to track progress
+ **Monitoring**: Check `state.json` to track progress
 
 ---
 
@@ -394,4 +394,4 @@ dotnet run
 **Version**: 2.0  
 **Last updated**: January 2025
 
-? Complete documentation - Ready to use EasySave!
+ Complete documentation - Ready to use EasySave!
