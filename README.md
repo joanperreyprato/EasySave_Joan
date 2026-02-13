@@ -1,423 +1,190 @@
-# EasySave v1.0
+# EasySave 2.0
 
-**[ Français](#français) | [ English](#english)**
+ **Application de sauvegarde de fichiers avec interface graphique et chiffrement**
 
----
-
-<a name="français"></a>
-
-#  EasySave - Documentation Française
-
-**Application de sauvegarde multilingue et performante** - Développée en C# avec .NET 8
-
-##  Table des matières
-
-- [Caractéristiques](#caractéristiques)
-- [Installation rapide](#installation-rapide)
-- [Utilisation](#utilisation)
-- [Types de sauvegarde](#types-de-sauvegarde)
-- [FAQ](#faq-français)
+ **File backup application with GUI and encryption**
 
 ---
 
-##  Caractéristiques
+##  Fonctionnalités / Features
 
--  **Deux modes de fonctionnement** : interactif et ligne de commande
--  **Deux types de sauvegarde** :
-  - **Complète** (Full) : copie tous les fichiers
-  - **Différentielle** (Diff) : copie uniquement les fichiers nouveaux ou modifiés
--  **Multilingue** : Support de l'anglais et du français
--  **Suivi d'état** : progression en temps réel des sauvegardes
--  **Journalisation** : enregistrement détaillé des opérations
--  **Configuration persistante** : sauvegarde des tâches de sauvegarde
--  **Gestion robuste des erreurs** : validation complète des chemins et paramètres
--  **Architecture modulaire** : Facile à étendre et maintenir
+###  Français
+-  **Interface graphique WPF** moderne et intuitive
+-  **Interface console CLI** pour automatisation
+-  **Deux types de sauvegarde** : complète et différentielle
+-  **Chiffrement AES-256** avec filtrage par extensions
+-  **Logs JSON et XML** au choix
+-  **Multilingue** : Français et Anglais
+-  **Suivi en temps réel** de la progression
+-  **Gestion d'état** persistante
 
----
-
-##  Installation rapide
-
-### Prérequis
-- **.NET 8.0 ou supérieur**
-- **Git** (pour cloner le repository)
-
-### Étapes
-
-1. **Cloner le repository**
-   ```bash
-   git clone https://github.com/joanperreyprato/EasySave.git
-   cd EasySave
-   ```
-
-2. **Compiler**
-   ```bash
-   dotnet build
-   ```
-
-3. **Exécuter**
-   ```bash
-   dotnet run
-   ```
+###  English
+-  **Modern WPF GUI** with intuitive interface
+-  **CLI console interface** for automation
+-  **Two backup types**: full and differential
+-  **AES-256 encryption** with extension filtering
+-  **JSON and XML logs** available
+-  **Multilingual**: French and English
+-  **Real-time progress** tracking
+-  **Persistent state** management
 
 ---
 
-##  Utilisation
+##  Installation Rapide / Quick Start
 
-### Mode interactif
+### Prérequis / Prerequisites
+- .NET 8.0 ou supérieur / or higher
+- Windows (WPF) ou Windows/Linux/macOS (CLI)
 
+### Compiler / Build
 ```bash
+git clone https://github.com/joanperreyprato/EasySave.git
+cd EasySave
+dotnet build
+```
+
+### Lancer / Run
+
+**Interface graphique / GUI (WPF)**:
+```bash
+cd EasySave.WPF
 dotnet run
 ```
 
-**Menu principal** :
-```
-=== EasySave ===
-1. Create Backup (Créer une sauvegarde)
-2. Execute Backup (Exécuter une sauvegarde)
-3. List Backups (Lister les sauvegardes)
-4. Exit (Quitter)
-```
-
-### Mode ligne de commande
-
-#### Créer une sauvegarde
+**Console / CLI**:
 ```bash
-dotnet run -- create <nom> <source> <cible> [full|diff]
+cd EasySave.UI
+dotnet run
 ```
 
-**Exemple** :
+---
+
+##  Documentation
+
+###  Français
+- **[Guide Rapide](QUICK_START.md)** - Démarrer en 5 minutes
+- **[Documentation Complète](DOCUMENTATION.md)** - Guide utilisateur détaillé
+- **[Documentation Technique](TECHNICAL_DOCUMENTATION.md)** - Pour développeurs
+- **[FAQ](FAQ.md)** - Questions fréquentes
+
+###  English
+- **[Quick Start](QUICK_START_EN.md)** - Get started in 5 minutes
+- **[Full Documentation](DOCUMENTATION_EN.md)** - Detailed user guide
+- **[Technical Documentation](TECHNICAL_DOCUMENTATION_EN.md)** - For developers
+- **[FAQ](FAQ_EN.md)** - Frequently asked questions
+
+---
+
+##  Exemples / Examples
+
+###  Interface WPF
+1. Ajoutez un travail avec **Add job**
+2. Configurez le chiffrement dans l'onglet **Chiffrement**
+3. Lancez avec **Start all** ou **Start selected**
+
+###  WPF Interface
+1. Add a job with **Add job**
+2. Configure encryption in **Encryption** tab
+3. Start with **Start all** or **Start selected**
+
+### CLI / Console
 ```bash
-dotnet run -- create "MonBackup" "C:\Users\Data" "D:\Backup" full
-```
+# Créer / Create
+dotnet run -- create "MyBackup" "C:\Source" "D:\Dest" full
 
-#### Exécuter une sauvegarde
-```bash
-# Exécuter une sauvegarde
-dotnet run -- execute 0
+# Exécuter / Execute
+dotnet run -- execute 1
 
-# Exécuter plusieurs (indices 0, 1, 2)
-dotnet run -- execute 0-2
-
-# Exécuter spécifiques (0, 2, 4)
-dotnet run -- execute 0,2,4
-```
-
-#### Lister les sauvegardes
-```bash
+# Lister / List
 dotnet run -- list
 ```
 
 ---
 
-##  Types de sauvegarde
+##  Chiffrement / Encryption
 
-### Sauvegarde complète (Full)
-- Copie **TOUS les fichiers** du dossier source
-- Idéale pour les premières sauvegardes
-- Temps d'exécution plus long
-- Espace disque : égal à la source
+###  Utilisation
+1. Définissez une clé de chiffrement
+2. Sélectionnez les extensions à chiffrer (`.docx`, `.pdf`, etc.)
+3. Lors de l'exécution, choisissez de chiffrer ou non
+4. Algorithme : **AES-256-CBC** avec **HMAC-SHA256**
 
-### Sauvegarde différentielle (Diff)
-- Copie uniquement les fichiers **nouveaux ou modifiés**
-- Détecte les modifications par date et taille
-- Idéale pour les mises à jour régulières
-- Très rapide après première sauvegarde
-- Espace disque : seulement pour fichiers modifiés
+###  Usage
+1. Set an encryption key
+2. Select extensions to encrypt (`.docx`, `.pdf`, etc.)
+3. When executing, choose whether to encrypt
+4. Algorithm: **AES-256-CBC** with **HMAC-SHA256**
 
 ---
 
-##  Configuration
+##  Structure du Projet / Project Structure
 
-### Fichiers automatiquement créés
-
-- **Windows** : `C:\ProgramData\EasySave\`
-- **Linux/macOS** : `~/.local/share/EasySave/`
-
-**Fichiers** :
-- `backup_config.json` - Tâches configurées
-- `state.json` - État actuel des sauvegardes
-- `logs/` - Historique des opérations
-
-### Changer la langue
-
-Modifiez `Program.cs` ligne 2 :
-```csharp
-var language = new LanguageProvider("fr");  // Français
-var language = new LanguageProvider("en");  // Anglais
+```
+EasySave/
+ EasySave.WPF/          # Interface graphique / GUI
+ EasySave.UI/           # Interface console / CLI
+ EasySave v1.0/         # Bibliothèque principale / Core library
+ EasyLog/               # Système de logs / Logging system
+ CryptoSoft/            # Module de chiffrement / Encryption module
+ EasySave.Tests/        # Tests unitaires / Unit tests
+ docs/                  # Documentation / Documentation
 ```
 
 ---
 
-##  FAQ Français
+##  Technologies
 
-Pour 30 questions-réponses détaillées, consultez **[FAQ.md](FAQ.md)**
-
-**Questions couvertes** :
--  Installation & Configuration (Q1-Q3)
--  Création de sauvegardes (Q4-Q7)
--  Types de sauvegarde (Q8-Q10)
--  Exécution & Suivi (Q11-Q13)
--  Mode CLI (Q14-Q15)
--  Dépannage (Q16-Q21)
--  Performance (Q22-Q23)
--  Sécurité (Q24-Q26)
--  Maintenance (Q27-Q29)
--  Contribution (Q30)
+- **C# / .NET 8.0**
+- **WPF** pour l'interface graphique / for GUI
+- **AES-256** pour le chiffrement / for encryption
+- **JSON/XML** pour les logs / for logging
+- **xUnit** pour les tests / for testing
 
 ---
 
-##  Documentation complète
+##  Statut / Status
 
-- **[START_HERE.md](START_HERE.md)** - Guide visuel d'accueil
-- **[QUICK_START.md](QUICK_START.md)** - Démarrage 5 minutes
-- **[DOCUMENTATION.md](DOCUMENTATION.md)** - Guide utilisateur complet (30 pages)
-- **[TECHNICAL_DOCUMENTATION.md](TECHNICAL_DOCUMENTATION.md)** - Guide développeur
-- **[FAQ.md](FAQ.md)** - 30 Questions-Réponses
-- **[INDEX.md](INDEX.md)** - Index de navigation
-
----
-
-<a name="english"></a>
-
-#  EasySave - English Documentation
-
-**Multilingual and efficient backup application** - Built with C# and .NET 8
-
-##  Table of Contents
-
-- [Features](#features)
-- [Quick Start](#quick-start)
-- [Usage](#usage)
-- [Backup Types](#backup-types)
-- [FAQ](#faq-english)
+| Fonctionnalité / Feature | Statut / Status |
+|--------------------------|-----------------|
+| Interface WPF / GUI |  Complète / Complete |
+| Interface CLI / Console |  Complète / Complete |
+| Sauvegarde Full / Full Backup |  Fonctionnelle / Working |
+| Sauvegarde Diff / Differential |  Fonctionnelle / Working |
+| Chiffrement / Encryption |  AES-256 |
+| Multilingue / Multilingual |  FR + EN |
+| Tests / Tests |  Unitaires / Unit tests |
 
 ---
 
-##  Features
+##  Contribution
 
--  **Two operating modes** : interactive and command-line
--  **Two backup types** :
-  - **Full** : copies all files
-  - **Differential** : copies only new or modified files
--  **Multilingual** : English and French support
--  **Real-time tracking** : progress monitoring during backups
--  **Logging** : detailed operation records
--  **Persistent configuration** : saves backup tasks
--  **Robust error handling** : complete path and parameter validation
--  **Modular architecture** : Easy to extend and maintain
+ Les contributions sont les bienvenues ! Consultez [DOCUMENTATION.md](DOCUMENTATION.md) pour les détails.
+
+ Contributions are welcome! See [DOCUMENTATION.md](DOCUMENTATION.md) for details.
 
 ---
 
-##  Quick Start
+##  License
 
-### Requirements
-- **.NET 8.0 or higher**
-- **Git** (to clone the repository)
-
-### Steps
-
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/joanperreyprato/EasySave.git
-   cd EasySave
-   ```
-
-2. **Build**
-   ```bash
-   dotnet build
-   ```
-
-3. **Run**
-   ```bash
-   dotnet run
-   ```
+Projet académique / Academic project
 
 ---
 
-##  Usage
+##  Liens / Links
 
-### Interactive Mode
-
-```bash
-dotnet run
-```
-
-**Main Menu** :
-```
-=== EasySave ===
-1. Create Backup
-2. Execute Backup
-3. List Backups
-4. Exit
-```
-
-### Command Line Mode
-
-#### Create a backup
-```bash
-dotnet run -- create <name> <source> <target> [full|diff]
-```
-
-**Example** :
-```bash
-dotnet run -- create "MyBackup" "C:\Users\Data" "D:\Backup" full
-```
-
-#### Execute a backup
-```bash
-# Execute one backup
-dotnet run -- execute 0
-
-# Execute multiple (indices 0, 1, 2)
-dotnet run -- execute 0-2
-
-# Execute specific (0, 2, 4)
-dotnet run -- execute 0,2,4
-```
-
-#### List backups
-```bash
-dotnet run -- list
-```
+- **GitHub**: [github.com/joanperreyprato/EasySave](https://github.com/joanperreyprato/EasySave)
+- **Issues**: [GitHub Issues](https://github.com/joanperreyprato/EasySave/issues)
 
 ---
 
-##  Backup Types
+##  Contact
 
-### Full Backup
-- Copies **ALL files** from source folder
-- Ideal for initial backups
-- Longer execution time
-- Disk space : equal to source size
+ Pour toute question, ouvrez une issue sur GitHub.
 
-### Differential Backup
-- Copies only **new or modified files**
-- Detects changes by date and size
-- Ideal for regular updates
-- Very fast after initial backup
-- Disk space : only for modified files
+ For any question, open an issue on GitHub.
 
 ---
 
-##  Configuration
+**Version**: 2.0 | **Date**: Janvier 2025 / January 2025
 
-### Auto-Created Files
-
-- **Windows** : `C:\ProgramData\EasySave\`
-- **Linux/macOS** : `~/.local/share/EasySave/`
-
-**Files** :
-- `backup_config.json` - Configured tasks
-- `state.json` - Current backup state
-- `logs/` - Operation history
-
-### Change Language
-
-Edit `Program.cs` line 2 :
-```csharp
-var language = new LanguageProvider("en");  // English
-var language = new LanguageProvider("fr");  // French
-```
-
----
-
-##  FAQ English
-
-For 30 detailed Q&A, see **[FAQ.md](FAQ.md)**
-
-**Topics covered** :
--  Installation & Configuration (Q1-Q3)
--  Backup Creation (Q4-Q7)
--  Backup Types (Q8-Q10)
--  Execution & Monitoring (Q11-Q13)
--  CLI Mode (Q14-Q15)
--  Troubleshooting (Q16-Q21)
--  Performance (Q22-Q23)
--  Security (Q24-Q26)
--  Maintenance (Q27-Q29)
--  Contributing (Q30)
-
----
-
-##  Complete Documentation
-
-- **[START_HERE.md](START_HERE.md)** - Visual welcome guide
-- **[QUICK_START.md](QUICK_START.md)** - 5-minute start
-- **[DOCUMENTATION.md](DOCUMENTATION.md)** - Complete user guide (30 pages)
-- **[TECHNICAL_DOCUMENTATION.md](TECHNICAL_DOCUMENTATION.md)** - Developer guide
-- **[FAQ.md](FAQ.md)** - 30 Q&A
-- **[INDEX.md](INDEX.md)** - Navigation index
-
----
-
-##  Getting Started
-
-### Choose Your Path
-
-**I'm new to EasySave** 
-1. Read [QUICK_START.md](QUICK_START.md) (5 min)
-2. Run `dotnet run`
-3. Create first backup
-
-**I have questions** 
-1. Check [FAQ.md](FAQ.md)
-2. Use Ctrl+F to search
-
-**I'm a developer** 
-1. Read [TECHNICAL_DOCUMENTATION.md](TECHNICAL_DOCUMENTATION.md)
-2. Explore source code
-
----
-
-##  Support
-
-### Get Help
--  Check [DOCUMENTATION.md](DOCUMENTATION.md)
--  See [FAQ.md](FAQ.md)
--  Read [TECHNICAL_DOCUMENTATION.md](TECHNICAL_DOCUMENTATION.md)
--  Browse [INDEX.md](INDEX.md)
-
-### Report Issues
--  [GitHub Issues](https://github.com/joanperreyprato/EasySave/issues)
-
-### Contribute
--  Fork  Branch  Commit  Pull Request
-- See [FAQ.md](FAQ.md) Q30 for details
-
----
-
-##  Key Information
-
-| Aspect | Details |
-|--------|---------|
-| **Version** | 1.0 |
-| **Language** | Français / English   |
-| **Built with** | C# .NET 8 |
-| **License** | [See LICENSE](LICENSE) |
-| **Repository** | [GitHub](https://github.com/joanperreyprato/EasySave) |
-
----
-
-##  Documentation Statistics
-
-- **8 Markdown files** created
-- **~31 pages** of documentation
-- **~19,000 words**
-- **30+ Q&A**
-- **10+ practical examples**
-- **100% topic coverage**
-- **Bilingual**  
-
----
-
-##  Ready to Start
-
- **[Read START_HERE.md](START_HERE.md)** for visual guide
- **[Read QUICK_START.md](QUICK_START.md)** for 5-minute start
- **Run `dotnet run`** to begin now
-
----
-
-**Last Updated** : January 2024
-**Version** : 1.0
-**Status** :  Complete Documentation
+ **EasySave - Sauvegardez vos données en toute simplicité / Backup your data with ease**

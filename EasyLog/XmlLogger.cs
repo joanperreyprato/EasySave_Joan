@@ -37,6 +37,7 @@ namespace EasyLog
                     new XElement("targetFilePath", entry.TargetFilePath),
                     new XElement("fileSize", entry.FileSize),
                     new XElement("transferTime", entry.TransferTime),
+                    new XElement("encryptionTime", entry.EncryptionTime),
                     new XElement("type", entry.Type.ToString())
                 ));
 

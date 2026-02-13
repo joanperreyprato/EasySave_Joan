@@ -1,110 +1,120 @@
-# EasySave - Quick Start Guide (English)
+# EasySave 2.0 - Quick Start Guide
 
-Get started with EasySave in 5 minutes! 
+Get started with EasySave 2.0 in minutes!
 
 ---
 
-##  Quick Installation
+##  Installation
 
 ### Windows
 ```bash
 git clone https://github.com/joanperreyprato/EasySave.git
 cd EasySave
 dotnet build
+```
+
+### Launch the application
+
+**Graphical Interface (WPF)**:
+```bash
+cd EasySave.WPF
 dotnet run
 ```
 
-### Linux / macOS
+**Console Interface (CLI)**:
 ```bash
-git clone https://github.com/joanperreyprato/EasySave.git
-cd EasySave
-dotnet build
+cd EasySave.UI
 dotnet run
 ```
 
 ---
 
-##  First Steps
+##  Graphical Interface (WPF)
 
-### 1. Launch in Interactive Mode
-```bash
-dotnet run
-```
+### 1. Create a backup job
+1. Click **Add job**
+2. Fill in:
+   - Name: `MyDocuments`
+   - Source: `C:\Users\MyName\Documents`
+   - Destination: `D:\Backups\Documents`
+   - Log format: JSON or XML
+3. Click **OK**
 
-Menu:
-```
-=== EasySave ===
-1. Create Backup
-2. Execute Backup
-3. List Backups
-4. Exit
-Select an option:
-```
+### 2. Execute a backup
+- **Single job**: Select it, click **Start selected**
+- **All jobs**: Click **Start all**
 
-### 2. Create Your First Backup
-- Press **1**
-- Enter name: `MyBackup`
-- Enter source folder: `/home/user/Documents`
-- Enter target folder: `/home/user/Backups`
-- Choose type: `full` (or `diff` for differential)
+### 3. Encryption (optional)
+1. Go to **Encryption** tab
+2. Enter an encryption key
+3. Add file extensions to encrypt (e.g., `.txt`, `.docx`)
+4. When executing, choose whether to encrypt
 
-### 3. Execute the Backup
-- Press **2**
-- Select index: `0`
-- It's running! 
-
-### 4. List Your Backups
-- Press **3**
-- See your configured tasks
+### 4. Change language
+Use the dropdown menu at the top right (English / Français)
 
 ---
 
-##  Command Line Mode
+##  Console Interface (CLI)
 
-### Create Quickly
+### Interactive mode
 ```bash
-dotnet run -- create "DocBackup" "C:\Users\Doc" "D:\Backup" full
+cd EasySave.UI
+dotnet run
 ```
 
-### Execute Quickly
-```bash
-# Single backup
-dotnet run -- execute 0
+Available menu:
+- **1**: Create backup
+- **2**: Execute backup
+- **3**: List backups
+- **4**: Edit backup
+- **5**: Change language
+- **6**: Exit
 
-# Multiple backups
-dotnet run -- execute 0-2
-dotnet run -- execute 0,2,4
-```
-
-### List
+### Command mode
 ```bash
+# Create
+dotnet run -- create "Photos" "C:\Photos" "D:\Backup" full
+
+# Execute
+dotnet run -- execute 1
+
+# List
 dotnet run -- list
 ```
 
 ---
 
-##  Backup Types
+##  Key Features
 
-| Type | First Time | Usage |
-|------|------------|-------|
-| **Full** |  Do it | Complete backup (all files) |
-| **Diff** |  Too long | Update (modified files only) |
+### Backup types
+| Type | Description |
+|------|-------------|
+| **Full** | Copies all files |
+| **Differential** | Copies only modified files |
 
-**Tip**: Do a `full` initially, then use `diff` for following ones.
+### AES-256 Encryption
+- Protects sensitive files
+- Filter by extensions
+- Custom encryption key
+- Integrity verification (HMAC-SHA256)
+
+### Log formats
+- **JSON**: Easy to parse
+- **XML**: Compatible with legacy tools
 
 ---
 
 ##  Configuration
 
-Files auto-created in:
+Files stored in:
 - **Windows**: `C:\ProgramData\EasySave\`
-- **Linux/macOS**: `~/.local/share/EasySave/`
 
 | File | Content |
 |------|---------|
-| `backup_config.json` | Your tasks |
-| `state.json` | Progress info |
-| `logs/` | History |
+| `backup_config.json` | Job configuration |
+| `state.json` | Real-time status |
+| `logs/` | Operation history |
 
 ---
 
@@ -112,122 +122,54 @@ Files auto-created in:
 
 | Problem | Solution |
 |---------|----------|
-| "Source directory does not exist" | Check source path |
-| "Target directory does not exist" | Create target folder |
-| "Invalid job name" | Use alphanumeric + hyphen/underscore |
-| "A backup job with this name already exists" | Change the name |
-| "Maximum number of backup jobs (5) reached" | Delete an old backup |
+| Invalid source path | Verify the folder exists |
+| Invalid destination path | Create the folder or check permissions |
+| Invalid name | Use only alphanumeric, spaces, dashes |
+| Encryption error | Verify the key is set |
 
 ---
 
-##  Change Language
+##  Usage Examples
 
-Edit `Program.cs` line 2:
+### Backup documents with encryption
+1. WPF Interface: Add the job
+2. Encryption tab: Enter a key
+3. Add extensions: `.docx`, `.pdf`, `.xlsx`
+4. Execute and choose "Yes" for encryption
 
-```csharp
-// English
-var language = new LanguageProvider("en");
-
-// French
-var language = new LanguageProvider("fr");
-```
-
-Recompile:
+### Batch automatic backup (CLI)
 ```bash
-dotnet build
-dotnet run
+cd EasySave.UI
+dotnet run -- create "Job1" "C:\Data" "D:\Backup" full
+dotnet run -- create "Job2" "C:\Photos" "D:\Backup" full
+dotnet run -- execute 1,2
 ```
 
 ---
 
-##  Practical Examples
+##  Tips
 
-### Example 1: Backup a drive
-```bash
-dotnet run -- create "DriveD" "D:\" "E:\BackupD" full
-dotnet run -- execute 0
-```
+ **First backup**: Always use **Full**
 
-### Example 2: Regular backups
-```bash
-# Day 1: Full backup
-dotnet run -- create "Weekly-Full" "/data" "/backup/weekly" full
-dotnet run -- execute 0
+ **Regular updates**: Use **Differential** to save time
 
-# Day 8: Quick differential
-dotnet run -- create "Weekly-Update" "/data" "/backup/weekly" diff
-dotnet run -- execute 1
-```
+ **Sensitive files**: Enable encryption with a strong key
 
-### Example 3: Batch execution
-```bash
-# Create multiple backups
-dotnet run -- create "Photos" "/home/photos" "/backup/photos" full
-dotnet run -- create "Videos" "/home/videos" "/backup/videos" full
-dotnet run -- create "Documents" "/home/docs" "/backup/docs" full
+ **Monitoring**: State is updated in real-time in `state.json`
 
-# Execute them all
-dotnet run -- execute 0-2
-```
-
----
-
-##  Track Progress
-
-During backup, app updates:
-- Files processed
-- Size transferred
-- Percentage completed
-- Elapsed time
-
-Check in `state.json`:
-```json
-{
-  "progress": 45.5,
-  "remainingFiles": 55,
-  "remainingSize": 524288000
-}
-```
-
----
-
-##  Quick Troubleshooting
-
-### Reinstall
-```bash
-dotnet clean
-dotnet build
-```
-
-### Reset
-Delete `%ProgramData%\EasySave\` or `~/.local/share/EasySave/`
-
-### Check Logs
-Browse `logs/` folder for history
-
----
-
-##  First Backup Checklist
-
-- [ ] Compile: `dotnet build`
-- [ ] Launch: `dotnet run`
-- [ ] Create backup (menu 1)
-- [ ] Specify source AND target
-- [ ] Type = `full`
-- [ ] Execute (menu 2)
-- [ ] Verify files copied 
-- [ ] List (menu 3) for summary
+ **Logs**: Choose XML for compatibility, JSON for performance
 
 ---
 
 ##  Need Help
 
-- **Bug**: [Report on GitHub](https://github.com/joanperreyprato/EasySave/issues)
-- **Question**: See `DOCUMENTATION.md`
-- **Technical**: See `TECHNICAL_DOCUMENTATION.md`
+- **Full documentation**: `DOCUMENTATION.md`
+- **Technical documentation**: `TECHNICAL_DOCUMENTATION.md`
+- **FAQ**: `FAQ.md`
+- **GitHub Issues**: [github.com/joanperreyprato/EasySave/issues](https://github.com/joanperreyprato/EasySave/issues)
 
 ---
 
-**Version**: 1.0 | **Updated**: January 2024
+**Version**: 2.0 | **Updated**: January 2025
 
- You're ready! Start your first backup now!
+ You're ready! Launch EasySave now!
