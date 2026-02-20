@@ -56,6 +56,8 @@ namespace EasySave_v1._0
         // Convenience property
         public static LanguageProvider Instance => GetInstance();
 
+        public string CurrentLanguage => currentLanguage;
+
         public string GetText(string key)
         {
             if (string.IsNullOrWhiteSpace(key)) return string.Empty;
@@ -147,6 +149,15 @@ namespace EasySave_v1._0
                 ,
                 // UI elements
                 ["window.title"] = "EasySave 2.0",
+                ["header.subtitle"] = "Smart and secure backups",
+                ["header.badge.fast"] = "Fast backups",
+                ["label.language"] = "Language",
+                ["tab.jobs"] = "Jobs",
+                ["jobs.section.title"] = "Backup dashboard",
+                ["jobs.section.desc"] = "Manage, start, and monitor your backup jobs in real time.",
+                ["security.section.title"] = "Security & encryption",
+                ["security.section.desc"] = "Protect your backups with extensions and a custom key.",
+                ["encryption.extensions.title"] = "Extensions to encrypt",
                 ["col.name"] = "Name",
                 ["col.source"] = "Source",
                 ["col.target"] = "Target",
@@ -158,6 +169,7 @@ namespace EasySave_v1._0
                 ["btn.stopsel"] = "Stop selected",
                 ["status.ready"] = "Ready",
                 ["addjob.title"] = "Add Backup Job",
+                ["addjob.description"] = "Fill in the backup information and log format.",
                 ["addjob.name"] = "Name:",
                 ["addjob.source"] = "Source:",
                 ["addjob.target"] = "Destination:",
@@ -220,6 +232,15 @@ namespace EasySave_v1._0
                 ,
                 // UI elements
                 ["window.title"] = "EasySave 2.0",
+                ["header.subtitle"] = "Sauvegardes intelligentes et securisees",
+                ["header.badge.fast"] = "Sauvegardes rapides",
+                ["label.language"] = "Langue",
+                ["tab.jobs"] = "Travaux",
+                ["jobs.section.title"] = "Tableau des sauvegardes",
+                ["jobs.section.desc"] = "Gerez, demarrez et surveillez vos travaux en temps reel.",
+                ["security.section.title"] = "Securite et chiffrement",
+                ["security.section.desc"] = "Protegez vos sauvegardes avec des extensions et un code personnalise.",
+                ["encryption.extensions.title"] = "Extensions a chiffrer",
                 ["col.name"] = "Nom",
                 ["col.source"] = "Source",
                 ["col.target"] = "Cible",
@@ -231,6 +252,7 @@ namespace EasySave_v1._0
                 ["btn.stopsel"] = "Arrêter sélection",
                 ["status.ready"] = "Prêt",
                 ["addjob.title"] = "Ajouter un travail",
+                ["addjob.description"] = "Renseignez les informations de sauvegarde et le format de log.",
                 ["addjob.name"] = "Nom:",
                 ["addjob.source"] = "Source:",
                 ["addjob.target"] = "Cible:",
