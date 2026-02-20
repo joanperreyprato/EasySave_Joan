@@ -84,7 +84,7 @@ namespace EasySave.WPF
             // select combobox to current language
             try
             {
-                CbLanguage.SelectedIndex = string.Equals(lp.GetText("language.english"), "English", StringComparison.OrdinalIgnoreCase) ? 0 : 1;
+                CbLanguage.SelectedValue = lp.CurrentLanguage;
             }
             catch { CbLanguage.SelectedIndex = 0; }
 
@@ -119,7 +119,7 @@ namespace EasySave.WPF
             catch { }
             void ChangeLanguage()
             {
-                if (CbLanguage.SelectedItem is System.Windows.Controls.ComboBoxItem it && it.Tag is string code)
+                if (CbLanguage.SelectedValue is string code)
                 {
                     var lp = EasySave_v1._0.LanguageProvider.GetInstance();
                     lp.SetLanguage(code);
@@ -139,6 +139,12 @@ namespace EasySave.WPF
             {
                 // Only update UI texts here. Do not modify Jobs collection or reattach handlers.
                 this.Title = lp.GetText("window.title");
+                HeaderSubtitle.Text = lp.GetText("header.subtitle");
+                HeaderBadgeFast.Text = lp.GetText("header.badge.fast");
+                LblLanguage.Text = lp.GetText("label.language");
+                TabJobsHeader.Text = lp.GetText("tab.jobs");
+                JobsSectionTitle.Text = lp.GetText("jobs.section.title");
+                JobsSectionDesc.Text = lp.GetText("jobs.section.desc");
                 BtnAddJob.Content = lp.GetText("btn.add");
                 BtnStartAll.Content = lp.GetText("btn.startall");
                 BtnStopAll.Content = lp.GetText("btn.stopall");
@@ -157,6 +163,9 @@ namespace EasySave.WPF
                 {
                     LblEncryptionHeader.Text = lp.GetText("encryption.code.label");
                     TbEncryptionDesc.Text = lp.GetText("encryption.description");
+                    SecuritySectionTitle.Text = lp.GetText("security.section.title");
+                    SecuritySectionDesc.Text = lp.GetText("security.section.desc");
+                    EncryptionExtensionsTitle.Text = lp.GetText("encryption.extensions.title");
                     // Update tab header if translation exists
                     string tabHeader = lp.GetText("tab.encryption");
                     if (!string.IsNullOrWhiteSpace(tabHeader) && tabHeader != "tab.encryption")

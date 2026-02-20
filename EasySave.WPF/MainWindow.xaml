@@ -1,80 +1,266 @@
 <Window x:Class="EasySave.WPF.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="EasySave 2.0" Height="450" Width="800">
-    <Grid Margin="10">
-        <TabControl>
-            <TabItem Header="Jobs">
-                <Grid Margin="0">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="*" />
-                        <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
+        Title="EasySave 2.0" 
+        Height="600" 
+        Width="1100"
+        MinHeight="500"
+        MinWidth="900"
+        Background="{StaticResource BackgroundColor}"
+        WindowStartupLocation="CenterScreen">
+    
+    <Border Margin="24" Style="{StaticResource PageShell}">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
 
-                    <StackPanel Orientation="Horizontal" Grid.Row="0" Margin="0,0,0,10">
-                        <Button x:Name="BtnAddJob" Content="Add job" Margin="0,0,10,0" Width="140" />
-                        <Button x:Name="BtnStartSelected" Content="Start selected" Margin="0,0,10,0" Width="140" />
-                        <Button x:Name="BtnStopSelected" Content="Stop selected" Margin="0,0,10,0" Width="140" />
-                        <Button x:Name="BtnStartAll" Content="Start all" Margin="0,0,10,0" Width="100" />
-                        <Button x:Name="BtnStopAll" Content="Stop all" Width="100" />
-                        <ComboBox x:Name="CbLanguage" Width="120" Margin="10,0,0,0">
+            <!-- Modern Header -->
+            <Border Grid.Row="0" Background="{StaticResource SurfaceMuted}"
+                    CornerRadius="16" Padding="24,20" Margin="0,0,0,20">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="EasySave" FontSize="30" FontWeight="Bold" 
+                                   Foreground="{StaticResource TextPrimary}"/>
+                        <TextBlock x:Name="HeaderSubtitle" Text="Sauvegardes intelligentes et sécurisées" FontSize="13" 
+                                   Foreground="{StaticResource TextSecondary}" Margin="0,4,0,0"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
+                            <Border Background="{StaticResource AccentSoft}" CornerRadius="999" Padding="10,4" Margin="0,0,8,0">
+                                <TextBlock Text="v2.0" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource PrimaryColor}"/>
+                            </Border>
+                            <Border Background="{StaticResource NeutralSoft}" CornerRadius="999" Padding="10,4">
+                                <TextBlock x:Name="HeaderBadgeFast" Text="Backups rapides" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource TextSecondary}"/>
+                            </Border>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock x:Name="LblLanguage" Text="Langue" FontSize="12" Foreground="{StaticResource TextSecondary}" VerticalAlignment="Center"/>
+                        <ComboBox x:Name="CbLanguage" Width="160" Height="44"
+                                  Style="{StaticResource ModernComboBox}"
+                                  Margin="12,0,0,0"
+                                  SelectedValuePath="Tag">
                             <ComboBoxItem Tag="en">English</ComboBoxItem>
-                            <ComboBoxItem Tag="fr">Francais</ComboBoxItem>
+                            <ComboBoxItem Tag="fr">Français</ComboBoxItem>
                         </ComboBox>
                     </StackPanel>
-
-                    <ListView x:Name="JobsList" Grid.Row="1" SelectionMode="Extended">
-                        <ListView.View>
-                            <GridView>
-                                <GridViewColumn Width="200" DisplayMemberBinding="{Binding Name}">
-                                    <GridViewColumn.Header>
-                                        <TextBlock x:Name="ColNameHeader">Nom</TextBlock>
-                                    </GridViewColumn.Header>
-                                </GridViewColumn>
-                                <GridViewColumn Width="200" DisplayMemberBinding="{Binding Source}">
-                                    <GridViewColumn.Header>
-                                        <TextBlock x:Name="ColSourceHeader">Source</TextBlock>
-                                    </GridViewColumn.Header>
-                                </GridViewColumn>
-                                <GridViewColumn Width="200" DisplayMemberBinding="{Binding Destination}">
-                                    <GridViewColumn.Header>
-                                        <TextBlock x:Name="ColTargetHeader">Cible</TextBlock>
-                                    </GridViewColumn.Header>
-                                </GridViewColumn>
-                                <GridViewColumn Width="100" DisplayMemberBinding="{Binding State}">
-                                    <GridViewColumn.Header>
-                                        <TextBlock x:Name="ColStateHeader">Etat</TextBlock>
-                                    </GridViewColumn.Header>
-                                </GridViewColumn>
-                            </GridView>
-                        </ListView.View>
-                    </ListView>
-
-                    <StatusBar Grid.Row="2">
-                        <TextBlock x:Name="StatusText">Pret</TextBlock>
-                    </StatusBar>
                 </Grid>
-            </TabItem>
+            </Border>
 
-            <TabItem x:Name="TabEncryption" Header="Chiffrement">
-                <StackPanel Margin="10">
-                    <TextBlock x:Name="LblEncryptionHeader" Text="Code de chiffrement" Margin="0,0,0,4" />
-                    <PasswordBox x:Name="PbEncryptionKey" Width="300" />
-                    <TextBlock x:Name="TbEncryptionDesc" Text="Entrez un code ici. Lors du lancement des travaux, vous serez invite à chiffrer ou non." TextWrapping="Wrap" Margin="0,8,0,0" Width="400" />
+            <!-- Main Content -->
+            <TabControl Grid.Row="1" Style="{StaticResource ModernTabControl}">
+                <TabItem Style="{StaticResource ModernTabItem}">
+                    <TabItem.Header>
+                        <TextBlock x:Name="TabJobsHeader" Text="Jobs" FontSize="15"/>
+                    </TabItem.Header>
+                    <Grid Margin="0,12,0,0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
 
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,30,0,0">
-                        <TextBox x:Name="TbNewExt" Width="200" VerticalAlignment="Center" Margin="0,0,8,0" />
-                        <Button x:Name="BtnAddExt" Content="Ajouter" Width="80" />
-                        <Button x:Name="BtnRemoveExt" Content="Supprimer" Width="80" Margin="8,0,0,0" />
+                        <StackPanel Grid.Row="0" Margin="0,0,0,12">
+                            <TextBlock x:Name="JobsSectionTitle" Text="Tableau des sauvegardes" Style="{StaticResource SectionHeader}"/>
+                            <TextBlock x:Name="JobsSectionDesc" Text="Gérez, démarrez et surveillez vos travaux en temps réel." Style="{StaticResource DescriptionText}"/>
+                        </StackPanel>
+
+                        <!-- Action Bar -->
+                        <Border Grid.Row="1" Style="{StaticResource Card}" Margin="0,0,0,16">
+                            <WrapPanel Orientation="Horizontal">
+                                <Button x:Name="BtnAddJob" Content="+ Add Job" 
+                                        Style="{StaticResource ModernButton}" 
+                                        Margin="0,0,12,0" Width="150" Height="44"/>
+                                <Button x:Name="BtnStartSelected" Content="▶ Start Selected" 
+                                        Style="{StaticResource SecondaryButton}" 
+                                        Margin="0,0,12,0" Width="170" Height="44"/>
+                                <Button x:Name="BtnStopSelected" Content="■ Stop Selected" 
+                                        Style="{StaticResource OutlineButton}" 
+                                        Margin="0,0,12,0" Width="160" Height="44"/>
+                                <Button x:Name="BtnStartAll" Content="▶▶ Start All" 
+                                        Style="{StaticResource SecondaryButton}" 
+                                        Margin="0,0,12,0" Width="130" Height="44"/>
+                                <Button x:Name="BtnStopAll" Content="■ Stop All" 
+                                        Style="{StaticResource DangerButton}" 
+                                        Width="130" Height="44"/>
+                            </WrapPanel>
+                        </Border>
+
+                        <!-- Jobs List Card -->
+                        <Border Grid.Row="2" Style="{StaticResource Card}">
+                            <ListView x:Name="JobsList" 
+                                      Style="{StaticResource ModernListView}"
+                                      SelectionMode="Extended"
+                                      ItemContainerStyle="{StaticResource ModernListViewItem}">
+                                <ListView.View>
+                                    <GridView ColumnHeaderContainerStyle="{StaticResource ModernGridViewHeader}">
+                                        <GridViewColumn Width="220">
+                                            <GridViewColumn.Header>
+                                                <TextBlock x:Name="ColNameHeader" Text="Nom" Style="{StaticResource TableHeaderText}"/>
+                                            </GridViewColumn.Header>
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding Name}" 
+                                                               FontWeight="SemiBold"
+                                                               Foreground="{StaticResource TextPrimary}"/>
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                        <GridViewColumn Width="250">
+                                            <GridViewColumn.Header>
+                                                <TextBlock x:Name="ColSourceHeader" Text="Source" Style="{StaticResource TableHeaderText}"/>
+                                            </GridViewColumn.Header>
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding Source}" 
+                                                               Foreground="{StaticResource TextSecondary}"
+                                                               TextTrimming="CharacterEllipsis"/>
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                        <GridViewColumn Width="250">
+                                            <GridViewColumn.Header>
+                                                <TextBlock x:Name="ColTargetHeader" Text="Cible" Style="{StaticResource TableHeaderText}"/>
+                                            </GridViewColumn.Header>
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding Destination}" 
+                                                               Foreground="{StaticResource TextSecondary}"
+                                                               TextTrimming="CharacterEllipsis"/>
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                        <GridViewColumn Width="130">
+                                            <GridViewColumn.Header>
+                                                <TextBlock x:Name="ColStateHeader" Text="État" Style="{StaticResource TableHeaderText}"/>
+                                            </GridViewColumn.Header>
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <Border CornerRadius="999" Padding="10,4" HorizontalAlignment="Left" Background="{StaticResource NeutralSoft}" BorderBrush="{StaticResource BorderColor}" BorderThickness="1">
+                                                        <Border.Style>
+                                                            <Style TargetType="Border">
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding State}" Value="Running">
+                                                                        <Setter Property="Background" Value="{StaticResource SuccessSoft}"/>
+                                                                        <Setter Property="BorderBrush" Value="{StaticResource SuccessColor}"/>
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding State}" Value="Stopped">
+                                                                        <Setter Property="Background" Value="{StaticResource NeutralSoft}"/>
+                                                                        <Setter Property="BorderBrush" Value="{StaticResource BorderColor}"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </Border.Style>
+                                                        <TextBlock Text="{Binding State}" FontWeight="SemiBold" FontSize="12">
+                                                            <TextBlock.Style>
+                                                                <Style TargetType="TextBlock">
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding State}" Value="Running">
+                                                                            <Setter Property="Foreground" Value="#15803D"/>
+                                                                        </DataTrigger>
+                                                                        <DataTrigger Binding="{Binding State}" Value="Stopped">
+                                                                            <Setter Property="Foreground" Value="#475569"/>
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </TextBlock.Style>
+                                                        </TextBlock>
+                                                    </Border>
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                    </GridView>
+                                </ListView.View>
+                            </ListView>
+                        </Border>
+
+                        <!-- Modern Status Bar -->
+                        <Border Grid.Row="3" Background="{StaticResource SurfaceMuted}" CornerRadius="12" Margin="0,16,0,0" Padding="4">
+                            <StatusBar Style="{StaticResource ModernStatusBar}" Background="Transparent" BorderThickness="0">
+                                <StatusBarItem>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="●" Foreground="{StaticResource SuccessColor}" 
+                                                   FontSize="16" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                        <TextBlock x:Name="StatusText" Text="Prêt" 
+                                                   FontSize="13" Foreground="{StaticResource TextSecondary}"/>
+                                    </StackPanel>
+                                </StatusBarItem>
+                            </StatusBar>
+                        </Border>
+                    </Grid>
+                </TabItem>
+
+            <TabItem x:Name="TabEncryption" Style="{StaticResource ModernTabItem}">
+                <TabItem.Header>
+                    <TextBlock Text="Chiffrement" FontSize="15"/>
+                </TabItem.Header>
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="0,12,0,0">
+                    <StackPanel MaxWidth="640" HorizontalAlignment="Center">
+                        <StackPanel Margin="0,0,0,12">
+                            <TextBlock x:Name="SecuritySectionTitle" Text="Sécurité &amp; chiffrement" Style="{StaticResource SectionHeader}"/>
+                            <TextBlock x:Name="SecuritySectionDesc" Text="Protégez vos sauvegardes avec des extensions et un code personnalisés." Style="{StaticResource DescriptionText}"/>
+                        </StackPanel>
+
+                        <!-- Encryption Key Card -->
+                        <Border Style="{StaticResource Card}" Margin="0,0,0,20">
+                            <StackPanel>
+                                <TextBlock x:Name="LblEncryptionHeader" 
+                                           Text="Code de chiffrement" 
+                                           Style="{StaticResource SectionHeader}"/>
+                                <PasswordBox x:Name="PbEncryptionKey" 
+                                             Style="{StaticResource ModernPasswordBox}"
+                                             Margin="0,0,0,12"/>
+                                <TextBlock x:Name="TbEncryptionDesc" 
+                                           Text="Entrez un code ici. Lors du lancement des travaux, vous serez invité à chiffrer ou non." 
+                                           Style="{StaticResource DescriptionText}"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- File Extensions Card -->
+                        <Border Style="{StaticResource Card}">
+                            <StackPanel>
+                                <TextBlock x:Name="EncryptionExtensionsTitle" Text="Extensions à chiffrer" 
+                                           Style="{StaticResource SectionHeader}"/>
+
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                                    <TextBox x:Name="TbNewExt" 
+                                             Style="{StaticResource ModernTextBox}"
+                                             Width="320" 
+                                             Height="44"
+                                             VerticalContentAlignment="Center"
+                                             Margin="0,0,12,0"/>
+                                    <Button x:Name="BtnAddExt" 
+                                            Content="+ Ajouter" 
+                                            Style="{StaticResource SecondaryButton}"
+                                            Width="110" Height="44" Margin="0,0,8,0"/>
+                                    <Button x:Name="BtnRemoveExt" 
+                                            Content="- Supprimer" 
+                                            Style="{StaticResource DangerButton}"
+                                            Width="130" Height="44"/>
+                                </StackPanel>
+
+                                <ListBox x:Name="LbEncryptionTypes" 
+                                         Style="{StaticResource ModernListBox}"
+                                         Height="180" 
+                                         Margin="0,0,0,12"/>
+
+                                <TextBlock x:Name="LblEncryptionListDesc" 
+                                           Text="Liste des extensions qui seront chiffrées." 
+                                           Style="{StaticResource DescriptionText}"
+                                           HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
                     </StackPanel>
-
-                    <ListBox x:Name="LbEncryptionTypes" Height="120" Width="300" Margin="0,8,0,0" HorizontalAlignment="Center" />
-
-                    <TextBlock x:Name="LblEncryptionListDesc" Text="Liste des extensions qui seront chiffrées." Margin="0,8,0,0" Width="400" TextWrapping="Wrap" HorizontalAlignment="Center" />
-
-                </StackPanel>
+                </ScrollViewer>
             </TabItem>
         </TabControl>
     </Grid>
+    </Border>
 </Window>
