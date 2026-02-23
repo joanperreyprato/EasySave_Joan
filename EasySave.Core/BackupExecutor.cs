@@ -12,11 +12,13 @@ namespace EasySave.Core
     {
         private readonly ILogger logger;
         private readonly StateManager stateManager;
+        private readonly BusinessSoftwareMonitor? businessMonitor;
 
-        public BackupExecutor(ILogger logger, StateManager stateManager)
+        public BackupExecutor(ILogger logger, StateManager stateManager, BusinessSoftwareMonitor? businessMonitor = null)
         {
             this.logger = logger;
             this.stateManager = stateManager;
+            this.businessMonitor = businessMonitor;
         }
 
         public void ExecuteFullBackup(BackupJob job)
@@ -26,6 +28,26 @@ namespace EasySave.Core
             string source = job.GetSourcePath();
             string target = job.GetTargetPath();
             JobState state = job.GetState();
+
+            // Check if business software is running
+            if (businessMonitor != null && businessMonitor.IsBusinessSoftwareRunning())
+            {
+                state.Status = StateStatus.Error;
+                state.Timestamp = DateTime.UtcNow;
+                stateManager.UpdateJobState(job.GetName(), state);
+                stateManager.SaveState();
+
+                // Log the error
+                try
+                {
+                    var runningProcesses = businessMonitor.GetRunningMonitoredProcesses();
+                    string processNames = string.Join(", ", runningProcesses);
+                    Console.WriteLine($"Backup blocked: Business software running ({processNames})");
+                }
+                catch { }
+
+                return;
+            }
 
             List<FileInfo> files = GetEligibleFiles(source, target, BackupType.Full);
             state.TotalFiles = files.Count;
@@ -41,6 +63,25 @@ namespace EasySave.Core
 
             foreach (var fi in files)
             {
+                // Check if business software started during backup
+                if (businessMonitor != null && businessMonitor.IsBusinessSoftwareRunning())
+                {
+                    state.Status = StateStatus.Error;
+                    state.Timestamp = DateTime.UtcNow;
+                    stateManager.UpdateJobState(job.GetName(), state);
+                    stateManager.SaveState();
+
+                    try
+                    {
+                        var runningProcesses = businessMonitor.GetRunningMonitoredProcesses();
+                        string processNames = string.Join(", ", runningProcesses);
+                        Console.WriteLine($"Backup stopped: Business software detected ({processNames})");
+                    }
+                    catch { }
+
+                    return;
+                }
+
                 string relative = Path.GetRelativePath(source, fi.FullName);
                 string dest = Path.Combine(target, relative);
                 CreateDirectory(dest);
@@ -88,6 +129,25 @@ namespace EasySave.Core
             string target = job.GetTargetPath();
             JobState state = job.GetState();
 
+            // Check if business software is running
+            if (businessMonitor != null && businessMonitor.IsBusinessSoftwareRunning())
+            {
+                state.Status = StateStatus.Error;
+                state.Timestamp = DateTime.UtcNow;
+                stateManager.UpdateJobState(job.GetName(), state);
+                stateManager.SaveState();
+
+                try
+                {
+                    var runningProcesses = businessMonitor.GetRunningMonitoredProcesses();
+                    string processNames = string.Join(", ", runningProcesses);
+                    Console.WriteLine($"Backup blocked: Business software running ({processNames})");
+                }
+                catch { }
+
+                return;
+            }
+
             List<FileInfo> files = GetEligibleFiles(source, target, BackupType.Differential);
             state.TotalFiles = files.Count;
             state.TotalSize = CalculateTotalSize(files);
@@ -101,6 +161,25 @@ namespace EasySave.Core
 
             foreach (var fi in files)
             {
+                // Check if business software started during backup
+                if (businessMonitor != null && businessMonitor.IsBusinessSoftwareRunning())
+                {
+                    state.Status = StateStatus.Error;
+                    state.Timestamp = DateTime.UtcNow;
+                    stateManager.UpdateJobState(job.GetName(), state);
+                    stateManager.SaveState();
+
+                    try
+                    {
+                        var runningProcesses = businessMonitor.GetRunningMonitoredProcesses();
+                        string processNames = string.Join(", ", runningProcesses);
+                        Console.WriteLine($"Backup stopped: Business software detected ({processNames})");
+                    }
+                    catch { }
+
+                    return;
+                }
+
                 string relative = Path.GetRelativePath(source, fi.FullName);
                 string dest = Path.Combine(target, relative);
                 CreateDirectory(dest);
