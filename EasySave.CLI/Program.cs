@@ -3,6 +3,16 @@ using EasySave.CLI;
 using System;
 using System.IO;
 using System.Linq;
+using System.Threading;
+
+// Prevent multiple instances using a named mutex (requirement from spec)
+bool _createdNew;
+var _singleInstanceMutex = new Mutex(true, "Global\\EasySave_SingleInstance", out _createdNew);
+if (!_createdNew)
+{
+    Console.WriteLine("Another instance is already running. Exiting.");
+    return;
+}
 
 // Initialize core services
 LanguageProvider language = LanguageProvider.GetInstance("en");
@@ -189,3 +199,6 @@ string GetErrorMessage(BackupManager.BackupCreationError error, LanguageProvider
         _ => languageProvider.GetText("backup.create.error.unknown")
     };
 }
+
+// Keep the mutex alive for the lifetime of the process to maintain the single-instance guarantee.
+GC.KeepAlive(_singleInstanceMutex);

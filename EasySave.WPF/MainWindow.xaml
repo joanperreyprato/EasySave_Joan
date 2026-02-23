@@ -45,7 +45,8 @@
                         <ComboBox x:Name="CbLanguage" Width="160" Height="44"
                                   Style="{StaticResource ModernComboBox}"
                                   Margin="12,0,0,0"
-                                  SelectedValuePath="Tag">
+                                  SelectedValuePath="Tag"
+                                  PreviewMouseLeftButtonDown="CbLanguage_PreviewMouseLeftButtonDown">
                             <ComboBoxItem Tag="en">English</ComboBoxItem>
                             <ComboBoxItem Tag="fr">Français</ComboBoxItem>
                         </ComboBox>
