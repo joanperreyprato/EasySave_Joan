@@ -5,6 +5,7 @@
         Active,
         Inactive,
         Completed,
-        Error
+        Error,
+        Paused
     }
 }

@@ -152,6 +152,10 @@
                                                                         <Setter Property="Background" Value="{StaticResource SuccessSoft}"/>
                                                                         <Setter Property="BorderBrush" Value="{StaticResource SuccessColor}"/>
                                                                     </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding State}" Value="Paused">
+                                                                        <Setter Property="Background" Value="#FEF3C7"/>
+                                                                        <Setter Property="BorderBrush" Value="#F59E0B"/>
+                                                                    </DataTrigger>
                                                                     <DataTrigger Binding="{Binding State}" Value="Stopped">
                                                                         <Setter Property="Background" Value="{StaticResource NeutralSoft}"/>
                                                                         <Setter Property="BorderBrush" Value="{StaticResource BorderColor}"/>
@@ -165,6 +169,9 @@
                                                                     <Style.Triggers>
                                                                         <DataTrigger Binding="{Binding State}" Value="Running">
                                                                             <Setter Property="Foreground" Value="#15803D"/>
+                                                                        </DataTrigger>
+                                                                        <DataTrigger Binding="{Binding State}" Value="Paused">
+                                                                            <Setter Property="Foreground" Value="#D97706"/>
                                                                         </DataTrigger>
                                                                         <DataTrigger Binding="{Binding State}" Value="Stopped">
                                                                             <Setter Property="Foreground" Value="#475569"/>
@@ -256,6 +263,107 @@
                                            Text="Liste des extensions qui seront chiffrées." 
                                            Style="{StaticResource DescriptionText}"
                                            HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- Business Software Tab -->
+            <TabItem x:Name="TabSettings" Style="{StaticResource ModernTabItem}">
+                <TabItem.Header>
+                    <TextBlock x:Name="TabSettingsHeader" Text="Paramètres" FontSize="15"/>
+                </TabItem.Header>
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="0,12,0,0">
+                    <StackPanel MaxWidth="640" HorizontalAlignment="Center">
+                        <StackPanel Margin="0,0,0,12">
+                            <TextBlock x:Name="SettingsSectionTitle" Text="Logiciels métiers" Style="{StaticResource SectionHeader}"/>
+                            <TextBlock x:Name="SettingsSectionDesc" Text="Bloquer les sauvegardes si un logiciel métier est en cours d'exécution." Style="{StaticResource DescriptionText}"/>
+                        </StackPanel>
+
+                        <!-- Business Software Status Card -->
+                        <Border Style="{StaticResource Card}" Margin="0,0,0,20">
+                            <StackPanel>
+                                <TextBlock x:Name="LblBusinessStatusHeader" 
+                                           Text="État actuel" 
+                                           Style="{StaticResource SectionHeader}"/>
+                                <Border x:Name="BusinessStatusBorder" 
+                                        CornerRadius="12" 
+                                        Padding="16" 
+                                        Margin="0,8,0,0"
+                                        Background="{StaticResource SuccessSoft}"
+                                        BorderBrush="{StaticResource SuccessColor}"
+                                        BorderThickness="1">
+                                    <StackPanel>
+                                        <TextBlock x:Name="TbBusinessStatus" 
+                                                   Text="✓ Aucun logiciel métier détecté"
+                                                   FontWeight="SemiBold"
+                                                   FontSize="14"
+                                                   Foreground="#15803D"/>
+                                        <TextBlock x:Name="TbBusinessStatusDetail"
+                                                   Text="Les sauvegardes sont autorisées"
+                                                   FontSize="12"
+                                                   Foreground="#4D7C0F"
+                                                   Margin="0,4,0,0"/>
+                                    </StackPanel>
+                                </Border>
+                                <Button x:Name="BtnRefreshStatus" 
+                                        Content="🔄 Actualiser"
+                                        Style="{StaticResource OutlineButton}"
+                                        Width="150" 
+                                        Height="44"
+                                        Margin="0,12,0,0"
+                                        HorizontalAlignment="Left"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Business Software List Card -->
+                        <Border Style="{StaticResource Card}">
+                            <StackPanel>
+                                <TextBlock x:Name="LblBusinessSoftwareHeader" 
+                                           Text="Processus surveillés" 
+                                           Style="{StaticResource SectionHeader}"/>
+
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                                    <TextBox x:Name="TbNewProcess" 
+                                             Style="{StaticResource ModernTextBox}"
+                                             Width="320" 
+                                             Height="44"
+                                             VerticalContentAlignment="Center"
+                                             Margin="0,0,12,0"/>
+                                    <Button x:Name="BtnAddProcess" 
+                                            Content="+ Ajouter" 
+                                            Style="{StaticResource SecondaryButton}"
+                                            Width="110" Height="44" Margin="0,0,8,0"/>
+                                    <Button x:Name="BtnRemoveProcess" 
+                                            Content="- Supprimer" 
+                                            Style="{StaticResource DangerButton}"
+                                            Width="130" Height="44"/>
+                                </StackPanel>
+
+                                <ListBox x:Name="LbBusinessProcesses" 
+                                         Style="{StaticResource ModernListBox}"
+                                         Height="180" 
+                                         Margin="0,0,0,12"/>
+
+                                <TextBlock x:Name="TbBusinessHint" 
+                                           Text="Exemple : CalculatorApp (pour la calculatrice), notepad (pour le bloc-notes)" 
+                                           Style="{StaticResource DescriptionText}"/>
+
+                                <!-- Quick Add Buttons -->
+                                <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
+                                    <Button x:Name="BtnAddCalc" 
+                                            Content="Calculatrice" 
+                                            Style="{StaticResource OutlineButton}"
+                                            Width="130" Height="36" 
+                                            Margin="0,0,8,0"
+                                            FontSize="12"/>
+                                    <Button x:Name="BtnAddNotepad" 
+                                            Content="Bloc-notes" 
+                                            Style="{StaticResource OutlineButton}"
+                                            Width="130" Height="36"
+                                            FontSize="12"/>
+                                </StackPanel>
                             </StackPanel>
                         </Border>
                     </StackPanel>
