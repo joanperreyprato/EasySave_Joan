@@ -108,6 +108,50 @@ namespace EasySave.WPF
                     LbEncryptionTypes.Items.Remove(LbEncryptionTypes.SelectedItem);
                 }
             };
+
+            // Wire up business software monitoring handlers
+            LoadBusinessProcesses();
+
+            BtnAddProcess.Click += (_, __) =>
+            {
+                string process = TbNewProcess.Text?.Trim();
+                if (string.IsNullOrWhiteSpace(process)) return;
+
+                _backupManager.AddMonitoredProcess(process);
+                LoadBusinessProcesses();
+                UpdateBusinessStatus();
+                TbNewProcess.Text = string.Empty;
+            };
+
+            BtnRemoveProcess.Click += (_, __) =>
+            {
+                if (LbBusinessProcesses.SelectedItem is string selectedProcess)
+                {
+                    _backupManager.RemoveMonitoredProcess(selectedProcess);
+                    LoadBusinessProcesses();
+                    UpdateBusinessStatus();
+                }
+            };
+
+            BtnAddCalc.Click += (_, __) =>
+            {
+                _backupManager.AddMonitoredProcess("CalculatorApp");
+                LoadBusinessProcesses();
+                UpdateBusinessStatus();
+            };
+
+            BtnAddNotepad.Click += (_, __) =>
+            {
+                _backupManager.AddMonitoredProcess("notepad");
+                LoadBusinessProcesses();
+                UpdateBusinessStatus();
+            };
+
+            BtnRefreshStatus.Click += (_, __) =>
+            {
+                UpdateBusinessStatus();
+            };
+
             // Localize add/remove buttons and list description
             try
             {
@@ -240,6 +284,22 @@ namespace EasySave.WPF
 
             void StartBackupByIndex(int oneBasedIndex)
             {
+                // Check if business software is running before starting backup
+                if (_backupManager.IsBusinessSoftwareRunning())
+                {
+                    var runningProcesses = _backupManager.GetRunningMonitoredProcesses();
+                    var lpLocal = EasySave.Core.LanguageProvider.GetInstance();
+
+                    string title = lpLocal.GetText("business.error.title");
+                    string message = lpLocal.GetText("business.error.message");
+                    string instruction = lpLocal.GetText("business.error.instruction");
+
+                    string fullMessage = $"{message}\n\n• {string.Join("\n• ", runningProcesses)}\n\n{instruction}";
+
+                    MessageBox.Show(fullMessage, title, MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
                 // set UI state and run in background without progress polling
                 var b = _backupJobs.ElementAtOrDefault(oneBasedIndex - 1);
                 if (b == null) return;
@@ -363,6 +423,49 @@ namespace EasySave.WPF
                         Dispatcher.Invoke(() => { if (vm != null) vm.State = "Stopped"; });
                     }
                 });
+            }
+        }
+
+        private void LoadBusinessProcesses()
+        {
+            LbBusinessProcesses.Items.Clear();
+            var processes = _backupManager.GetMonitoredProcesses();
+            foreach (var process in processes)
+            {
+                LbBusinessProcesses.Items.Add(process);
+            }
+        }
+
+        private void UpdateBusinessStatus()
+        {
+            bool isRunning = _backupManager.IsBusinessSoftwareRunning();
+
+            if (isRunning)
+            {
+                var runningProcesses = _backupManager.GetRunningMonitoredProcesses();
+                string processNames = string.Join(", ", runningProcesses);
+
+                // Update to error state
+                BusinessStatusBorder.Background = (System.Windows.Media.Brush)FindResource("DangerSoft");
+                BusinessStatusBorder.BorderBrush = (System.Windows.Media.Brush)FindResource("DangerColor");
+                TbBusinessStatus.Text = $"?? Logiciels métiers détectés : {processNames}";
+                TbBusinessStatus.Foreground = new System.Windows.Media.SolidColorBrush(
+                    System.Windows.Media.Color.FromRgb(0xDC, 0x26, 0x26));
+                TbBusinessStatusDetail.Text = "Les sauvegardes sont bloquées";
+                TbBusinessStatusDetail.Foreground = new System.Windows.Media.SolidColorBrush(
+                    System.Windows.Media.Color.FromRgb(0xB9, 0x1C, 0x1C));
+            }
+            else
+            {
+                // Update to success state
+                BusinessStatusBorder.Background = (System.Windows.Media.Brush)FindResource("SuccessSoft");
+                BusinessStatusBorder.BorderBrush = (System.Windows.Media.Brush)FindResource("SuccessColor");
+                TbBusinessStatus.Text = "? Aucun logiciel métier détecté";
+                TbBusinessStatus.Foreground = new System.Windows.Media.SolidColorBrush(
+                    System.Windows.Media.Color.FromRgb(0x15, 0x80, 0x3D));
+                TbBusinessStatusDetail.Text = "Les sauvegardes sont autorisées";
+                TbBusinessStatusDetail.Foreground = new System.Windows.Media.SolidColorBrush(
+                    System.Windows.Media.Color.FromRgb(0x4D, 0x7C, 0x0F));
             }
         }
     }
