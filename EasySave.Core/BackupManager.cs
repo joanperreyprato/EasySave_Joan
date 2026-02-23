@@ -6,6 +6,9 @@ namespace EasySave.Core
 {
     public class BackupManager
     {
+        // Threshold in KB: files larger than this are considered "large". 0 disables the restriction.
+        private readonly int _largeFileThresholdKb;
+
         private readonly List<BackupJob> backupJobs;
         private readonly StateManager stateManager;
         private readonly ILogger logger;
@@ -33,10 +36,11 @@ namespace EasySave.Core
             MaxJobsExceeded
         }
 
-        public BackupManager(StateManager stateManager, ILogger logger, string? configPath = null)
+        public BackupManager(StateManager stateManager, ILogger logger, string? configPath = null, int largeFileThresholdKb = 0)
         {
             this.stateManager = stateManager ?? throw new ArgumentNullException(nameof(stateManager));
             this.logger = logger;
+            _largeFileThresholdKb = largeFileThresholdKb;
             this.backupJobs = new List<BackupJob>();
             this.businessMonitor = new BusinessSoftwareMonitor();
 
@@ -269,7 +273,7 @@ namespace EasySave.Core
             if (index < 0 || index >= backupJobs.Count) return;
 
             BackupJob job = backupJobs[index];
-            BackupExecutor executor = new BackupExecutor(logger, stateManager, businessMonitor);
+            BackupExecutor executor = new BackupExecutor(logger, stateManager, businessMonitor, _largeFileThresholdKb);
 
             if (job.GetBackupType() == BackupType.Full)
                 executor.ExecuteFullBackup(job);

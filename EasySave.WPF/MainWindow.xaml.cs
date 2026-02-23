@@ -62,16 +62,29 @@ namespace EasySave.WPF
             if (File.Exists(localConfig)) chosenConfig = localConfig;
             else if (File.Exists(appDataConfig)) chosenConfig = appDataConfig;
 
+            // Read large-file threshold (KB) from UI; default to 0 if parsing fails or control missing
+            int largeFileThresholdKb = 0;
+            if (TbLargeFileThresholdKb != null)
+            {
+                int.TryParse(TbLargeFileThresholdKb.Text?.Trim() ?? string.Empty, out largeFileThresholdKb);
+            }
+
             if (chosenConfig != null)
-                _backupManager = new BackupManager(_stateManager, _logger, chosenConfig);
+                _backupManager = new BackupManager(_stateManager, _logger, chosenConfig, largeFileThresholdKb);
             else
-                _backupManager = new BackupManager(_stateManager, logger: _logger);
+                _backupManager = new BackupManager(_stateManager, logger: _logger, largeFileThresholdKb: largeFileThresholdKb);
 
             // load existing backup jobs from config
             _backupJobs = _backupManager.GetBackupJobs();
             foreach (var b in _backupJobs)
             {
                 Jobs.Add(new JobViewModel { Name = b.GetName(), Source = b.GetSourcePath(), Destination = b.GetTargetPath(), State = "Stopped", PreferredLogFormat = b.GetLogFormat() });
+            }
+
+            // Ensure threshold textbox has a default value for clarity
+            if (TbLargeFileThresholdKb != null && string.IsNullOrWhiteSpace(TbLargeFileThresholdKb.Text))
+            {
+                TbLargeFileThresholdKb.Text = largeFileThresholdKb.ToString();
             }
 
             BtnAddJob.Click -= (_, __) => AddJob();
@@ -552,6 +565,36 @@ namespace EasySave.WPF
                 TbBusinessStatusDetail.Text = "Les sauvegardes sont autorisées";
                 TbBusinessStatusDetail.Foreground = new System.Windows.Media.SolidColorBrush(
                     System.Windows.Media.Color.FromRgb(0x4D, 0x7C, 0x0F));
+            }
+        }
+
+        // Input validation for large-file threshold textbox
+        private void TbLargeFileThresholdKb_PreviewTextInput(object sender, System.Windows.Input.TextCompositionEventArgs e)
+        {
+            foreach (char c in e.Text)
+            {
+                if (!char.IsDigit(c))
+                {
+                    e.Handled = true;
+                    return;
+                }
+            }
+            e.Handled = false;
+        }
+
+        private void TbLargeFileThresholdKb_Pasting(object sender, System.Windows.DataObjectPastingEventArgs e)
+        {
+            if (e.DataObject.GetDataPresent(typeof(string)))
+            {
+                string text = (string)e.DataObject.GetData(typeof(string));
+                if (!int.TryParse(text, out _))
+                {
+                    e.CancelCommand();
+                }
+            }
+            else
+            {
+                e.CancelCommand();
             }
         }
     }
