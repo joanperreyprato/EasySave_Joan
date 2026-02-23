@@ -9,6 +9,7 @@ namespace EasySave.Core
         private readonly List<BackupJob> backupJobs;
         private readonly StateManager stateManager;
         private readonly ILogger logger;
+        private readonly BusinessSoftwareMonitor businessMonitor;
 
         private readonly string configPath;
 
@@ -37,6 +38,7 @@ namespace EasySave.Core
             this.stateManager = stateManager ?? throw new ArgumentNullException(nameof(stateManager));
             this.logger = logger;
             this.backupJobs = new List<BackupJob>();
+            this.businessMonitor = new BusinessSoftwareMonitor();
 
             if (string.IsNullOrWhiteSpace(configPath))
             {
@@ -267,7 +269,7 @@ namespace EasySave.Core
             if (index < 0 || index >= backupJobs.Count) return;
 
             BackupJob job = backupJobs[index];
-            BackupExecutor executor = new BackupExecutor(logger, stateManager);
+            BackupExecutor executor = new BackupExecutor(logger, stateManager, businessMonitor);
 
             if (job.GetBackupType() == BackupType.Full)
                 executor.ExecuteFullBackup(job);
@@ -287,6 +289,42 @@ namespace EasySave.Core
         public List<BackupJob> GetBackupJobs()
         {
             return backupJobs.ToList();
+        }
+
+        // Business Software Monitoring methods
+        public BusinessSoftwareMonitor GetBusinessMonitor()
+        {
+            return businessMonitor;
+        }
+
+        public void AddMonitoredProcess(string processName)
+        {
+            businessMonitor.AddProcess(processName);
+        }
+
+        public void RemoveMonitoredProcess(string processName)
+        {
+            businessMonitor.RemoveProcess(processName);
+        }
+
+        public void ClearMonitoredProcesses()
+        {
+            businessMonitor.ClearProcesses();
+        }
+
+        public IReadOnlyList<string> GetMonitoredProcesses()
+        {
+            return businessMonitor.GetMonitoredProcesses();
+        }
+
+        public bool IsBusinessSoftwareRunning()
+        {
+            return businessMonitor.IsBusinessSoftwareRunning();
+        }
+
+        public List<string> GetRunningMonitoredProcesses()
+        {
+            return businessMonitor.GetRunningMonitoredProcesses();
         }
 
         public void LoadConfiguration()
