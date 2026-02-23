@@ -8,6 +8,8 @@ namespace EasyLog
     {
         private readonly string logDirectory;
         private string currentLogFile;
+        // Lock object for thread-safe file writing in parallel execution
+        private readonly object _lockObject = new object();
         public LogFormat Format => LogFormat.Json;
 
         public JsonLogger(string logDirectory)
@@ -28,24 +30,27 @@ namespace EasyLog
 
             try
             {
-                CreateDailyLogFile();
-                // Normalize paths to absolute/UNC-style before serializing
-                try
+                lock (_lockObject)
                 {
-                    entry.SourceFilePath = entry.ToUNCPath(entry.SourceFilePath);
+                    CreateDailyLogFile();
+                    // Normalize paths to absolute/UNC-style before serializing
+                    try
+                    {
+                        entry.SourceFilePath = entry.ToUNCPath(entry.SourceFilePath);
+                    }
+                    catch { }
+
+                    try
+                    {
+                        entry.TargetFilePath = entry.ToUNCPath(entry.TargetFilePath);
+                    }
+                    catch { }
+
+                    string json = SerializeToJson(entry);
+                    string path = Path.Combine(logDirectory, currentLogFile);
+
+                    File.AppendAllText(path, json + Environment.NewLine);
                 }
-                catch { }
-
-                try
-                {
-                    entry.TargetFilePath = entry.ToUNCPath(entry.TargetFilePath);
-                }
-                catch { }
-
-                string json = SerializeToJson(entry);
-                string path = Path.Combine(logDirectory, currentLogFile);
-
-                File.AppendAllText(path, json + Environment.NewLine);
             }
             catch
             {
