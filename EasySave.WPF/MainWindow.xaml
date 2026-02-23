@@ -281,6 +281,18 @@
                             <TextBlock x:Name="SettingsSectionDesc" Text="Bloquer les sauvegardes si un logiciel métier est en cours d'exécution." Style="{StaticResource DescriptionText}"/>
                         </StackPanel>
 
+                        <!-- Large file threshold setting -->
+                        <Border Style="{StaticResource Card}" Margin="0,0,0,20">
+                            <StackPanel>
+                                <TextBlock Text="Paramètre de bande passante" Style="{StaticResource SectionHeader}"/>
+                                <StackPanel Orientation="Horizontal" Margin="0,8,0,0" VerticalAlignment="Center">
+                                    <TextBlock Text="Seuil fichiers volumineux (Ko) :" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                                    <TextBox x:Name="TbLargeFileThresholdKb" Width="120" Style="{StaticResource ModernTextBox}" Foreground="{StaticResource TextPrimary}" Background="White" ToolTip="0 pour désactiver la restriction" PreviewTextInput="TbLargeFileThresholdKb_PreviewTextInput" DataObject.Pasting="TbLargeFileThresholdKb_Pasting" />
+                                    <TextBlock Text="(Un seul transfert simultané si fichier > seuil)" TextWrapping="Wrap" Margin="12,0,0,0" VerticalAlignment="Center" Style="{StaticResource DescriptionText}"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+
                         <!-- Business Software Status Card -->
                         <Border Style="{StaticResource Card}" Margin="0,0,0,20">
                             <StackPanel>
@@ -328,7 +340,6 @@
                                     <TextBox x:Name="TbNewProcess" 
                                              Style="{StaticResource ModernTextBox}"
                                              Width="320" 
-                                             Height="44"
                                              VerticalContentAlignment="Center"
                                              Margin="0,0,12,0"/>
                                     <Button x:Name="BtnAddProcess" 

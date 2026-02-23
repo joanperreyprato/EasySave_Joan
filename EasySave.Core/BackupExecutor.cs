@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 
 using EasyLog;
 
@@ -13,12 +14,17 @@ namespace EasySave.Core
         private readonly ILogger logger;
         private readonly StateManager stateManager;
         private readonly BusinessSoftwareMonitor? businessMonitor;
+        // Global semaphore to ensure only one large file transfer at a time across all executors
+        private static readonly SemaphoreSlim LargeFileSemaphore = new SemaphoreSlim(1, 1);
+        private readonly long _largeFileThresholdBytes;
 
-        public BackupExecutor(ILogger logger, StateManager stateManager, BusinessSoftwareMonitor? businessMonitor = null)
+        // largeFileThresholdKb: 0 disables the limit. Otherwise files larger than this (in KB) are considered "large".
+        public BackupExecutor(ILogger logger, StateManager stateManager, BusinessSoftwareMonitor? businessMonitor = null, int largeFileThresholdKb = 0)
         {
             this.logger = logger;
             this.stateManager = stateManager;
             this.businessMonitor = businessMonitor;
+            _largeFileThresholdBytes = (largeFileThresholdKb <= 0) ? 0 : (largeFileThresholdKb * 1024L);
         }
 
         public void ExecuteFullBackup(BackupJob job)
@@ -66,7 +72,7 @@ namespace EasySave.Core
                 // Check if business software started during backup - PAUSE if detected
                 if (businessMonitor != null && businessMonitor.IsBusinessSoftwareRunning())
                 {
-                    state.Status = StateStatus.Paused;
+                    state.Status = StateStatus.Inactive;
                     state.Timestamp = DateTime.UtcNow;
                     stateManager.UpdateJobState(job.GetName(), state);
                     stateManager.SaveState();
@@ -181,7 +187,7 @@ namespace EasySave.Core
                 // Check if business software started during backup - PAUSE if detected
                 if (businessMonitor != null && businessMonitor.IsBusinessSoftwareRunning())
                 {
-                    state.Status = StateStatus.Paused;
+                    state.Status = StateStatus.Inactive;
                     state.Timestamp = DateTime.UtcNow;
                     stateManager.UpdateJobState(job.GetName(), state);
                     stateManager.SaveState();
@@ -249,11 +255,30 @@ namespace EasySave.Core
             try { logger?.LogAction(log); } catch { }
         }
 
-        private static long CopyFile(string source, string destination)
+        private long CopyFile(string source, string destination)
         {
             var sw = Stopwatch.StartNew();
+            bool acquired = false;
             try
             {
+                try
+                {
+                    // Determine file size and if it's considered "large" according to threshold
+                    long fsize = 0;
+                    try { fsize = new FileInfo(source).Length; } catch { fsize = 0; }
+
+                    if (_largeFileThresholdBytes > 0 && fsize > _largeFileThresholdBytes)
+                    {
+                        // Wait until no other large file transfer is in progress
+                        LargeFileSemaphore.Wait();
+                        acquired = true;
+                    }
+                }
+                catch
+                {
+                    // ignore any sizing errors and proceed to copy
+                }
+
                 File.Copy(source, destination, true);
                 sw.Stop();
                 return sw.ElapsedMilliseconds;
@@ -263,6 +288,13 @@ namespace EasySave.Core
                 try { sw.Stop(); } catch { }
                 // indicate error with negative transfer time
                 return -1;
+            }
+            finally
+            {
+                if (acquired)
+                {
+                    try { LargeFileSemaphore.Release(); } catch { }
+                }
             }
         }
 
