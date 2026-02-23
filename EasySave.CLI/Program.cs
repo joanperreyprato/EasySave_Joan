@@ -1,4 +1,5 @@
 using EasySave.Core;
+using EasySave.CLI;
 using System;
 using System.IO;
 using System.Linq;
