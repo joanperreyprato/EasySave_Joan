@@ -188,6 +188,11 @@ namespace EasySave.Core
                 ["encryption.add"] = "Add",
                 ["encryption.remove"] = "Remove",
                 ["encryption.list.desc"] = "List of extensions that will be encrypted."
+                ,
+                // Business software monitoring
+                ["business.error.title"] = "Business Software Running",
+                ["business.error.message"] = "Cannot start backup: the following business software is running:",
+                ["business.error.instruction"] = "Please close these applications before starting the backup."
             };
 
             translations["fr"] = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
@@ -271,6 +276,11 @@ namespace EasySave.Core
                 ["encryption.add"] = "Ajouter",
                 ["encryption.remove"] = "Supprimer",
                 ["encryption.list.desc"] = "Liste des extensions qui seront chiffrées."
+                ,
+                // Business software monitoring
+                ["business.error.title"] = "Logiciel métier en cours d'exécution",
+                ["business.error.message"] = "Impossible de démarrer la sauvegarde : le(s) logiciel(s) métier(s) suivant(s) est/sont en cours d'exécution :",
+                ["business.error.instruction"] = "Veuillez fermer ces applications avant de lancer la sauvegarde."
             };
         }
 
