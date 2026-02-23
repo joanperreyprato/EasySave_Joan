@@ -177,6 +177,8 @@ namespace EasySave.Core
                 ["button.ok"] = "Ok",
                 ["button.cancel"] = "Cancel"
                 ,
+                ["browse.select.source"] = "Select source folder:",
+                ["browse.select.target"] = "Select target folder:",
                 // Encryption tab texts
                 ["encryption.code.label"] = "Encryption key",
                 ["encryption.description"] = "Enter a key here. When starting jobs you will be asked whether to encrypt or not.",
