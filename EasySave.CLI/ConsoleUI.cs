@@ -1,9 +1,8 @@
 using System;
 using System.Collections.Generic;
 using EasyLog;
-using EasyLog;
 
-namespace EasySave_v1._0
+namespace EasySave.CLI
 {
     public class ConsoleUI
     {

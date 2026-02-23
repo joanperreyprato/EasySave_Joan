@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EasySave_v1._0
+namespace EasySave.Core
 {
     public interface ILanguageProvider
     {

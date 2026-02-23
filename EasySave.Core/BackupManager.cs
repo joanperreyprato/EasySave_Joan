@@ -2,7 +2,7 @@
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
-namespace EasySave_v1._0
+namespace EasySave.Core
 {
     public class BackupManager
     {

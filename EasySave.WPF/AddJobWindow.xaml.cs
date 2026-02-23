@@ -9,12 +9,12 @@ namespace EasySave.WPF
         public AddJobWindow()
         {
             InitializeComponent();
-            ApplyLanguage(EasySave_v1._0.LanguageProvider.GetInstance());
+            ApplyLanguage(EasySave.Core.LanguageProvider.GetInstance());
             BtnOk.Click += (_,__) => Ok();
             BtnCancel.Click += (_,__) => Cancel();
         }
 
-        void ApplyLanguage(EasySave_v1._0.LanguageProvider lp)
+        void ApplyLanguage(EasySave.Core.LanguageProvider lp)
         {
             Title = lp.GetText("addjob.title");
             TitleText.Text = lp.GetText("addjob.title");

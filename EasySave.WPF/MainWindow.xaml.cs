@@ -5,7 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
-using EasySave_v1._0;
+using EasySave.Core;
 using EasyLog;
 using System.Collections.Generic;
 
@@ -29,7 +29,7 @@ namespace EasySave.WPF
             JobsList.ItemsSource = Jobs;
 
             // Initialize UI language using core LanguageProvider
-            var lp = EasySave_v1._0.LanguageProvider.GetInstance();
+            var lp = EasySave.Core.LanguageProvider.GetInstance();
 
             // Initialize core services from library projects
             string logDir;
@@ -111,7 +111,7 @@ namespace EasySave.WPF
             // Localize add/remove buttons and list description
             try
             {
-                var l = EasySave_v1._0.LanguageProvider.GetInstance();
+                var l = EasySave.Core.LanguageProvider.GetInstance();
                 BtnAddExt.Content = l.GetText("encryption.add");
                 BtnRemoveExt.Content = l.GetText("encryption.remove");
                 LblEncryptionListDesc.Text = l.GetText("encryption.list.desc");
@@ -121,7 +121,7 @@ namespace EasySave.WPF
             {
                 if (CbLanguage.SelectedValue is string code)
                 {
-                    var lp = EasySave_v1._0.LanguageProvider.GetInstance();
+                    var lp = EasySave.Core.LanguageProvider.GetInstance();
                     lp.SetLanguage(code);
                     ApplyLanguage(lp);
 
@@ -135,7 +135,7 @@ namespace EasySave.WPF
                 }
             }
 
-            void ApplyLanguage(EasySave_v1._0.LanguageProvider lp)
+            void ApplyLanguage(EasySave.Core.LanguageProvider lp)
             {
                 // Only update UI texts here. Do not modify Jobs collection or reattach handlers.
                 this.Title = lp.GetText("window.title");
@@ -254,7 +254,7 @@ namespace EasySave.WPF
                         // Ask user whether to encrypt (on UI thread)
                         bool encrypt = false;
                         Dispatcher.Invoke(() => {
-                            var lpLocal = EasySave_v1._0.LanguageProvider.GetInstance();
+                            var lpLocal = EasySave.Core.LanguageProvider.GetInstance();
                             string prompt = lpLocal.GetText("encryption.prompt.encrypt");
                             string title = lpLocal.GetText("encryption.prompt.title");
                             var res = MessageBox.Show(prompt, title, MessageBoxButton.YesNo, MessageBoxImage.Question);
@@ -264,7 +264,7 @@ namespace EasySave.WPF
                         if (encrypt && string.IsNullOrEmpty(EncryptionKey))
                         {
                             Dispatcher.Invoke(() => {
-                                var lpLocal = EasySave_v1._0.LanguageProvider.GetInstance();
+                                var lpLocal = EasySave.Core.LanguageProvider.GetInstance();
                                 string missing = lpLocal.GetText("encryption.key.missing");
                                 string title = lpLocal.GetText("encryption.prompt.title");
                                 MessageBox.Show(missing, title, MessageBoxButton.OK, MessageBoxImage.Information);
