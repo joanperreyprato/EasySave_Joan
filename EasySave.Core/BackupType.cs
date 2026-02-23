@@ -1,6 +1,6 @@
 using System;
 
-namespace EasySave_v1._0
+namespace EasySave.Core
 {
     public enum BackupType
     {

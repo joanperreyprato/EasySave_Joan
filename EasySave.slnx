@@ -1,6 +1,6 @@
 <Solution>
   <Project Path="EasyLog/EasyLog.csproj" />
-  <Project Path="EasySave v1.0/EasySave v1.0.csproj" />
-  <Project Path="EasySave.UI/EasySave.UI.csproj" />
+  <Project Path="EasySave.Core/EasySave.Core.csproj" />
+  <Project Path="EasySave.CLI/EasySave.CLI.csproj" />
   <Project Path="EasySave.WPF/EasySave.WPF.csproj" />
 </Solution>
