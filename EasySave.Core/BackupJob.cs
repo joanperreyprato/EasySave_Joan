@@ -6,7 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using EasyLog;
 
-namespace EasySave_v1._0
+namespace EasySave.Core
 {
     public class BackupJob
     {

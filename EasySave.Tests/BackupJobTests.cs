@@ -1,6 +1,6 @@
 using System;
 using System.IO;
-using EasySave_v1._0;
+using EasySave.Core;
 using EasyLog;
 using Moq;
 using Xunit;

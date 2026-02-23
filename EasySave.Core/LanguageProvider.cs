@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
 
-namespace EasySave_v1._0
+namespace EasySave.Core
 {
     public class LanguageProvider
     {
