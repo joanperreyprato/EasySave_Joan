@@ -8,6 +8,7 @@ using System.Windows;
 using EasySave.Core;
 using EasyLog;
 using System.Collections.Generic;
+using System.Windows.Input;
 
 namespace EasySave.WPF
 {
@@ -41,6 +42,9 @@ namespace EasySave.WPF
             {
                 logDir = Path.Combine(Directory.GetCurrentDirectory(), "logs");
             }
+
+            // Toggle dropdown when clicking anywhere in the language combo box
+
             Directory.CreateDirectory(logDir);
 
             _stateManager = new StateManager();
@@ -133,6 +137,7 @@ namespace EasySave.WPF
                         Jobs.Add(new JobViewModel { Name = b.GetName(), Source = b.GetSourcePath(), Destination = b.GetTargetPath(), State = "Stopped", PreferredLogFormat = b.GetLogFormat() });
                     }
                 }
+
             }
 
             void ApplyLanguage(EasySave.Core.LanguageProvider lp)
@@ -151,37 +156,37 @@ namespace EasySave.WPF
                 BtnStartSelected.Content = lp.GetText("btn.startsel");
                 BtnStopSelected.Content = lp.GetText("btn.stopsel");
                 StatusText.Text = lp.GetText("status.ready");
-            // update column headers
-            try
-            {
-                ColNameHeader.Text = lp.GetText("col.name");
-                ColSourceHeader.Text = lp.GetText("col.source");
-                ColTargetHeader.Text = lp.GetText("col.target");
-                ColStateHeader.Text = lp.GetText("col.state");
-                // Update encryption tab texts
+                // update column headers
                 try
                 {
-                    LblEncryptionHeader.Text = lp.GetText("encryption.code.label");
-                    TbEncryptionDesc.Text = lp.GetText("encryption.description");
-                    SecuritySectionTitle.Text = lp.GetText("security.section.title");
-                    SecuritySectionDesc.Text = lp.GetText("security.section.desc");
-                    EncryptionExtensionsTitle.Text = lp.GetText("encryption.extensions.title");
-                    // Update tab header if translation exists
-                    string tabHeader = lp.GetText("tab.encryption");
-                    if (!string.IsNullOrWhiteSpace(tabHeader) && tabHeader != "tab.encryption")
-                        TabEncryption.Header = tabHeader;
-                    // Update add/remove button texts and list description
+                    ColNameHeader.Text = lp.GetText("col.name");
+                    ColSourceHeader.Text = lp.GetText("col.source");
+                    ColTargetHeader.Text = lp.GetText("col.target");
+                    ColStateHeader.Text = lp.GetText("col.state");
+                    // Update encryption tab texts
                     try
                     {
-                        BtnAddExt.Content = lp.GetText("encryption.add");
-                        BtnRemoveExt.Content = lp.GetText("encryption.remove");
-                        LblEncryptionListDesc.Text = lp.GetText("encryption.list.desc");
+                        LblEncryptionHeader.Text = lp.GetText("encryption.code.label");
+                        TbEncryptionDesc.Text = lp.GetText("encryption.description");
+                        SecuritySectionTitle.Text = lp.GetText("security.section.title");
+                        SecuritySectionDesc.Text = lp.GetText("security.section.desc");
+                        EncryptionExtensionsTitle.Text = lp.GetText("encryption.extensions.title");
+                        // Update tab header if translation exists
+                        string tabHeader = lp.GetText("tab.encryption");
+                        if (!string.IsNullOrWhiteSpace(tabHeader) && tabHeader != "tab.encryption")
+                            TabEncryption.Header = tabHeader;
+                        // Update add/remove button texts and list description
+                        try
+                        {
+                            BtnAddExt.Content = lp.GetText("encryption.add");
+                            BtnRemoveExt.Content = lp.GetText("encryption.remove");
+                            LblEncryptionListDesc.Text = lp.GetText("encryption.list.desc");
+                        }
+                        catch { }
                     }
                     catch { }
                 }
                 catch { }
-            }
-            catch { }
             }
 
             void AddJob()
@@ -198,7 +203,7 @@ namespace EasySave.WPF
                     }
                     else
                     {
-                        MessageBox.Show($"Failed to create job: {err}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        System.Windows.MessageBox.Show($"Failed to create job: {err}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     }
                 }
             }
@@ -229,13 +234,13 @@ namespace EasySave.WPF
             void StopSelected()
             {
                 // BackupExecutor does not support cancellation in this codebase; notify the user
-                MessageBox.Show("Arrêt immédiat non supporté pour les sauvegardes en cours.", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
+                System.Windows.MessageBox.Show("Arrêt immédiat non supporté pour les sauvegardes en cours.", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
             }
 
             void StopAll()
             {
                 // Similarly, no cancellation available
-                MessageBox.Show("Arrêt immédiat non supporté pour les sauvegardes en cours.", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
+                System.Windows.MessageBox.Show("Arrêt immédiat non supporté pour les sauvegardes en cours.", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
             }
 
             void StartBackupByIndex(int oneBasedIndex)
@@ -253,21 +258,23 @@ namespace EasySave.WPF
                     {
                         // Ask user whether to encrypt (on UI thread)
                         bool encrypt = false;
-                        Dispatcher.Invoke(() => {
+                        Dispatcher.Invoke(() =>
+                        {
                             var lpLocal = EasySave.Core.LanguageProvider.GetInstance();
                             string prompt = lpLocal.GetText("encryption.prompt.encrypt");
                             string title = lpLocal.GetText("encryption.prompt.title");
-                            var res = MessageBox.Show(prompt, title, MessageBoxButton.YesNo, MessageBoxImage.Question);
+                            var res = System.Windows.MessageBox.Show(prompt, title, MessageBoxButton.YesNo, MessageBoxImage.Question);
                             encrypt = (res == MessageBoxResult.Yes);
                         });
 
                         if (encrypt && string.IsNullOrEmpty(EncryptionKey))
                         {
-                            Dispatcher.Invoke(() => {
+                            Dispatcher.Invoke(() =>
+                            {
                                 var lpLocal = EasySave.Core.LanguageProvider.GetInstance();
                                 string missing = lpLocal.GetText("encryption.key.missing");
                                 string title = lpLocal.GetText("encryption.prompt.title");
-                                MessageBox.Show(missing, title, MessageBoxButton.OK, MessageBoxImage.Information);
+                                System.Windows.MessageBox.Show(missing, title, MessageBoxButton.OK, MessageBoxImage.Information);
                             });
                             encrypt = false;
                         }
@@ -363,6 +370,18 @@ namespace EasySave.WPF
                         Dispatcher.Invoke(() => { if (vm != null) vm.State = "Stopped"; });
                     }
                 });
+            }
+        }
+
+        private void CbLanguage_PreviewMouseLeftButtonDown(object? sender, MouseButtonEventArgs e)
+        {
+            if (sender is System.Windows.Controls.ComboBox cb)
+            {
+                cb.Focus();
+                // Only open the dropdown if it's not already open. Avoid toggling here to prevent
+                // closing the dropdown when clicking an item which can prevent SelectionChanged.
+                if (!cb.IsDropDownOpen)
+                    cb.IsDropDownOpen = true;
             }
         }
     }
