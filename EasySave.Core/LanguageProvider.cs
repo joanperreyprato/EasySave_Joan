@@ -192,7 +192,9 @@ namespace EasySave.Core
                 // Business software monitoring
                 ["business.error.title"] = "Business Software Running",
                 ["business.error.message"] = "Cannot start backup: the following business software is running:",
-                ["business.error.instruction"] = "Please close these applications before starting the backup."
+                ["business.error.instruction"] = "Please close these applications before starting the backup.",
+                ["business.paused.title"] = "Backup Paused",
+                ["business.paused.message"] = "Backup paused: business software detected. It will resume automatically when closed."
             };
 
             translations["fr"] = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
@@ -280,7 +282,9 @@ namespace EasySave.Core
                 // Business software monitoring
                 ["business.error.title"] = "Logiciel métier en cours d'exécution",
                 ["business.error.message"] = "Impossible de démarrer la sauvegarde : le(s) logiciel(s) métier(s) suivant(s) est/sont en cours d'exécution :",
-                ["business.error.instruction"] = "Veuillez fermer ces applications avant de lancer la sauvegarde."
+                ["business.error.instruction"] = "Veuillez fermer ces applications avant de lancer la sauvegarde.",
+                ["business.paused.title"] = "Sauvegarde en pause",
+                ["business.paused.message"] = "Sauvegarde en pause : logiciel métier détecté. Elle reprendra automatiquement une fois fermé."
             };
         }
 

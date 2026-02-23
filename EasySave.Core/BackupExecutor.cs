@@ -63,10 +63,10 @@ namespace EasySave.Core
 
             foreach (var fi in files)
             {
-                // Check if business software started during backup
+                // Check if business software started during backup - PAUSE if detected
                 if (businessMonitor != null && businessMonitor.IsBusinessSoftwareRunning())
                 {
-                    state.Status = StateStatus.Error;
+                    state.Status = StateStatus.Paused;
                     state.Timestamp = DateTime.UtcNow;
                     stateManager.UpdateJobState(job.GetName(), state);
                     stateManager.SaveState();
@@ -75,11 +75,28 @@ namespace EasySave.Core
                     {
                         var runningProcesses = businessMonitor.GetRunningMonitoredProcesses();
                         string processNames = string.Join(", ", runningProcesses);
-                        Console.WriteLine($"Backup stopped: Business software detected ({processNames})");
+                        Console.WriteLine($"Backup paused: Business software detected ({processNames})");
+                        Console.WriteLine("Waiting for business software to close...");
                     }
                     catch { }
 
-                    return;
+                    // Wait until business software is closed
+                    while (businessMonitor.IsBusinessSoftwareRunning())
+                    {
+                        System.Threading.Thread.Sleep(1000); // Check every second
+                    }
+
+                    // Resume backup
+                    state.Status = StateStatus.Active;
+                    state.Timestamp = DateTime.UtcNow;
+                    stateManager.UpdateJobState(job.GetName(), state);
+                    stateManager.SaveState();
+
+                    try
+                    {
+                        Console.WriteLine("Business software closed. Resuming backup...");
+                    }
+                    catch { }
                 }
 
                 string relative = Path.GetRelativePath(source, fi.FullName);
@@ -161,10 +178,10 @@ namespace EasySave.Core
 
             foreach (var fi in files)
             {
-                // Check if business software started during backup
+                // Check if business software started during backup - PAUSE if detected
                 if (businessMonitor != null && businessMonitor.IsBusinessSoftwareRunning())
                 {
-                    state.Status = StateStatus.Error;
+                    state.Status = StateStatus.Paused;
                     state.Timestamp = DateTime.UtcNow;
                     stateManager.UpdateJobState(job.GetName(), state);
                     stateManager.SaveState();
@@ -173,11 +190,28 @@ namespace EasySave.Core
                     {
                         var runningProcesses = businessMonitor.GetRunningMonitoredProcesses();
                         string processNames = string.Join(", ", runningProcesses);
-                        Console.WriteLine($"Backup stopped: Business software detected ({processNames})");
+                        Console.WriteLine($"Backup paused: Business software detected ({processNames})");
+                        Console.WriteLine("Waiting for business software to close...");
                     }
                     catch { }
 
-                    return;
+                    // Wait until business software is closed
+                    while (businessMonitor.IsBusinessSoftwareRunning())
+                    {
+                        System.Threading.Thread.Sleep(1000); // Check every second
+                    }
+
+                    // Resume backup
+                    state.Status = StateStatus.Active;
+                    state.Timestamp = DateTime.UtcNow;
+                    stateManager.UpdateJobState(job.GetName(), state);
+                    stateManager.SaveState();
+
+                    try
+                    {
+                        Console.WriteLine("Business software closed. Resuming backup...");
+                    }
+                    catch { }
                 }
 
                 string relative = Path.GetRelativePath(source, fi.FullName);
