@@ -21,6 +21,8 @@ namespace EasySave.WPF
         readonly ILogger _logger;
         readonly string _logDir;
         List<BackupJob> _backupJobs = new();
+        // Track running backup tasks for parallel execution
+        readonly Dictionary<string, Task> _runningTasks = new();
         // encryption key from UI (may be empty)
         public string EncryptionKey => PbEncryptionKey?.Password ?? string.Empty;
 
@@ -254,25 +256,65 @@ namespace EasySave.WPF
 
             void StartAll()
             {
+                // Start all backups in parallel
+                List<Task> tasks = new();
                 for (int i = 0; i < _backupJobs.Count; i++)
                 {
-                    StartBackupByIndex(i + 1);
+                    int index = i + 1; // Capture index for closure
+                    var task = Task.Run(() => StartBackupByIndex(index));
+                    tasks.Add(task);
                 }
-                StatusText.Text = "Tous les travaux sont lancés";
+
+                // Update status text to indicate parallel execution
+                var lp = EasySave.Core.LanguageProvider.GetInstance();
+                StatusText.Text = lp.GetText("status.all.started") ?? "Tous les travaux sont lancés en parallèle";
+
+                // Optionally wait for all tasks to complete in the background
+                _ = Task.WhenAll(tasks).ContinueWith(_ =>
+                {
+                    Dispatcher.Invoke(() =>
+                    {
+                        StatusText.Text = lp.GetText("status.all.completed") ?? "Tous les travaux sont terminés";
+                    });
+                });
             }
 
             void StartSelected()
             {
-                foreach (var item in JobsList.SelectedItems.Cast<object>())
+                // Start selected backups in parallel
+                List<Task> tasks = new();
+                var selectedItems = JobsList.SelectedItems.Cast<object>().ToList();
+
+                foreach (var item in selectedItems)
                 {
                     if (item is JobViewModel vm)
                     {
                         // find matching backup job index
                         int idx = _backupJobs.FindIndex(b => b.GetName() == vm.Name && b.GetSourcePath() == vm.Source && b.GetTargetPath() == vm.Destination);
-                        if (idx >= 0) StartBackupByIndex(idx + 1);
+                        if (idx >= 0)
+                        {
+                            int index = idx + 1; // Capture index for closure
+                            var task = Task.Run(() => StartBackupByIndex(index));
+                            tasks.Add(task);
+                        }
                     }
                 }
-                StatusText.Text = "Travaux sélectionnés lancés";
+
+                // Update status text to indicate parallel execution
+                var lp = EasySave.Core.LanguageProvider.GetInstance();
+                StatusText.Text = lp.GetText("status.selected.started") ?? "Travaux sélectionnés lancés en parallèle";
+
+                // Optionally wait for all tasks to complete in the background
+                if (tasks.Count > 0)
+                {
+                    _ = Task.WhenAll(tasks).ContinueWith(_ =>
+                    {
+                        Dispatcher.Invoke(() =>
+                        {
+                            StatusText.Text = lp.GetText("status.selected.completed") ?? "Travaux sélectionnés terminés";
+                        });
+                    });
+                }
             }
 
             void StopSelected()
@@ -301,7 +343,7 @@ namespace EasySave.WPF
 
                     string fullMessage = $"{message}\n\n {string.Join("\n ", runningProcesses)}\n\n{instruction}";
 
-                    MessageBox.Show(fullMessage, title, MessageBoxButton.OK, MessageBoxImage.Warning);
+                    System.Windows.MessageBox.Show(fullMessage, title, MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
@@ -309,10 +351,24 @@ namespace EasySave.WPF
                 var b = _backupJobs.ElementAtOrDefault(oneBasedIndex - 1);
                 if (b == null) return;
 
-                var vm = Jobs.FirstOrDefault(j => j.Name == b.GetName() && j.Source == b.GetSourcePath() && j.Destination == b.GetTargetPath());
-                if (vm != null) vm.State = "Running";
+                // Check if this backup is already running
+                string jobKey = $"{b.GetName()}_{b.GetSourcePath()}_{b.GetTargetPath()}";
+                lock (_runningTasks)
+                {
+                    if (_runningTasks.ContainsKey(jobKey))
+                    {
+                        // Job is already running, skip
+                        return;
+                    }
+                }
 
-                _ = Task.Run(() =>
+                var vm = Jobs.FirstOrDefault(j => j.Name == b.GetName() && j.Source == b.GetSourcePath() && j.Destination == b.GetTargetPath());
+                if (vm != null)
+                {
+                    Dispatcher.Invoke(() => vm.State = "Running");
+                }
+
+                var task = Task.Run(() =>
                 {
                     try
                     {
@@ -427,9 +483,20 @@ namespace EasySave.WPF
                     catch { }
                     finally
                     {
+                        // Remove from running tasks and update UI state
+                        lock (_runningTasks)
+                        {
+                            _runningTasks.Remove(jobKey);
+                        }
                         Dispatcher.Invoke(() => { if (vm != null) vm.State = "Stopped"; });
                     }
                 });
+
+                // Store the task in the tracking dictionary
+                lock (_runningTasks)
+                {
+                    _runningTasks[jobKey] = task;
+                }
             }
         }
 
