@@ -197,6 +197,24 @@ namespace EasySave.Core
                 ["business.error.instruction"] = "Please close these applications before starting the backup.",
                 ["business.paused.title"] = "Backup Paused",
                 ["business.paused.message"] = "Backup paused: business software detected. It will resume automatically when closed."
+                ,
+                // Priority extensions
+                ["priority.extensions.title"] = "Priority extensions",
+                ["priority.extensions.desc"] = "Files with these extensions will be processed first. No non-priority file will be copied while priority files are pending.",
+                ["priority.extensions.hint"] = "Example: .pdf, .docx, .xlsx (critical extensions for your business)"
+                ,
+                // Bandwidth settings
+                ["bandwidth.header"] = "Bandwidth settings",
+                ["bandwidth.threshold.label"] = "Large file threshold (KB):",
+                ["bandwidth.threshold.tooltip"] = "0 to disable restriction",
+                ["bandwidth.threshold.desc"] = "(Single concurrent transfer if file > threshold)"
+                ,
+                // Settings tab
+                ["settings.section.title"] = "General settings",
+                ["settings.section.desc"] = "Configure bandwidth settings, priority extensions, and business software.",
+                ["settings.business.title"] = "Business software",
+                ["settings.business.desc"] = "Block backups if business software is running.",
+                ["settings.business.status"] = "Current status"
             };
 
             translations["fr"] = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
@@ -287,6 +305,24 @@ namespace EasySave.Core
                 ["business.error.instruction"] = "Veuillez fermer ces applications avant de lancer la sauvegarde.",
                 ["business.paused.title"] = "Sauvegarde en pause",
                 ["business.paused.message"] = "Sauvegarde en pause : logiciel métier détecté. Elle reprendra automatiquement une fois fermé."
+                ,
+                // Priority extensions
+                ["priority.extensions.title"] = "Extensions prioritaires",
+                ["priority.extensions.desc"] = "Les fichiers avec ces extensions seront traités en priorité. Aucun fichier non prioritaire ne sera copié tant qu'il reste des fichiers prioritaires en attente.",
+                ["priority.extensions.hint"] = "Exemple : .pdf, .docx, .xlsx (les extensions critiques pour votre activité)"
+                ,
+                // Bandwidth settings
+                ["bandwidth.header"] = "Paramètre de bande passante",
+                ["bandwidth.threshold.label"] = "Seuil fichiers volumineux (Ko) :",
+                ["bandwidth.threshold.tooltip"] = "0 pour désactiver la restriction",
+                ["bandwidth.threshold.desc"] = "(Un seul transfert simultané si fichier > seuil)"
+                ,
+                // Settings tab
+                ["settings.section.title"] = "Paramètres généraux",
+                ["settings.section.desc"] = "Configurez les paramètres de bande passante, les extensions prioritaires et les logiciels métiers.",
+                ["settings.business.title"] = "Logiciels métiers",
+                ["settings.business.desc"] = "Bloquer les sauvegardes si un logiciel métier est en cours d'exécution.",
+                ["settings.business.status"] = "État actuel"
             };
         }
 
