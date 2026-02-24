@@ -1,8 +1,11 @@
 <Solution>
-  <Project Path="EasyLog/EasyLog.csproj" />
-  <Project Path="EasySave.Core/EasySave.Core.csproj" />
-  <Project Path="EasySave.CLI/EasySave.CLI.csproj" />
-  <Project Path="EasySave.WPF/EasySave.WPF.csproj" />
-  <Project Path="EasySave.Tests/EasySave.Tests.csproj" />
   <Project Path="CryptoSoft/CryptoSoft.csproj" />
+  <Project Path="EasyLog/EasyLog.csproj" />
+  <Project Path="EasySave.CLI/EasySave.CLI.csproj" />
+  <Project Path="EasySave.Core/EasySave.Core.csproj" />
+  <Project Path="EasySave.LogServer/EasySave.LogServer.csproj">
+    <Build Solution="Debug|*" Project="false" />
+  </Project>
+  <Project Path="EasySave.Tests/EasySave.Tests.csproj" />
+  <Project Path="EasySave.WPF/EasySave.WPF.csproj" />
 </Solution>

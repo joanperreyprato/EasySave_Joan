@@ -55,7 +55,8 @@ namespace EasySave.WPF
             _stateManager = new StateManager();
             _stateManager.LoadState();
 
-            _logger = new JsonLogger(logDir);
+            // Create logger based on configuration (supports local + remote logging)
+            _logger = LoggerFactory.CreateFromConfig(logDir);
             _logDir = logDir;
 
             // Prefer existing config file if present (project root or common appdata)
@@ -209,6 +210,32 @@ namespace EasySave.WPF
                     _backupManager.RemovePriorityExtension(selectedExt);
                     LoadPriorityExtensions();
                 }
+            };
+
+            // Wire up remote logging handlers
+            LoadRemoteLoggingConfig();
+
+            CbEnableRemoteLogging.Checked += (_, __) =>
+            {
+                PnlRemoteLoggingSettings.IsEnabled = true;
+                PnlRemoteLoggingSettings.Opacity = 1.0;
+            };
+
+            CbEnableRemoteLogging.Unchecked += (_, __) =>
+            {
+                PnlRemoteLoggingSettings.IsEnabled = false;
+                PnlRemoteLoggingSettings.Opacity = 0.5;
+            };
+
+            BtnTestConnection.Click += async (_, __) =>
+            {
+                await TestRemoteLoggingConnection();
+            };
+
+            // Save remote logging config on window closing
+            this.Closing += (_, __) =>
+            {
+                SaveRemoteLoggingConfig();
             };
 
             // Localize add/remove buttons and list description
@@ -932,6 +959,128 @@ namespace EasySave.WPF
                 TbBusinessStatusDetail.Text = "Les sauvegardes sont autorisées";
                 TbBusinessStatusDetail.Foreground = new System.Windows.Media.SolidColorBrush(
                     System.Windows.Media.Color.FromRgb(0x4D, 0x7C, 0x0F));
+            }
+        }
+
+        private void LoadRemoteLoggingConfig()
+        {
+            try
+            {
+                var config = AppConfig.Instance;
+
+                CbEnableRemoteLogging.IsChecked = config.RemoteLogging.Enabled;
+                TbRemoteLoggingHost.Text = config.RemoteLogging.ServerHost;
+                TbRemoteLoggingPort.Text = config.RemoteLogging.ServerPort.ToString();
+                CbKeepLocalLogs.IsChecked = config.RemoteLogging.EnableLocalLogging;
+
+                // Update panel state
+                if (config.RemoteLogging.Enabled)
+                {
+                    PnlRemoteLoggingSettings.IsEnabled = true;
+                    PnlRemoteLoggingSettings.Opacity = 1.0;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to load remote logging config: {ex.Message}");
+            }
+        }
+
+        private void SaveRemoteLoggingConfig()
+        {
+            try
+            {
+                var config = AppConfig.Instance;
+
+                config.RemoteLogging.Enabled = CbEnableRemoteLogging.IsChecked == true;
+                config.RemoteLogging.ServerHost = TbRemoteLoggingHost.Text?.Trim() ?? "localhost";
+
+                if (int.TryParse(TbRemoteLoggingPort.Text, out int port))
+                {
+                    config.RemoteLogging.ServerPort = port;
+                }
+
+                config.RemoteLogging.EnableLocalLogging = CbKeepLocalLogs.IsChecked == true;
+
+                config.SaveConfig();
+
+                ShowRemoteLoggingStatus("✓ Configuration enregistrée avec succès", true);
+            }
+            catch (Exception ex)
+            {
+                ShowRemoteLoggingStatus($"✗ Erreur : {ex.Message}", false);
+            }
+        }
+
+        private async Task TestRemoteLoggingConnection()
+        {
+            try
+            {
+                string host = TbRemoteLoggingHost.Text?.Trim();
+                if (string.IsNullOrWhiteSpace(host))
+                {
+                    ShowRemoteLoggingStatus("✗ Veuillez entrer une adresse serveur", false);
+                    return;
+                }
+
+                if (!int.TryParse(TbRemoteLoggingPort.Text, out int port))
+                {
+                    ShowRemoteLoggingStatus("✗ Port invalide", false);
+                    return;
+                }
+
+                ShowRemoteLoggingStatus("🔄 Test de connexion en cours...", null);
+
+                // Test connection
+                await Task.Run(() =>
+                {
+                    using var client = new System.Net.Sockets.TcpClient();
+                    var connectTask = client.ConnectAsync(host, port);
+                    if (!connectTask.Wait(TimeSpan.FromSeconds(5)))
+                    {
+                        throw new TimeoutException("Timeout de connexion");
+                    }
+                });
+
+                ShowRemoteLoggingStatus($"✓ Connexion réussie à {host}:{port}", true);
+
+                // Auto-save on successful test
+                SaveRemoteLoggingConfig();
+            }
+            catch (Exception ex)
+            {
+                ShowRemoteLoggingStatus($"✗ Connexion échouée : {ex.Message}", false);
+            }
+        }
+
+        private void ShowRemoteLoggingStatus(string message, bool? success)
+        {
+            RemoteLoggingStatusBorder.Visibility = Visibility.Visible;
+            TbRemoteLoggingStatus.Text = message;
+
+            if (success.HasValue)
+            {
+                if (success.Value)
+                {
+                    RemoteLoggingStatusBorder.Background = (System.Windows.Media.Brush)FindResource("SuccessSoft");
+                    RemoteLoggingStatusBorder.BorderBrush = (System.Windows.Media.Brush)FindResource("SuccessColor");
+                    TbRemoteLoggingStatus.Foreground = new System.Windows.Media.SolidColorBrush(
+                        System.Windows.Media.Color.FromRgb(0x15, 0x80, 0x3D));
+                }
+                else
+                {
+                    RemoteLoggingStatusBorder.Background = (System.Windows.Media.Brush)FindResource("DangerSoft");
+                    RemoteLoggingStatusBorder.BorderBrush = (System.Windows.Media.Brush)FindResource("DangerColor");
+                    TbRemoteLoggingStatus.Foreground = new System.Windows.Media.SolidColorBrush(
+                        System.Windows.Media.Color.FromRgb(0xDC, 0x26, 0x26));
+                }
+            }
+            else
+            {
+                // Neutral (loading state)
+                RemoteLoggingStatusBorder.Background = (System.Windows.Media.Brush)FindResource("NeutralSoft");
+                RemoteLoggingStatusBorder.BorderBrush = (System.Windows.Media.Brush)FindResource("BorderColor");
+                TbRemoteLoggingStatus.Foreground = (System.Windows.Media.Brush)FindResource("TextSecondary");
             }
         }
 
