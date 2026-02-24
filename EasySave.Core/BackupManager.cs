@@ -14,6 +14,7 @@ namespace EasySave.Core
         private readonly ILogger logger;
         private readonly BusinessSoftwareMonitor businessMonitor;
         private readonly List<string> priorityExtensions;
+        private readonly JobController jobController;
 
         private readonly string configPath;
 
@@ -45,6 +46,7 @@ namespace EasySave.Core
             this.backupJobs = new List<BackupJob>();
             this.businessMonitor = new BusinessSoftwareMonitor();
             this.priorityExtensions = new List<string>();
+            this.jobController = new JobController();
 
             if (string.IsNullOrWhiteSpace(configPath))
             {
@@ -63,6 +65,9 @@ namespace EasySave.Core
 
         // Expose config path for diagnostics
         public string ConfigPath => configPath;
+
+        // Expose JobController for external control
+        public JobController JobController => jobController;
 
         /// <summary>
         /// Validates the backup job name.
@@ -275,7 +280,7 @@ namespace EasySave.Core
             if (index < 0 || index >= backupJobs.Count) return;
 
             BackupJob job = backupJobs[index];
-            BackupExecutor executor = new BackupExecutor(logger, stateManager, businessMonitor, _largeFileThresholdKb, priorityExtensions);
+            BackupExecutor executor = new BackupExecutor(logger, stateManager, businessMonitor, _largeFileThresholdKb, priorityExtensions, jobController);
 
             if (job.GetBackupType() == BackupType.Full)
                 executor.ExecuteFullBackup(job);

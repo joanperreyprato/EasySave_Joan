@@ -14,6 +14,7 @@ namespace EasySave.Core
         private readonly ILogger logger;
         private readonly StateManager stateManager;
         private readonly BusinessSoftwareMonitor? businessMonitor;
+        private readonly JobController? jobController;
         // Global semaphore to ensure only one large file transfer at a time across all executors
         private static readonly SemaphoreSlim LargeFileSemaphore = new SemaphoreSlim(1, 1);
         private readonly long _largeFileThresholdBytes;
@@ -23,11 +24,12 @@ namespace EasySave.Core
         private static int PendingPriorityFilesCount = 0;
 
         // largeFileThresholdKb: 0 disables the limit. Otherwise files larger than this (in KB) are considered "large".
-        public BackupExecutor(ILogger logger, StateManager stateManager, BusinessSoftwareMonitor? businessMonitor = null, int largeFileThresholdKb = 0, List<string>? priorityExtensions = null)
+        public BackupExecutor(ILogger logger, StateManager stateManager, BusinessSoftwareMonitor? businessMonitor = null, int largeFileThresholdKb = 0, List<string>? priorityExtensions = null, JobController? jobController = null)
         {
             this.logger = logger;
             this.stateManager = stateManager;
             this.businessMonitor = businessMonitor;
+            this.jobController = jobController;
             _largeFileThresholdBytes = (largeFileThresholdKb <= 0) ? 0 : (largeFileThresholdKb * 1024L);
             _priorityExtensions = priorityExtensions ?? new List<string>();
         }
@@ -36,180 +38,346 @@ namespace EasySave.Core
         {
             ArgumentNullException.ThrowIfNull(job);
 
+            string jobName = job.GetName();
             string source = job.GetSourcePath();
             string target = job.GetTargetPath();
             JobState state = job.GetState();
 
-            // Check if business software is running
-            if (businessMonitor != null && businessMonitor.IsBusinessSoftwareRunning())
+            // Register job with controller if available
+            jobController?.RegisterJob(jobName);
+
+            try
             {
-                state.Status = StateStatus.Error;
+                // Check if business software is running
+                if (businessMonitor != null && businessMonitor.IsBusinessSoftwareRunning())
+                {
+                    state.Status = StateStatus.Error;
+                    state.Timestamp = DateTime.UtcNow;
+                    stateManager.UpdateJobState(jobName, state);
+                    stateManager.SaveState();
+
+                    // Log the error
+                    try
+                    {
+                        var runningProcesses = businessMonitor.GetRunningMonitoredProcesses();
+                        string processNames = string.Join(", ", runningProcesses);
+                        Console.WriteLine($"Backup blocked: Business software running ({processNames})");
+                    }
+                    catch { }
+
+                    return;
+                }
+
+                List<FileInfo> files = GetEligibleFiles(source, target, BackupType.Full);
+
+                // Separate files into priority and non-priority
+                var (priorityFiles, nonPriorityFiles) = SeparateFilesByPriority(files);
+
+                state.TotalFiles = files.Count;
+                state.TotalSize = CalculateTotalSize(files);
+                state.RemainingFiles = state.TotalFiles;
+                state.RemainingSize = state.TotalSize;
+                state.Status = StateStatus.Active;
                 state.Timestamp = DateTime.UtcNow;
-                stateManager.UpdateJobState(job.GetName(), state);
+                stateManager.UpdateJobState(jobName, state);
                 stateManager.SaveState();
 
-                // Log the error
-                try
-                {
-                    var runningProcesses = businessMonitor.GetRunningMonitoredProcesses();
-                    string processNames = string.Join(", ", runningProcesses);
-                    Console.WriteLine($"Backup blocked: Business software running ({processNames})");
-                }
-                catch { }
+                long totalTransferMs = 0;
 
-                return;
-            }
-
-            List<FileInfo> files = GetEligibleFiles(source, target, BackupType.Full);
-
-            // Separate files into priority and non-priority
-            var (priorityFiles, nonPriorityFiles) = SeparateFilesByPriority(files);
-
-            state.TotalFiles = files.Count;
-            state.TotalSize = CalculateTotalSize(files);
-            state.RemainingFiles = state.TotalFiles;
-            state.RemainingSize = state.TotalSize;
-            state.Status = StateStatus.Active;
-            state.Timestamp = DateTime.UtcNow;
-            stateManager.UpdateJobState(job.GetName(), state);
-            stateManager.SaveState();
-
-            long totalTransferMs = 0;
-
-            // Register priority files count
-            if (priorityFiles.Count > 0)
-            {
-                lock (PriorityLock)
-                {
-                    PendingPriorityFilesCount += priorityFiles.Count;
-                }
-            }
-
-            // Process priority files first
-            foreach (var fi in priorityFiles)
-            {
-                totalTransferMs += ProcessSingleFile(job, fi, source, target, state);
-
-                // Decrement priority counter after processing
-                lock (PriorityLock)
-                {
-                    PendingPriorityFilesCount--;
-                }
-            }
-
-            // Process non-priority files only if no priority files are pending globally
-            foreach (var fi in nonPriorityFiles)
-            {
-                // Wait if there are pending priority files in any job
-                while (true)
+                // Register priority files count
+                if (priorityFiles.Count > 0)
                 {
                     lock (PriorityLock)
                     {
-                        if (PendingPriorityFilesCount <= 0) break;
+                        PendingPriorityFilesCount += priorityFiles.Count;
                     }
-                    System.Threading.Thread.Sleep(100); // Wait a bit before checking again
                 }
 
-                totalTransferMs += ProcessSingleFile(job, fi, source, target, state);
+                // Process priority files first
+                foreach (var fi in priorityFiles)
+                {
+                    // Check for pause or cancel between files
+                    if (jobController != null)
+                    {
+                        if (jobController.IsPaused(jobName))
+                        {
+                            state.Status = StateStatus.Paused;
+                            stateManager.UpdateJobState(jobName, state);
+                            stateManager.SaveState();
+                        }
+
+                        bool shouldContinue = jobController.CheckPauseOrCancel(jobName);
+
+                        if (!shouldContinue)
+                        {
+                            // Job was stopped
+                            state.Status = StateStatus.Inactive;
+                            state.Timestamp = DateTime.UtcNow;
+                            stateManager.UpdateJobState(jobName, state);
+                            stateManager.SaveState();
+                            return;
+                        }
+
+                        if (state.Status == StateStatus.Paused)
+                        {
+                            state.Status = StateStatus.Active;
+                            stateManager.UpdateJobState(jobName, state);
+                            stateManager.SaveState();
+                        }
+                    }
+
+                    totalTransferMs += ProcessSingleFile(job, fi, source, target, state);
+
+                    // Decrement priority counter after processing
+                    lock (PriorityLock)
+                    {
+                        PendingPriorityFilesCount--;
+                    }
+                }
+
+                // Process non-priority files only if no priority files are pending globally
+                foreach (var fi in nonPriorityFiles)
+                {
+                    // Wait if there are pending priority files in any job
+                    while (true)
+                    {
+                        lock (PriorityLock)
+                        {
+                            if (PendingPriorityFilesCount <= 0) break;
+                        }
+
+                        // Check for cancellation while waiting
+                        if (jobController != null && jobController.IsCancelled(jobName))
+                        {
+                            state.Status = StateStatus.Inactive;
+                            state.Timestamp = DateTime.UtcNow;
+                            stateManager.UpdateJobState(jobName, state);
+                            stateManager.SaveState();
+                            return;
+                        }
+
+                        System.Threading.Thread.Sleep(100); // Wait a bit before checking again
+                    }
+
+                    // Check for pause or cancel between files
+                    if (jobController != null)
+                    {
+                        if (jobController.IsPaused(jobName))
+                        {
+                            state.Status = StateStatus.Paused;
+                            stateManager.UpdateJobState(jobName, state);
+                            stateManager.SaveState();
+                        }
+
+                        bool shouldContinue = jobController.CheckPauseOrCancel(jobName);
+
+                        if (!shouldContinue)
+                        {
+                            // Job was stopped
+                            state.Status = StateStatus.Inactive;
+                            state.Timestamp = DateTime.UtcNow;
+                            stateManager.UpdateJobState(jobName, state);
+                            stateManager.SaveState();
+                            return;
+                        }
+
+                        if (state.Status == StateStatus.Paused)
+                        {
+                            state.Status = StateStatus.Active;
+                            stateManager.UpdateJobState(jobName, state);
+                            stateManager.SaveState();
+                        }
+                    }
+
+                    totalTransferMs += ProcessSingleFile(job, fi, source, target, state);
+                }
+
+                state.Status = StateStatus.Completed;
+                state.Progress = 100.0;
+                state.Timestamp = DateTime.UtcNow;
+                stateManager.UpdateJobState(jobName, state);
+                stateManager.SaveState();
+
+                LogEntry log = new LogEntry(jobName, source, target, state.TotalSize, totalTransferMs, LogEntry.EntryType.Summary);
+                try { logger?.LogAction(log); } catch { }
             }
-
-            state.Status = StateStatus.Completed;
-            state.Progress = 100.0;
-            state.Timestamp = DateTime.UtcNow;
-            stateManager.UpdateJobState(job.GetName(), state);
-            stateManager.SaveState();
-
-            LogEntry log = new LogEntry(job.GetName(), source, target, state.TotalSize, totalTransferMs, LogEntry.EntryType.Summary);
-            try { logger?.LogAction(log); } catch { }
+            finally
+            {
+                // Always unregister job when done
+                jobController?.UnregisterJob(jobName);
+            }
         }
 
         public void ExecuteDifferentialBackup(BackupJob job)
         {
             ArgumentNullException.ThrowIfNull(job);
 
+            string jobName = job.GetName();
             string source = job.GetSourcePath();
             string target = job.GetTargetPath();
             JobState state = job.GetState();
 
-            // Check if business software is running
-            if (businessMonitor != null && businessMonitor.IsBusinessSoftwareRunning())
+            // Register job with controller if available
+            jobController?.RegisterJob(jobName);
+
+            try
             {
-                state.Status = StateStatus.Error;
+                // Check if business software is running
+                if (businessMonitor != null && businessMonitor.IsBusinessSoftwareRunning())
+                {
+                    state.Status = StateStatus.Error;
+                    state.Timestamp = DateTime.UtcNow;
+                    stateManager.UpdateJobState(jobName, state);
+                    stateManager.SaveState();
+
+                    try
+                    {
+                        var runningProcesses = businessMonitor.GetRunningMonitoredProcesses();
+                        string processNames = string.Join(", ", runningProcesses);
+                        Console.WriteLine($"Backup blocked: Business software running ({processNames})");
+                    }
+                    catch { }
+
+                    return;
+                }
+
+                List<FileInfo> files = GetEligibleFiles(source, target, BackupType.Differential);
+
+                // Separate files into priority and non-priority
+                var (priorityFiles, nonPriorityFiles) = SeparateFilesByPriority(files);
+
+                state.TotalFiles = files.Count;
+                state.TotalSize = CalculateTotalSize(files);
+                state.RemainingFiles = state.TotalFiles;
+                state.RemainingSize = state.TotalSize;
+                state.Status = StateStatus.Active;
                 state.Timestamp = DateTime.UtcNow;
-                stateManager.UpdateJobState(job.GetName(), state);
-                stateManager.SaveState();
+                stateManager.UpdateJobState(jobName, state);
 
-                try
-                {
-                    var runningProcesses = businessMonitor.GetRunningMonitoredProcesses();
-                    string processNames = string.Join(", ", runningProcesses);
-                    Console.WriteLine($"Backup blocked: Business software running ({processNames})");
-                }
-                catch { }
+                long totalTransferMs = 0;
 
-                return;
-            }
-
-            List<FileInfo> files = GetEligibleFiles(source, target, BackupType.Differential);
-
-            // Separate files into priority and non-priority
-            var (priorityFiles, nonPriorityFiles) = SeparateFilesByPriority(files);
-
-            state.TotalFiles = files.Count;
-            state.TotalSize = CalculateTotalSize(files);
-            state.RemainingFiles = state.TotalFiles;
-            state.RemainingSize = state.TotalSize;
-            state.Status = StateStatus.Active;
-            state.Timestamp = DateTime.UtcNow;
-            stateManager.UpdateJobState(job.GetName(), state);
-
-            long totalTransferMs = 0;
-
-            // Register priority files count
-            if (priorityFiles.Count > 0)
-            {
-                lock (PriorityLock)
-                {
-                    PendingPriorityFilesCount += priorityFiles.Count;
-                }
-            }
-
-            // Process priority files first
-            foreach (var fi in priorityFiles)
-            {
-                totalTransferMs += ProcessSingleFile(job, fi, source, target, state);
-
-                // Decrement priority counter after processing
-                lock (PriorityLock)
-                {
-                    PendingPriorityFilesCount--;
-                }
-            }
-
-            // Process non-priority files only if no priority files are pending globally
-            foreach (var fi in nonPriorityFiles)
-            {
-                // Wait if there are pending priority files in any job
-                while (true)
+                // Register priority files count
+                if (priorityFiles.Count > 0)
                 {
                     lock (PriorityLock)
                     {
-                        if (PendingPriorityFilesCount <= 0) break;
+                        PendingPriorityFilesCount += priorityFiles.Count;
                     }
-                    System.Threading.Thread.Sleep(100); // Wait a bit before checking again
                 }
 
-                totalTransferMs += ProcessSingleFile(job, fi, source, target, state);
+                // Process priority files first
+                foreach (var fi in priorityFiles)
+                {
+                    // Check for pause or cancel between files
+                    if (jobController != null)
+                    {
+                        if (jobController.IsPaused(jobName))
+                        {
+                            state.Status = StateStatus.Paused;
+                            stateManager.UpdateJobState(jobName, state);
+                            stateManager.SaveState();
+                        }
+
+                        bool shouldContinue = jobController.CheckPauseOrCancel(jobName);
+
+                        if (!shouldContinue)
+                        {
+                            // Job was stopped
+                            state.Status = StateStatus.Inactive;
+                            state.Timestamp = DateTime.UtcNow;
+                            stateManager.UpdateJobState(jobName, state);
+                            stateManager.SaveState();
+                            return;
+                        }
+
+                        if (state.Status == StateStatus.Paused)
+                        {
+                            state.Status = StateStatus.Active;
+                            stateManager.UpdateJobState(jobName, state);
+                            stateManager.SaveState();
+                        }
+                    }
+
+                    totalTransferMs += ProcessSingleFile(job, fi, source, target, state);
+
+                    // Decrement priority counter after processing
+                    lock (PriorityLock)
+                    {
+                        PendingPriorityFilesCount--;
+                    }
+                }
+
+                // Process non-priority files only if no priority files are pending globally
+                foreach (var fi in nonPriorityFiles)
+                {
+                    // Wait if there are pending priority files in any job
+                    while (true)
+                    {
+                        lock (PriorityLock)
+                        {
+                            if (PendingPriorityFilesCount <= 0) break;
+                        }
+
+                        // Check for cancellation while waiting
+                        if (jobController != null && jobController.IsCancelled(jobName))
+                        {
+                            state.Status = StateStatus.Inactive;
+                            state.Timestamp = DateTime.UtcNow;
+                            stateManager.UpdateJobState(jobName, state);
+                            stateManager.SaveState();
+                            return;
+                        }
+
+                        System.Threading.Thread.Sleep(100); // Wait a bit before checking again
+                    }
+
+                    // Check for pause or cancel between files
+                    if (jobController != null)
+                    {
+                        if (jobController.IsPaused(jobName))
+                        {
+                            state.Status = StateStatus.Paused;
+                            stateManager.UpdateJobState(jobName, state);
+                            stateManager.SaveState();
+                        }
+
+                        bool shouldContinue = jobController.CheckPauseOrCancel(jobName);
+
+                        if (!shouldContinue)
+                        {
+                            // Job was stopped
+                            state.Status = StateStatus.Inactive;
+                            state.Timestamp = DateTime.UtcNow;
+                            stateManager.UpdateJobState(jobName, state);
+                            stateManager.SaveState();
+                            return;
+                        }
+
+                        if (state.Status == StateStatus.Paused)
+                        {
+                            state.Status = StateStatus.Active;
+                            stateManager.UpdateJobState(jobName, state);
+                            stateManager.SaveState();
+                        }
+                    }
+
+                    totalTransferMs += ProcessSingleFile(job, fi, source, target, state);
+                }
+
+                state.Status = StateStatus.Completed;
+                state.Progress = 100.0;
+                state.Timestamp = DateTime.UtcNow;
+                stateManager.UpdateJobState(jobName, state);
+                stateManager.SaveState();
+
+                LogEntry log = new LogEntry(jobName, source, target, state.TotalSize, totalTransferMs, LogEntry.EntryType.Summary);
+                try { logger?.LogAction(log); } catch { }
             }
-
-            state.Status = StateStatus.Completed;
-            state.Progress = 100.0;
-            state.Timestamp = DateTime.UtcNow;
-            stateManager.UpdateJobState(job.GetName(), state);
-            stateManager.SaveState();
-
-            LogEntry log = new LogEntry(job.GetName(), source, target, state.TotalSize, totalTransferMs, LogEntry.EntryType.Summary);
-            try { logger?.LogAction(log); } catch { }
+            finally
+            {
+                // Always unregister job when done
+                jobController?.UnregisterJob(jobName);
+            }
         }
 
         private long CopyFile(string source, string destination)
