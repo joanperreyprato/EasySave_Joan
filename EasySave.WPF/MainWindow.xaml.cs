@@ -9,6 +9,7 @@ using EasySave.Core;
 using EasyLog;
 using System.Collections.Generic;
 using System.Windows.Input;
+using System.Windows.Threading;
 
 namespace EasySave.WPF
 {
@@ -23,6 +24,8 @@ namespace EasySave.WPF
         List<BackupJob> _backupJobs = new();
         // Track running backup tasks for parallel execution
         readonly Dictionary<string, Task> _runningTasks = new();
+        // Timer for updating job progress
+        readonly DispatcherTimer _progressUpdateTimer;
         // encryption key from UI (may be empty)
         public string EncryptionKey => PbEncryptionKey?.Password ?? string.Empty;
 
@@ -92,12 +95,26 @@ namespace EasySave.WPF
             BtnStopAll.Click -= (_, __) => StopAll();
             BtnStartSelected.Click -= (_, __) => StartSelected();
             BtnStopSelected.Click -= (_, __) => StopSelected();
+            BtnPauseSelected.Click -= (_, __) => PauseSelected();
+            BtnPauseAll.Click -= (_, __) => PauseAll();
             CbLanguage.SelectionChanged -= (_, __) => ChangeLanguage();
 
             BtnAddJob.Click += (_, __) => AddJob();
             BtnStartAll.Click += (_, __) => StartAll();
             BtnStopAll.Click += (_, __) => StopAll();
             BtnStartSelected.Click += (_, __) => StartSelected();
+            BtnStopSelected.Click += (_, __) => StopSelected();
+            BtnPauseSelected.Click += (_, __) => PauseSelected();
+            BtnPauseAll.Click += (_, __) => PauseAll();
+            CbLanguage.SelectionChanged += (_, __) => ChangeLanguage();
+
+            // Initialize and start the progress update timer
+            _progressUpdateTimer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromMilliseconds(500) // Update every 500ms
+            };
+            _progressUpdateTimer.Tick += UpdateJobsProgress;
+            _progressUpdateTimer.Start();
             BtnStopSelected.Click += (_, __) => StopSelected();
             CbLanguage.SelectionChanged += (_, __) => ChangeLanguage();
             // select combobox to current language
@@ -237,6 +254,8 @@ namespace EasySave.WPF
                 BtnStopAll.Content = lp.GetText("btn.stopall");
                 BtnStartSelected.Content = lp.GetText("btn.startsel");
                 BtnStopSelected.Content = lp.GetText("btn.stopsel");
+                BtnPauseSelected.Content = lp.GetText("btn.pausesel");
+                BtnPauseAll.Content = lp.GetText("btn.pauseall");
                 StatusText.Text = lp.GetText("status.ready");
                 // update column headers
                 try
@@ -245,6 +264,8 @@ namespace EasySave.WPF
                     ColSourceHeader.Text = lp.GetText("col.source");
                     ColTargetHeader.Text = lp.GetText("col.target");
                     ColStateHeader.Text = lp.GetText("col.state");
+                    ColProgressHeader.Text = lp.GetText("col.progress");
+                    ColActionsHeader.Text = lp.GetText("col.actions");
                     // Update encryption tab texts
                     try
                     {
@@ -301,6 +322,9 @@ namespace EasySave.WPF
                     catch { }
                 }
                 catch { }
+
+                // Update job states with translated text
+                UpdateJobStatesTranslation();
             }
 
             void AddJob()
@@ -387,14 +411,42 @@ namespace EasySave.WPF
 
             void StopSelected()
             {
-                // BackupExecutor does not support cancellation in this codebase; notify the user
-                System.Windows.MessageBox.Show("Arrêt immédiat non supporté pour les sauvegardes en cours.", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
+                var selectedItems = JobsList.SelectedItems.Cast<object>().ToList();
+                foreach (var item in selectedItems)
+                {
+                    if (item is JobViewModel vm)
+                    {
+                        _backupManager.JobController.StopJob(vm.Name);
+                    }
+                }
             }
 
             void StopAll()
             {
-                // Similarly, no cancellation available
-                System.Windows.MessageBox.Show("Arrêt immédiat non supporté pour les sauvegardes en cours.", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
+                foreach (var job in Jobs)
+                {
+                    _backupManager.JobController.StopJob(job.Name);
+                }
+            }
+
+            void PauseSelected()
+            {
+                var selectedItems = JobsList.SelectedItems.Cast<object>().ToList();
+                foreach (var item in selectedItems)
+                {
+                    if (item is JobViewModel vm)
+                    {
+                        _backupManager.JobController.PauseJob(vm.Name);
+                    }
+                }
+            }
+
+            void PauseAll()
+            {
+                foreach (var job in Jobs)
+                {
+                    _backupManager.JobController.PauseJob(job.Name);
+                }
             }
 
             void StartBackupByIndex(int oneBasedIndex)
@@ -433,7 +485,11 @@ namespace EasySave.WPF
                 var vm = Jobs.FirstOrDefault(j => j.Name == b.GetName() && j.Source == b.GetSourcePath() && j.Destination == b.GetTargetPath());
                 if (vm != null)
                 {
-                    Dispatcher.Invoke(() => vm.State = "Running");
+                    Dispatcher.Invoke(() => 
+                    { 
+                        vm.Progress = 0.0;  // Reset progress to 0
+                        vm.State = "Running";
+                    });
                 }
 
                 var task = Task.Run(() =>
@@ -579,7 +635,253 @@ namespace EasySave.WPF
                     cb.IsDropDownOpen = true;
              }
         }
-        
+
+        // Individual job control handlers
+        private void BtnPlayJob_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is System.Windows.Controls.Button btn && btn.Tag is string jobName)
+            {
+                // Find the job and start/resume it
+                var job = Jobs.FirstOrDefault(j => j.Name == jobName);
+                if (job != null)
+                {
+                    // Check if paused, if so resume
+                    if (_backupManager.JobController.IsPaused(jobName))
+                    {
+                        _backupManager.JobController.ResumeJob(jobName);
+                    }
+                    else
+                    {
+                        // Start the job - find the index and execute via BackupManager
+                        var backupJob = _backupJobs.FirstOrDefault(b => b.GetName() == jobName);
+                        if (backupJob != null)
+                        {
+                            int index = _backupJobs.IndexOf(backupJob) + 1;
+
+                            // Check if already running
+                            string jobKey = $"{backupJob.GetName()}_{backupJob.GetSourcePath()}_{backupJob.GetTargetPath()}";
+                            lock (_runningTasks)
+                            {
+                                if (_runningTasks.ContainsKey(jobKey))
+                                {
+                                    return; // Already running
+                                }
+                            }
+
+                            // Check for business software
+                            if (_backupManager.IsBusinessSoftwareRunning())
+                            {
+                                var runningProcesses = _backupManager.GetRunningMonitoredProcesses();
+                                var lp = EasySave.Core.LanguageProvider.GetInstance();
+                                string title = lp.GetText("business.error.title");
+                                string message = lp.GetText("business.error.message");
+                                string instruction = lp.GetText("business.error.instruction");
+                                string fullMessage = $"{message}\n\n {string.Join("\n ", runningProcesses)}\n\n{instruction}";
+                                System.Windows.MessageBox.Show(fullMessage, title, MessageBoxButton.OK, MessageBoxImage.Warning);
+                                return;
+                            }
+
+                            // Reset progress to 0
+                            job.Progress = 0.0;
+
+                            // Start the backup task
+                            var task = Task.Run(() =>
+                            {
+                                try
+                                {
+                                    // Ask user whether to encrypt (on UI thread)
+                                    bool encrypt = false;
+                                    Dispatcher.Invoke(() =>
+                                    {
+                                        var lpLocal = EasySave.Core.LanguageProvider.GetInstance();
+                                        string prompt = lpLocal.GetText("encryption.prompt.encrypt");
+                                        string title = lpLocal.GetText("encryption.prompt.title");
+                                        var res = System.Windows.MessageBox.Show(prompt, title, MessageBoxButton.YesNo, MessageBoxImage.Question);
+                                        encrypt = (res == MessageBoxResult.Yes);
+                                    });
+
+                                    if (encrypt && string.IsNullOrEmpty(EncryptionKey))
+                                    {
+                                        Dispatcher.Invoke(() =>
+                                        {
+                                            var lpLocal = EasySave.Core.LanguageProvider.GetInstance();
+                                            string missing = lpLocal.GetText("encryption.key.missing");
+                                            string title = lpLocal.GetText("encryption.prompt.title");
+                                            System.Windows.MessageBox.Show(missing, title, MessageBoxButton.OK, MessageBoxImage.Information);
+                                        });
+                                        encrypt = false;
+                                    }
+
+                                    Dispatcher.Invoke(() => { if (job != null) job.State = "Running"; });
+
+                                    if (!encrypt)
+                                    {
+                                        _backupManager.ExecuteBackupJob(index);
+                                    }
+                                    else
+                                    {
+                                        // Execute then encrypt copied files in target directory
+                                        _backupManager.ExecuteBackupJob(index);
+                                        try
+                                        {
+                                            // collect extension filters from UI
+                                            List<string> extFilters = new();
+                                            Dispatcher.Invoke(() =>
+                                            {
+                                                foreach (var it in LbEncryptionTypes.Items)
+                                                {
+                                                    if (it is string s)
+                                                    {
+                                                        var norm = s.Trim();
+                                                        if (!norm.StartsWith('.')) norm = "." + norm;
+                                                        extFilters.Add(norm.ToLowerInvariant());
+                                                    }
+                                                }
+                                            });
+
+                                            var files = Directory.GetFiles(backupJob.GetTargetPath(), "*", SearchOption.AllDirectories);
+                                            foreach (var f in files)
+                                            {
+                                                try
+                                                {
+                                                    string fileExt = Path.GetExtension(f).ToLowerInvariant();
+                                                    if (extFilters.Count > 0 && !extFilters.Contains(fileExt))
+                                                        continue;
+
+                                                    // measure encryption time
+                                                    long encTime = 0;
+                                                    string tmp = f + ".esenc";
+                                                    var swEnc = Stopwatch.StartNew();
+                                                    try
+                                                    {
+                                                        CryptoSoft.CryptoService.EncryptFile(f, tmp, EncryptionKey);
+                                                        swEnc.Stop();
+                                                        encTime = swEnc.ElapsedMilliseconds;
+                                                    }
+                                                    catch
+                                                    {
+                                                        try { swEnc.Stop(); } catch { }
+                                                        encTime = -1; // indicate error
+                                                    }
+
+                                                    try
+                                                    {
+                                                        if (encTime > 0 && File.Exists(tmp))
+                                                        {
+                                                            File.Delete(f);
+                                                            File.Move(tmp, f);
+                                                        }
+                                                        else
+                                                        {
+                                                            if (File.Exists(tmp)) File.Delete(tmp);
+                                                        }
+                                                    }
+                                                    catch { }
+
+                                                    // log encryption time for this file
+                                                    try
+                                                    {
+                                                        long fsize = 0;
+                                                        try { fsize = new FileInfo(f).Length; } catch { }
+                                                        var elog = new LogEntry(backupJob.GetName(), f, f, fsize, 0, LogEntry.EntryType.File, encTime);
+                                                        _logger?.LogAction(elog);
+                                                    }
+                                                    catch { }
+                                                }
+                                                catch { }
+                                            }
+                                        }
+                                        catch { }
+                                    }
+                                }
+                                catch { }
+                                finally
+                                {
+                                    lock (_runningTasks)
+                                    {
+                                        _runningTasks.Remove(jobKey);
+                                    }
+                                }
+                            });
+
+                            lock (_runningTasks)
+                            {
+                                _runningTasks[jobKey] = task;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private void BtnPauseJob_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is System.Windows.Controls.Button btn && btn.Tag is string jobName)
+            {
+                _backupManager.JobController.PauseJob(jobName);
+            }
+        }
+
+        private void BtnStopJob_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is System.Windows.Controls.Button btn && btn.Tag is string jobName)
+            {
+                _backupManager.JobController.StopJob(jobName);
+            }
+        }
+
+        // Progress update timer handler
+        private void UpdateJobsProgress(object? sender, EventArgs e)
+        {
+            foreach (var job in Jobs)
+            {
+                var state = _stateManager.GetJobState(job.Name);
+                if (state != null)
+                {
+                    // Update progress
+                    job.Progress = state.Progress;
+
+                    // Update state with translation
+                    var lp = EasySave.Core.LanguageProvider.GetInstance();
+                    string translatedState = state.Status switch
+                    {
+                        StateStatus.Active => lp.GetText("state.running"),
+                        StateStatus.Paused => lp.GetText("state.paused"),
+                        StateStatus.Inactive => lp.GetText("state.stopped"),
+                        StateStatus.Completed => lp.GetText("state.completed"),
+                        StateStatus.Error => lp.GetText("state.error"),
+                        _ => lp.GetText("state.inactive")
+                    };
+
+                    job.State = translatedState;
+                }
+            }
+        }
+
+        // Update job states with current language
+        private void UpdateJobStatesTranslation()
+        {
+            foreach (var job in Jobs)
+            {
+                var state = _stateManager.GetJobState(job.Name);
+                if (state != null)
+                {
+                    var lp = EasySave.Core.LanguageProvider.GetInstance();
+                    string translatedState = state.Status switch
+                    {
+                        StateStatus.Active => lp.GetText("state.running"),
+                        StateStatus.Paused => lp.GetText("state.paused"),
+                        StateStatus.Inactive => lp.GetText("state.stopped"),
+                        StateStatus.Completed => lp.GetText("state.completed"),
+                        StateStatus.Error => lp.GetText("state.error"),
+                        _ => lp.GetText("state.inactive")
+                    };
+
+                    job.State = translatedState;
+                }
+            }
+        }
+
         private void LoadBusinessProcesses()
         {
             LbBusinessProcesses.Items.Clear();
