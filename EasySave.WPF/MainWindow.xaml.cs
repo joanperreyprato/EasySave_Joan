@@ -171,6 +171,29 @@ namespace EasySave.WPF
                 UpdateBusinessStatus();
             };
 
+            // Wire up priority extensions handlers
+            LoadPriorityExtensions();
+
+            BtnAddPriorityExt.Click += (_, __) =>
+            {
+                string ext = TbNewPriorityExt.Text?.Trim();
+                if (string.IsNullOrWhiteSpace(ext)) return;
+                if (!ext.StartsWith('.')) ext = "." + ext;
+
+                _backupManager.AddPriorityExtension(ext);
+                LoadPriorityExtensions();
+                TbNewPriorityExt.Text = string.Empty;
+            };
+
+            BtnRemovePriorityExt.Click += (_, __) =>
+            {
+                if (LbPriorityExtensions.SelectedItem is string selectedExt)
+                {
+                    _backupManager.RemovePriorityExtension(selectedExt);
+                    LoadPriorityExtensions();
+                }
+            };
+
             // Localize add/remove buttons and list description
             try
             {
@@ -240,6 +263,38 @@ namespace EasySave.WPF
                             BtnAddExt.Content = lp.GetText("encryption.add");
                             BtnRemoveExt.Content = lp.GetText("encryption.remove");
                             LblEncryptionListDesc.Text = lp.GetText("encryption.list.desc");
+                        }
+                        catch { }
+
+                        // Update priority extensions texts
+                        try
+                        {
+                            LblPriorityExtensionsHeader.Text = lp.GetText("priority.extensions.title");
+                            LblPriorityExtensionsDesc.Text = lp.GetText("priority.extensions.desc");
+                            LblPriorityExtensionsHint.Text = lp.GetText("priority.extensions.hint");
+                            BtnAddPriorityExt.Content = lp.GetText("encryption.add");
+                            BtnRemovePriorityExt.Content = lp.GetText("encryption.remove");
+                        }
+                        catch { }
+
+                        // Update bandwidth settings texts
+                        try
+                        {
+                            LblBandwidthHeader.Text = lp.GetText("bandwidth.header");
+                            LblLargeFileThreshold.Text = lp.GetText("bandwidth.threshold.label");
+                            TbLargeFileThresholdKb.ToolTip = lp.GetText("bandwidth.threshold.tooltip");
+                            LblBandwidthDesc.Text = lp.GetText("bandwidth.threshold.desc");
+                        }
+                        catch { }
+
+                        // Update settings tab texts
+                        try
+                        {
+                            SettingsSectionTitle.Text = lp.GetText("settings.section.title");
+                            SettingsSectionDesc.Text = lp.GetText("settings.section.desc");
+                            LblBusinessSectionTitle.Text = lp.GetText("settings.business.title");
+                            LblBusinessSectionDesc.Text = lp.GetText("settings.business.desc");
+                            LblBusinessStatusHeader.Text = lp.GetText("settings.business.status");
                         }
                         catch { }
                     }
@@ -532,6 +587,16 @@ namespace EasySave.WPF
             foreach (var process in processes)
             {
                 LbBusinessProcesses.Items.Add(process);
+            }
+        }
+
+        private void LoadPriorityExtensions()
+        {
+            LbPriorityExtensions.Items.Clear();
+            var extensions = _backupManager.GetPriorityExtensions();
+            foreach (var ext in extensions)
+            {
+                LbPriorityExtensions.Items.Add(ext);
             }
         }
 
