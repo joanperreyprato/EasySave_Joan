@@ -13,6 +13,7 @@ namespace EasySave.Core
         private readonly StateManager stateManager;
         private readonly ILogger logger;
         private readonly BusinessSoftwareMonitor businessMonitor;
+        private readonly List<string> priorityExtensions;
 
         private readonly string configPath;
 
@@ -43,6 +44,7 @@ namespace EasySave.Core
             _largeFileThresholdKb = largeFileThresholdKb;
             this.backupJobs = new List<BackupJob>();
             this.businessMonitor = new BusinessSoftwareMonitor();
+            this.priorityExtensions = new List<string>();
 
             if (string.IsNullOrWhiteSpace(configPath))
             {
@@ -273,7 +275,7 @@ namespace EasySave.Core
             if (index < 0 || index >= backupJobs.Count) return;
 
             BackupJob job = backupJobs[index];
-            BackupExecutor executor = new BackupExecutor(logger, stateManager, businessMonitor, _largeFileThresholdKb);
+            BackupExecutor executor = new BackupExecutor(logger, stateManager, businessMonitor, _largeFileThresholdKb, priorityExtensions);
 
             if (job.GetBackupType() == BackupType.Full)
                 executor.ExecuteFullBackup(job);
@@ -331,6 +333,43 @@ namespace EasySave.Core
             return businessMonitor.GetRunningMonitoredProcesses();
         }
 
+        // Priority Extensions Management
+        public void AddPriorityExtension(string extension)
+        {
+            if (string.IsNullOrWhiteSpace(extension)) return;
+
+            string normalized = extension.Trim().ToLowerInvariant();
+            if (!normalized.StartsWith(".")) normalized = "." + normalized;
+
+            if (!priorityExtensions.Contains(normalized))
+            {
+                priorityExtensions.Add(normalized);
+                SaveConfiguration();
+            }
+        }
+
+        public void RemovePriorityExtension(string extension)
+        {
+            if (string.IsNullOrWhiteSpace(extension)) return;
+
+            string normalized = extension.Trim().ToLowerInvariant();
+            if (priorityExtensions.Remove(normalized))
+            {
+                SaveConfiguration();
+            }
+        }
+
+        public IReadOnlyList<string> GetPriorityExtensions()
+        {
+            return priorityExtensions.AsReadOnly();
+        }
+
+        public void ClearPriorityExtensions()
+        {
+            priorityExtensions.Clear();
+            SaveConfiguration();
+        }
+
         public void LoadConfiguration()
         {
             try
@@ -338,11 +377,11 @@ namespace EasySave.Core
                 if (!File.Exists(configPath)) return;
                 string json = File.ReadAllText(configPath);
                 // Utilisation de l'instance statique
-                List<BackupConfigEntry>? entries = JsonSerializer.Deserialize<List<BackupConfigEntry>>(json, CachedJsonOptions);
-                if (entries == null) return;
+                var config = JsonSerializer.Deserialize<BackupConfiguration>(json, CachedJsonOptions);
+                if (config == null) return;
 
                 backupJobs.Clear();
-                foreach (BackupConfigEntry e in entries)
+                foreach (BackupConfigEntry e in config.BackupJobs ?? new List<BackupConfigEntry>())
                 {
                     // determine log format if provided
                     EasyLog.LogFormat fmt = EasyLog.LogFormat.Json;
@@ -356,6 +395,22 @@ namespace EasySave.Core
                     BackupJob job = new BackupJob(e.Name, e.SourcePath, e.TargetPath, e.Type, fmt);
                     backupJobs.Add(job);
                 }
+
+                // Load priority extensions
+                priorityExtensions.Clear();
+                if (config.PriorityExtensions != null)
+                {
+                    foreach (var ext in config.PriorityExtensions)
+                    {
+                        if (!string.IsNullOrWhiteSpace(ext))
+                        {
+                            string normalized = ext.Trim().ToLowerInvariant();
+                            if (!normalized.StartsWith(".")) normalized = "." + normalized;
+                            if (!priorityExtensions.Contains(normalized))
+                                priorityExtensions.Add(normalized);
+                        }
+                    }
+                }
             }
             catch
             {
@@ -367,23 +422,33 @@ namespace EasySave.Core
         {
             try
             {
-                IEnumerable<BackupConfigEntry> entries = backupJobs.Select(b => new BackupConfigEntry
+                var config = new BackupConfiguration
                 {
-                    Name = b.GetName(),
-                    SourcePath = b.GetSourcePath(),
-                    TargetPath = b.GetTargetPath(),
-                    Type = b.GetBackupType(),
-                    LogFormat = b.GetLogFormat() == EasyLog.LogFormat.Xml ? "xml" : "json"
-                }).ToList();
+                    BackupJobs = backupJobs.Select(b => new BackupConfigEntry
+                    {
+                        Name = b.GetName(),
+                        SourcePath = b.GetSourcePath(),
+                        TargetPath = b.GetTargetPath(),
+                        Type = b.GetBackupType(),
+                        LogFormat = b.GetLogFormat() == EasyLog.LogFormat.Xml ? "xml" : "json"
+                    }).ToList(),
+                    PriorityExtensions = priorityExtensions.ToList()
+                };
 
                 // Utilisation de l'instance statique
-                string json = JsonSerializer.Serialize(entries, CachedJsonOptions);
+                string json = JsonSerializer.Serialize(config, CachedJsonOptions);
                 File.WriteAllText(configPath, json);
             }
             catch
             {
                 // Ignore save errors
             }
+        }
+
+        private class BackupConfiguration
+        {
+            public List<BackupConfigEntry> BackupJobs { get; set; } = new();
+            public List<string> PriorityExtensions { get; set; } = new();
         }
 
         private class BackupConfigEntry
