@@ -215,6 +215,23 @@ namespace EasySave.Core
                 ["settings.business.title"] = "Business software",
                 ["settings.business.desc"] = "Block backups if business software is running.",
                 ["settings.business.status"] = "Current status"
+                ,
+                // Job controls
+                ["col.progress"] = "Progress",
+                ["col.actions"] = "Actions",
+                ["btn.pause"] = "Pause",
+                ["btn.play"] = "Play",
+                ["btn.stop"] = "Stop",
+                ["btn.pausesel"] = "Pause selected",
+                ["btn.pauseall"] = "Pause all"
+                ,
+                // Job states
+                ["state.running"] = "Running",
+                ["state.paused"] = "Paused",
+                ["state.stopped"] = "Stopped",
+                ["state.completed"] = "Completed",
+                ["state.inactive"] = "Inactive",
+                ["state.error"] = "Error"
             };
 
             translations["fr"] = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
@@ -323,6 +340,23 @@ namespace EasySave.Core
                 ["settings.business.title"] = "Logiciels métiers",
                 ["settings.business.desc"] = "Bloquer les sauvegardes si un logiciel métier est en cours d'exécution.",
                 ["settings.business.status"] = "État actuel"
+                ,
+                // Job controls
+                ["col.progress"] = "Progression",
+                ["col.actions"] = "Actions",
+                ["btn.pause"] = "Pause",
+                ["btn.play"] = "Play",
+                ["btn.stop"] = "Stop",
+                ["btn.pausesel"] = "Pause sélection",
+                ["btn.pauseall"] = "Pause tous"
+                ,
+                // Job states
+                ["state.running"] = "En cours",
+                ["state.paused"] = "En pause",
+                ["state.stopped"] = "Arrêté",
+                ["state.completed"] = "Terminé",
+                ["state.inactive"] = "Inactif",
+                ["state.error"] = "Erreur"
             };
         }
 
