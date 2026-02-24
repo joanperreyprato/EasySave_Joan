@@ -9,6 +9,7 @@ namespace EasySave.WPF
         string _source = string.Empty;
         string _destination = string.Empty;
         string _state = string.Empty;
+        double _progress = 0.0;
 
         public EasyLog.LogFormat PreferredLogFormat { get; set; } = EasyLog.LogFormat.Json;
 
@@ -16,6 +17,7 @@ namespace EasySave.WPF
         public string Source { get => _source; set { _source = value; OnPropertyChanged(nameof(Source)); } }
         public string Destination { get => _destination; set { _destination = value; OnPropertyChanged(nameof(Destination)); } }
         public string State { get => _state; set { _state = value; OnPropertyChanged(nameof(State)); } }
+        public double Progress { get => _progress; set { _progress = value; OnPropertyChanged(nameof(Progress)); } }
 
         public event PropertyChangedEventHandler? PropertyChanged;
         void OnPropertyChanged(string prop) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));

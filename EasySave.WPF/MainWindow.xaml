@@ -82,11 +82,17 @@
                                 <Button x:Name="BtnStartSelected" Content="▶ Start Selected" 
                                         Style="{StaticResource SecondaryButton}" 
                                         Margin="0,0,12,0" Width="170" Height="44"/>
+                                <Button x:Name="BtnPauseSelected" Content="⏸ Pause Selected" 
+                                        Style="{StaticResource OutlineButton}" 
+                                        Margin="0,0,12,0" Width="170" Height="44"/>
                                 <Button x:Name="BtnStopSelected" Content="■ Stop Selected" 
                                         Style="{StaticResource OutlineButton}" 
                                         Margin="0,0,12,0" Width="160" Height="44"/>
                                 <Button x:Name="BtnStartAll" Content="▶▶ Start All" 
                                         Style="{StaticResource SecondaryButton}" 
+                                        Margin="0,0,12,0" Width="130" Height="44"/>
+                                <Button x:Name="BtnPauseAll" Content="⏸⏸ Pause All" 
+                                        Style="{StaticResource OutlineButton}" 
                                         Margin="0,0,12,0" Width="130" Height="44"/>
                                 <Button x:Name="BtnStopAll" Content="■ Stop All" 
                                         Style="{StaticResource DangerButton}" 
@@ -102,7 +108,7 @@
                                       ItemContainerStyle="{StaticResource ModernListViewItem}">
                                 <ListView.View>
                                     <GridView ColumnHeaderContainerStyle="{StaticResource ModernGridViewHeader}">
-                                        <GridViewColumn Width="220">
+                                        <GridViewColumn Width="180">
                                             <GridViewColumn.Header>
                                                 <TextBlock x:Name="ColNameHeader" Text="Nom" Style="{StaticResource TableHeaderText}"/>
                                             </GridViewColumn.Header>
@@ -114,7 +120,7 @@
                                                 </DataTemplate>
                                             </GridViewColumn.CellTemplate>
                                         </GridViewColumn>
-                                        <GridViewColumn Width="250">
+                                        <GridViewColumn Width="200">
                                             <GridViewColumn.Header>
                                                 <TextBlock x:Name="ColSourceHeader" Text="Source" Style="{StaticResource TableHeaderText}"/>
                                             </GridViewColumn.Header>
@@ -126,7 +132,7 @@
                                                 </DataTemplate>
                                             </GridViewColumn.CellTemplate>
                                         </GridViewColumn>
-                                        <GridViewColumn Width="250">
+                                        <GridViewColumn Width="200">
                                             <GridViewColumn.Header>
                                                 <TextBlock x:Name="ColTargetHeader" Text="Cible" Style="{StaticResource TableHeaderText}"/>
                                             </GridViewColumn.Header>
@@ -138,7 +144,7 @@
                                                 </DataTemplate>
                                             </GridViewColumn.CellTemplate>
                                         </GridViewColumn>
-                                        <GridViewColumn Width="130">
+                                        <GridViewColumn Width="110">
                                             <GridViewColumn.Header>
                                                 <TextBlock x:Name="ColStateHeader" Text="État" Style="{StaticResource TableHeaderText}"/>
                                             </GridViewColumn.Header>
@@ -148,6 +154,7 @@
                                                         <Border.Style>
                                                             <Style TargetType="Border">
                                                                 <Style.Triggers>
+                                                                    <!-- English states -->
                                                                     <DataTrigger Binding="{Binding State}" Value="Running">
                                                                         <Setter Property="Background" Value="{StaticResource SuccessSoft}"/>
                                                                         <Setter Property="BorderBrush" Value="{StaticResource SuccessColor}"/>
@@ -160,6 +167,27 @@
                                                                         <Setter Property="Background" Value="{StaticResource NeutralSoft}"/>
                                                                         <Setter Property="BorderBrush" Value="{StaticResource BorderColor}"/>
                                                                     </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding State}" Value="Completed">
+                                                                        <Setter Property="Background" Value="{StaticResource SuccessSoft}"/>
+                                                                        <Setter Property="BorderBrush" Value="{StaticResource SuccessColor}"/>
+                                                                    </DataTrigger>
+                                                                    <!-- French states -->
+                                                                    <DataTrigger Binding="{Binding State}" Value="En cours">
+                                                                        <Setter Property="Background" Value="{StaticResource SuccessSoft}"/>
+                                                                        <Setter Property="BorderBrush" Value="{StaticResource SuccessColor}"/>
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding State}" Value="En pause">
+                                                                        <Setter Property="Background" Value="#FEF3C7"/>
+                                                                        <Setter Property="BorderBrush" Value="#F59E0B"/>
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding State}" Value="Arrêté">
+                                                                        <Setter Property="Background" Value="{StaticResource NeutralSoft}"/>
+                                                                        <Setter Property="BorderBrush" Value="{StaticResource BorderColor}"/>
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding State}" Value="Terminé">
+                                                                        <Setter Property="Background" Value="{StaticResource SuccessSoft}"/>
+                                                                        <Setter Property="BorderBrush" Value="{StaticResource SuccessColor}"/>
+                                                                    </DataTrigger>
                                                                 </Style.Triggers>
                                                             </Style>
                                                         </Border.Style>
@@ -167,6 +195,7 @@
                                                             <TextBlock.Style>
                                                                 <Style TargetType="TextBlock">
                                                                     <Style.Triggers>
+                                                                        <!-- English states -->
                                                                         <DataTrigger Binding="{Binding State}" Value="Running">
                                                                             <Setter Property="Foreground" Value="#15803D"/>
                                                                         </DataTrigger>
@@ -176,11 +205,159 @@
                                                                         <DataTrigger Binding="{Binding State}" Value="Stopped">
                                                                             <Setter Property="Foreground" Value="#475569"/>
                                                                         </DataTrigger>
+                                                                        <DataTrigger Binding="{Binding State}" Value="Completed">
+                                                                            <Setter Property="Foreground" Value="#15803D"/>
+                                                                        </DataTrigger>
+                                                                        <!-- French states -->
+                                                                        <DataTrigger Binding="{Binding State}" Value="En cours">
+                                                                            <Setter Property="Foreground" Value="#15803D"/>
+                                                                        </DataTrigger>
+                                                                        <DataTrigger Binding="{Binding State}" Value="En pause">
+                                                                            <Setter Property="Foreground" Value="#D97706"/>
+                                                                        </DataTrigger>
+                                                                        <DataTrigger Binding="{Binding State}" Value="Arrêté">
+                                                                            <Setter Property="Foreground" Value="#475569"/>
+                                                                        </DataTrigger>
+                                                                        <DataTrigger Binding="{Binding State}" Value="Terminé">
+                                                                            <Setter Property="Foreground" Value="#15803D"/>
+                                                                        </DataTrigger>
                                                                     </Style.Triggers>
                                                                 </Style>
                                                             </TextBlock.Style>
                                                         </TextBlock>
                                                     </Border>
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                        <GridViewColumn Width="120">
+                                            <GridViewColumn.Header>
+                                                <TextBlock x:Name="ColProgressHeader" Text="Progression" Style="{StaticResource TableHeaderText}"/>
+                                            </GridViewColumn.Header>
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <ProgressBar Value="{Binding Progress}" 
+                                                                     Width="60" 
+                                                                     Height="18"
+                                                                     Minimum="0" 
+                                                                     Maximum="100"
+                                                                     Foreground="{StaticResource PrimaryColor}"
+                                                                     Background="{StaticResource SurfaceMuted}"
+                                                                     BorderBrush="{StaticResource BorderColor}"
+                                                                     BorderThickness="1"/>
+                                                        <TextBlock Text="{Binding Progress, StringFormat={}{0:F0}%}" 
+                                                                   FontSize="11"
+                                                                   FontWeight="SemiBold"
+                                                                   Margin="6,0,0,0"
+                                                                   VerticalAlignment="Center"
+                                                                   Foreground="{StaticResource TextSecondary}"/>
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                        <GridViewColumn Width="180">
+                                            <GridViewColumn.Header>
+                                                <TextBlock x:Name="ColActionsHeader" Text="Actions" Style="{StaticResource TableHeaderText}"/>
+                                            </GridViewColumn.Header>
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <Button Content="▶" 
+                                                                Width="28" Height="28" 
+                                                                Margin="0,0,4,0"
+                                                                FontSize="10"
+                                                                Background="{StaticResource PrimaryColor}"
+                                                                Foreground="White"
+                                                                BorderThickness="0"
+                                                                Cursor="Hand"
+                                                                Click="BtnPlayJob_Click"
+                                                                Tag="{Binding Name}"
+                                                                ToolTip="Play">
+                                                            <Button.Style>
+                                                                <Style TargetType="Button">
+                                                                    <Setter Property="Template">
+                                                                        <Setter.Value>
+                                                                            <ControlTemplate TargetType="Button">
+                                                                                <Border Background="{TemplateBinding Background}" 
+                                                                                        CornerRadius="6" 
+                                                                                        Padding="4">
+                                                                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                                                </Border>
+                                                                            </ControlTemplate>
+                                                                        </Setter.Value>
+                                                                    </Setter>
+                                                                    <Style.Triggers>
+                                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                                            <Setter Property="Opacity" Value="0.8"/>
+                                                                        </Trigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </Button.Style>
+                                                        </Button>
+                                                        <Button Content="⏸" 
+                                                                Width="28" Height="28" 
+                                                                Margin="0,0,4,0"
+                                                                FontSize="10"
+                                                                Background="#F59E0B"
+                                                                Foreground="White"
+                                                                BorderThickness="0"
+                                                                Cursor="Hand"
+                                                                Click="BtnPauseJob_Click"
+                                                                Tag="{Binding Name}"
+                                                                ToolTip="Pause">
+                                                            <Button.Style>
+                                                                <Style TargetType="Button">
+                                                                    <Setter Property="Template">
+                                                                        <Setter.Value>
+                                                                            <ControlTemplate TargetType="Button">
+                                                                                <Border Background="{TemplateBinding Background}" 
+                                                                                        CornerRadius="6" 
+                                                                                        Padding="4">
+                                                                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                                                </Border>
+                                                                            </ControlTemplate>
+                                                                        </Setter.Value>
+                                                                    </Setter>
+                                                                    <Style.Triggers>
+                                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                                            <Setter Property="Opacity" Value="0.8"/>
+                                                                        </Trigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </Button.Style>
+                                                        </Button>
+                                                        <Button Content="■" 
+                                                                Width="28" Height="28"
+                                                                FontSize="10"
+                                                                Background="#EF4444"
+                                                                Foreground="White"
+                                                                BorderThickness="0"
+                                                                Cursor="Hand"
+                                                                Click="BtnStopJob_Click"
+                                                                Tag="{Binding Name}"
+                                                                ToolTip="Stop">
+                                                            <Button.Style>
+                                                                <Style TargetType="Button">
+                                                                    <Setter Property="Template">
+                                                                        <Setter.Value>
+                                                                            <ControlTemplate TargetType="Button">
+                                                                                <Border Background="{TemplateBinding Background}" 
+                                                                                        CornerRadius="6" 
+                                                                                        Padding="4">
+                                                                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                                                </Border>
+                                                                            </ControlTemplate>
+                                                                        </Setter.Value>
+                                                                    </Setter>
+                                                                    <Style.Triggers>
+                                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                                            <Setter Property="Opacity" Value="0.8"/>
+                                                                        </Trigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </Button.Style>
+                                                        </Button>
+                                                    </StackPanel>
                                                 </DataTemplate>
                                             </GridViewColumn.CellTemplate>
                                         </GridViewColumn>
