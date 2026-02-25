@@ -1,7 +1,7 @@
 <Window x:Class="EasySave.WPF.AddJobWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Add Job" Height="691" Width="792"
+        Title="Add Job" Height="780" Width="792"
         WindowStartupLocation="CenterOwner"
         Background="{StaticResource BackgroundColor}">
     <Border Margin="24" Style="{StaticResource Card}">
@@ -34,9 +34,15 @@
                 </DockPanel>
 
                 <TextBlock x:Name="LabelLog" Text="Log format" Style="{StaticResource ModernLabel}"/>
-                <ComboBox x:Name="CbLogFormat" Style="{StaticResource ModernComboBox}" Height="44" PreviewMouseLeftButtonDown="CbLogFormat_PreviewMouseLeftButtonDown">
+                <ComboBox x:Name="CbLogFormat" Style="{StaticResource ModernComboBox}" Height="44" Margin="0,0,0,12" PreviewMouseLeftButtonDown="CbLogFormat_PreviewMouseLeftButtonDown">
                     <ComboBoxItem Content="JSON" IsSelected="True"/>
                     <ComboBoxItem Content="XML"/>
+                </ComboBox>
+
+                <TextBlock x:Name="LabelType" Text="Type" Style="{StaticResource ModernLabel}"/>
+                <ComboBox x:Name="CbBackupType" Style="{StaticResource ModernComboBox}" Height="44" PreviewMouseLeftButtonDown="CbBackupType_PreviewMouseLeftButtonDown">
+                    <ComboBoxItem x:Name="CbItemFull" Content="Full" IsSelected="True"/>
+                    <ComboBoxItem x:Name="CbItemDifferential" Content="Differential"/>
                 </ComboBox>
             </StackPanel>
 
