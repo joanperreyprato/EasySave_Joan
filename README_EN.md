@@ -2,8 +2,8 @@
 
 **Version:** 3.0  
 **Framework:** .NET 8  
-**Language:** C# 12.0  
-**Last Updated:** 2024
+**Language:** C#  
+**Last Updated:** 25/02/2026
 
 ---
 
