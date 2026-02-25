@@ -255,7 +255,7 @@
                                                 </DataTemplate>
                                             </GridViewColumn.CellTemplate>
                                         </GridViewColumn>
-                                        <GridViewColumn Width="180">
+                                        <GridViewColumn Width="220">
                                             <GridViewColumn.Header>
                                                 <TextBlock x:Name="ColActionsHeader" Text="Actions" Style="{StaticResource TableHeaderText}"/>
                                             </GridViewColumn.Header>
@@ -328,6 +328,7 @@
                                                         </Button>
                                                         <Button Content="■" 
                                                                 Width="28" Height="28"
+                                                                Margin="0,0,4,0"
                                                                 FontSize="10"
                                                                 Background="#EF4444"
                                                                 Foreground="White"
@@ -336,6 +337,37 @@
                                                                 Click="BtnStopJob_Click"
                                                                 Tag="{Binding Name}"
                                                                 ToolTip="Stop">
+                                                            <Button.Style>
+                                                                <Style TargetType="Button">
+                                                                    <Setter Property="Template">
+                                                                        <Setter.Value>
+                                                                            <ControlTemplate TargetType="Button">
+                                                                                <Border Background="{TemplateBinding Background}" 
+                                                                                        CornerRadius="6" 
+                                                                                        Padding="4">
+                                                                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                                                </Border>
+                                                                            </ControlTemplate>
+                                                                        </Setter.Value>
+                                                                    </Setter>
+                                                                    <Style.Triggers>
+                                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                                            <Setter Property="Opacity" Value="0.8"/>
+                                                                        </Trigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </Button.Style>
+                                                        </Button>
+                                                        <Button Content="🔓" 
+                                                                Width="28" Height="28"
+                                                                FontSize="10"
+                                                                Background="#0EA5E9"
+                                                                Foreground="White"
+                                                                BorderThickness="0"
+                                                                Cursor="Hand"
+                                                                Click="BtnDecryptJob_Click"
+                                                                Tag="{Binding Name}"
+                                                                ToolTip="Decrypt">
                                                             <Button.Style>
                                                                 <Style TargetType="Button">
                                                                     <Setter Property="Template">

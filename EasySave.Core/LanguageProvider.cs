@@ -232,6 +232,14 @@ namespace EasySave.Core
                 ["state.completed"] = "Completed",
                 ["state.inactive"] = "Inactive",
                 ["state.error"] = "Error"
+                ,
+                // Decryption
+                ["decrypt.prompt.title"] = "Decryption",
+                ["decrypt.prompt.password"] = "Decryption password:",
+                ["decrypt.key.missing"] = "Please enter a decryption password.",
+                ["decrypt.success"] = "{0} file(s) decrypted successfully.",
+                ["decrypt.partial"] = "{0} file(s) decrypted, {1} failed (wrong key?).",
+                ["btn.decrypt"] = "Decrypt"
             };
 
             translations["fr"] = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
@@ -357,6 +365,14 @@ namespace EasySave.Core
                 ["state.completed"] = "Terminé",
                 ["state.inactive"] = "Inactif",
                 ["state.error"] = "Erreur"
+                ,
+                // Déchiffrement
+                ["decrypt.prompt.title"] = "Déchiffrement",
+                ["decrypt.prompt.password"] = "Mot de passe de déchiffrement :",
+                ["decrypt.key.missing"] = "Veuillez entrer un mot de passe de déchiffrement.",
+                ["decrypt.success"] = "{0} fichier(s) déchiffré(s) avec succès.",
+                ["decrypt.partial"] = "{0} fichier(s) déchiffré(s), {1} échoué(s) (clé incorrecte ?).",
+                ["btn.decrypt"] = "Déchiffrer"
             };
         }
 
