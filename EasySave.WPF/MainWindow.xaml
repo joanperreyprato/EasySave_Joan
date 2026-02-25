@@ -8,7 +8,7 @@
         MinWidth="900"
         Background="{StaticResource BackgroundColor}"
         WindowStartupLocation="CenterScreen">
-    
+
     <Border Margin="24" Style="{StaticResource PageShell}">
         <Grid>
             <Grid.RowDefinitions>
@@ -80,34 +80,46 @@
                                         Style="{StaticResource ModernButton}" 
                                         Margin="0,0,12,0" Width="150" Height="44"/>
                                 <Button x:Name="BtnStartSelected" Content="▶ Start Selected" 
-                                        Style="{StaticResource SecondaryButton}" 
+                                        Style="{StaticResource ModernButton}" 
                                         Margin="0,0,12,0" Width="170" Height="44"/>
                                 <Button x:Name="BtnPauseSelected" Content="| | Pause Selected" 
-                                        Style="{StaticResource OutlineButton}" 
+                                        Style="{StaticResource ModernButton}" 
+                                        Background="#F59E0B"
                                         Margin="0,0,12,0" Width="170" Height="44"/>
                                 <Button x:Name="BtnStopSelected" Content="■ Stop Selected" 
-                                        Style="{StaticResource OutlineButton}" 
-                                        Margin="0,0,12,0" Width="160" Height="44"/>
-                                <Button x:Name="BtnStartAll" Content="▶ Start All" 
-                                        Style="{StaticResource SecondaryButton}" 
-                                        Margin="0,0,12,0" Width="130" Height="44"/>
-                                <Button x:Name="BtnPauseAll" Content="| | Pause All" 
-                                        Style="{StaticResource OutlineButton}" 
-                                        Margin="0,0,12,0" Width="130" Height="44"/>
-                                <Button x:Name="BtnStopAll" Content="■ Stop All" 
-                                        Style="{StaticResource DangerButton}" 
-                                        Width="130" Height="44"/>
+                                        Style="{StaticResource ModernButton}" 
+                                        Background="#EF4444"
+                                        Width="160" Height="44"/>
                             </WrapPanel>
                         </Border>
 
                         <!-- Jobs List Card -->
                         <Border Grid.Row="2" Style="{StaticResource Card}">
-                            <ListView x:Name="JobsList" 
+                            <StackPanel>
+                                <CheckBox x:Name="CbSelectAll"
+                                          Content="Tout sélectionner"
+                                          FontSize="13"
+                                          Margin="0,0,0,10"
+                                          Checked="CbSelectAll_Checked"
+                                          Unchecked="CbSelectAll_Unchecked"/>
+                                <ListView x:Name="JobsList"
                                       Style="{StaticResource ModernListView}"
-                                      SelectionMode="Extended"
+                                      SelectionMode="Single"
                                       ItemContainerStyle="{StaticResource ModernListViewItem}">
                                 <ListView.View>
+                                    
                                     <GridView ColumnHeaderContainerStyle="{StaticResource ModernGridViewHeader}">
+                                        <GridViewColumn Width="44">
+                                            <GridViewColumn.Header>
+                                                <TextBlock/>
+                                            </GridViewColumn.Header>
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                              HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
                                         <GridViewColumn Width="180">
                                             <GridViewColumn.Header>
                                                 <TextBlock x:Name="ColNameHeader" Text="Nom" Style="{StaticResource TableHeaderText}"/>
@@ -396,6 +408,7 @@
                                     </GridView>
                                 </ListView.View>
                             </ListView>
+                            </StackPanel>
                         </Border>
 
                         <!-- Modern Status Bar -->
@@ -414,140 +427,140 @@
                     </Grid>
                 </TabItem>
 
-            <TabItem x:Name="TabEncryption" Style="{StaticResource ModernTabItem}">
-                <TabItem.Header>
-                    <TextBlock Text="Chiffrement" FontSize="15"/>
-                </TabItem.Header>
-                <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="0,12,0,0">
-                    <StackPanel MaxWidth="640" HorizontalAlignment="Center">
-                        <StackPanel Margin="0,0,0,12">
-                            <TextBlock x:Name="SecuritySectionTitle" Text="Sécurité &amp; chiffrement" Style="{StaticResource SectionHeader}"/>
-                            <TextBlock x:Name="SecuritySectionDesc" Text="Protégez vos sauvegardes avec des extensions et un code personnalisés." Style="{StaticResource DescriptionText}"/>
-                        </StackPanel>
+                <TabItem x:Name="TabEncryption" Style="{StaticResource ModernTabItem}">
+                    <TabItem.Header>
+                        <TextBlock Text="Chiffrement" FontSize="15"/>
+                    </TabItem.Header>
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="0,12,0,0">
+                        <StackPanel MaxWidth="640" HorizontalAlignment="Center">
+                            <StackPanel Margin="0,0,0,12">
+                                <TextBlock x:Name="SecuritySectionTitle" Text="Sécurité &amp; chiffrement" Style="{StaticResource SectionHeader}"/>
+                                <TextBlock x:Name="SecuritySectionDesc" Text="Protégez vos sauvegardes avec des extensions et un code personnalisés." Style="{StaticResource DescriptionText}"/>
+                            </StackPanel>
 
-                        <!-- Encryption Key Card -->
-                        <Border Style="{StaticResource Card}" Margin="0,0,0,20">
-                            <StackPanel>
-                                <TextBlock x:Name="LblEncryptionHeader" 
+                            <!-- Encryption Key Card -->
+                            <Border Style="{StaticResource Card}" Margin="0,0,0,20">
+                                <StackPanel>
+                                    <TextBlock x:Name="LblEncryptionHeader" 
                                            Text="Code de chiffrement" 
                                            Style="{StaticResource SectionHeader}"/>
-                                <PasswordBox x:Name="PbEncryptionKey" 
+                                    <PasswordBox x:Name="PbEncryptionKey" 
                                              Style="{StaticResource ModernPasswordBox}"
                                              Margin="0,0,0,12"/>
-                                <TextBlock x:Name="TbEncryptionDesc" 
+                                    <TextBlock x:Name="TbEncryptionDesc" 
                                            Text="Entrez un code ici. Lors du lancement des travaux, vous serez invité à chiffrer ou non." 
                                            Style="{StaticResource DescriptionText}"/>
-                            </StackPanel>
-                        </Border>
+                                </StackPanel>
+                            </Border>
 
-                        <!-- File Extensions Card -->
-                        <Border Style="{StaticResource Card}">
-                            <StackPanel>
-                                <TextBlock x:Name="EncryptionExtensionsTitle" Text="Extensions à chiffrer" 
+                            <!-- File Extensions Card -->
+                            <Border Style="{StaticResource Card}">
+                                <StackPanel>
+                                    <TextBlock x:Name="EncryptionExtensionsTitle" Text="Extensions à chiffrer" 
                                            Style="{StaticResource SectionHeader}"/>
 
-                                <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
-                                    <TextBox x:Name="TbNewExt" 
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                                        <TextBox x:Name="TbNewExt" 
                                              Style="{StaticResource ModernTextBox}"
                                              Width="320" 
                                              Height="44"
                                              VerticalContentAlignment="Center"
                                              Margin="0,0,12,0"/>
-                                    <Button x:Name="BtnAddExt" 
+                                        <Button x:Name="BtnAddExt" 
                                             Content="+ Ajouter" 
                                             Style="{StaticResource SecondaryButton}"
                                             Width="110" Height="44" Margin="0,0,8,0"/>
-                                    <Button x:Name="BtnRemoveExt" 
+                                        <Button x:Name="BtnRemoveExt" 
                                             Content="- Supprimer" 
                                             Style="{StaticResource DangerButton}"
                                             Width="130" Height="44"/>
-                                </StackPanel>
+                                    </StackPanel>
 
-                                <ListBox x:Name="LbEncryptionTypes" 
+                                    <ListBox x:Name="LbEncryptionTypes" 
                                          Style="{StaticResource ModernListBox}"
                                          Height="180" 
                                          Margin="0,0,0,12"/>
 
-                                <TextBlock x:Name="LblEncryptionListDesc" 
+                                    <TextBlock x:Name="LblEncryptionListDesc" 
                                            Text="Liste des extensions qui seront chiffrées." 
                                            Style="{StaticResource DescriptionText}"
                                            HorizontalAlignment="Center"/>
-                            </StackPanel>
-                        </Border>
-                    </StackPanel>
-                </ScrollViewer>
-            </TabItem>
-
-            <!-- Business Software Tab -->
-            <TabItem x:Name="TabSettings" Style="{StaticResource ModernTabItem}">
-                <TabItem.Header>
-                    <TextBlock x:Name="TabSettingsHeader" Text="Paramètres" FontSize="15"/>
-                </TabItem.Header>
-                <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="0,12,0,0">
-                    <StackPanel MaxWidth="640" HorizontalAlignment="Center">
-                        <StackPanel Margin="0,0,0,12">
-                            <TextBlock x:Name="SettingsSectionTitle" Text="Paramètres généraux" Style="{StaticResource SectionHeader}"/>
-                            <TextBlock x:Name="SettingsSectionDesc" Text="Configurez les paramètres de bande passante, les extensions prioritaires et les logiciels métiers." Style="{StaticResource DescriptionText}"/>
+                                </StackPanel>
+                            </Border>
                         </StackPanel>
+                    </ScrollViewer>
+                </TabItem>
 
-                        <!-- Remote Logging Configuration Card -->
-                        <Border Style="{StaticResource Card}" Margin="0,0,0,20">
-                            <StackPanel>
-                                <TextBlock x:Name="LblRemoteLoggingHeader" 
+                <!-- Business Software Tab -->
+                <TabItem x:Name="TabSettings" Style="{StaticResource ModernTabItem}">
+                    <TabItem.Header>
+                        <TextBlock x:Name="TabSettingsHeader" Text="Paramètres" FontSize="15"/>
+                    </TabItem.Header>
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="0,12,0,0">
+                        <StackPanel MaxWidth="640" HorizontalAlignment="Center">
+                            <StackPanel Margin="0,0,0,12">
+                                <TextBlock x:Name="SettingsSectionTitle" Text="Paramètres généraux" Style="{StaticResource SectionHeader}"/>
+                                <TextBlock x:Name="SettingsSectionDesc" Text="Configurez les paramètres de bande passante, les extensions prioritaires et les logiciels métiers." Style="{StaticResource DescriptionText}"/>
+                            </StackPanel>
+
+                            <!-- Remote Logging Configuration Card -->
+                            <Border Style="{StaticResource Card}" Margin="0,0,0,20">
+                                <StackPanel>
+                                    <TextBlock x:Name="LblRemoteLoggingHeader" 
                                            Text="🌐 Serveur de logs distant" 
                                            Style="{StaticResource SectionHeader}"/>
-                                <TextBlock x:Name="LblRemoteLoggingDesc" 
+                                    <TextBlock x:Name="LblRemoteLoggingDesc" 
                                            Text="Envoyez les logs vers un serveur centralisé (Docker) en plus du stockage local."
                                            Style="{StaticResource DescriptionText}"
                                            Margin="0,0,0,16"
                                            TextWrapping="Wrap"/>
 
-                                <CheckBox x:Name="CbEnableRemoteLogging" 
+                                    <CheckBox x:Name="CbEnableRemoteLogging" 
                                           Content="Activer le logging distant"
                                           FontSize="13"
                                           Margin="0,0,0,16"/>
 
-                                <StackPanel x:Name="PnlRemoteLoggingSettings" Opacity="0.5" IsEnabled="False">
-                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-                                        <TextBlock Text="Adresse du serveur :" 
+                                    <StackPanel x:Name="PnlRemoteLoggingSettings" Opacity="0.5" IsEnabled="False">
+                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                                            <TextBlock x:Name="LblRemoteLoggingHostLabel" Text="Adresse du serveur :" 
                                                    VerticalAlignment="Center" 
                                                    Width="160"
                                                    Margin="0,0,12,0"/>
-                                        <TextBox x:Name="TbRemoteLoggingHost" 
+                                            <TextBox x:Name="TbRemoteLoggingHost" 
                                                  Width="200" 
                                                  Style="{StaticResource ModernTextBox}"
                                                  Text="localhost"
                                                  VerticalContentAlignment="Center"/>
-                                    </StackPanel>
+                                        </StackPanel>
 
-                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-                                        <TextBlock Text="Port :" 
+                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                                            <TextBlock x:Name="LblRemoteLoggingPortLabel" Text="Port :" 
                                                    VerticalAlignment="Center" 
                                                    Width="160"
                                                    Margin="0,0,12,0"/>
-                                        <TextBox x:Name="TbRemoteLoggingPort" 
+                                            <TextBox x:Name="TbRemoteLoggingPort" 
                                                  Width="120" 
                                                  Style="{StaticResource ModernTextBox}"
                                                  Text="5555"
                                                  VerticalContentAlignment="Center"/>
-                                    </StackPanel>
+                                        </StackPanel>
 
-                                    <CheckBox x:Name="CbKeepLocalLogs" 
+                                        <CheckBox x:Name="CbKeepLocalLogs" 
                                               Content="Conserver également les logs locaux"
                                               FontSize="13"
                                               IsChecked="True"
                                               Margin="0,0,0,12"/>
 
-                                    <Button x:Name="BtnTestConnection" 
+                                        <Button x:Name="BtnTestConnection" 
                                             Content="🔌 Tester la connexion"
                                             Style="{StaticResource OutlineButton}"
                                             Width="180" 
                                             Height="44"
                                             HorizontalAlignment="Left"
                                             Margin="0,8,0,0"/>
-                                </StackPanel>
+                                    </StackPanel>
 
-                                <Border x:Name="RemoteLoggingStatusBorder" 
+                                    <Border x:Name="RemoteLoggingStatusBorder" 
                                         CornerRadius="8" 
                                         Padding="12" 
                                         Margin="0,16,0,0"
@@ -555,26 +568,26 @@
                                         BorderBrush="{StaticResource BorderColor}"
                                         BorderThickness="1"
                                         Visibility="Collapsed">
-                                    <TextBlock x:Name="TbRemoteLoggingStatus" 
+                                        <TextBlock x:Name="TbRemoteLoggingStatus" 
                                                Text="Configuration enregistrée"
                                                FontSize="12"
                                                Foreground="{StaticResource TextSecondary}"/>
-                                </Border>
-                            </StackPanel>
-                        </Border>
+                                    </Border>
+                                </StackPanel>
+                            </Border>
 
-                        <!-- Large file threshold setting -->
-                        <Border Style="{StaticResource Card}" Margin="0,0,0,20">
-                            <StackPanel>
-                                <TextBlock x:Name="LblBandwidthHeader" 
+                            <!-- Large file threshold setting -->
+                            <Border Style="{StaticResource Card}" Margin="0,0,0,20">
+                                <StackPanel>
+                                    <TextBlock x:Name="LblBandwidthHeader" 
                                            Text="Paramètre de bande passante" 
                                            Style="{StaticResource SectionHeader}"/>
-                                <StackPanel Orientation="Horizontal" Margin="0,8,0,0" VerticalAlignment="Center">
-                                    <TextBlock x:Name="LblLargeFileThreshold" 
+                                    <StackPanel Orientation="Horizontal" Margin="0,8,0,0" VerticalAlignment="Center">
+                                        <TextBlock x:Name="LblLargeFileThreshold" 
                                                Text="Seuil fichiers volumineux (Ko) :" 
                                                VerticalAlignment="Center" 
                                                Margin="0,0,12,0"/>
-                                    <TextBox x:Name="TbLargeFileThresholdKb" 
+                                        <TextBox x:Name="TbLargeFileThresholdKb" 
                                              Width="120" 
                                              Style="{StaticResource ModernTextBox}" 
                                              Foreground="{StaticResource TextPrimary}" 
@@ -582,157 +595,157 @@
                                              ToolTip="0 pour désactiver la restriction" 
                                              PreviewTextInput="TbLargeFileThresholdKb_PreviewTextInput" 
                                              DataObject.Pasting="TbLargeFileThresholdKb_Pasting" />
-                                    <TextBlock x:Name="LblBandwidthDesc" 
+                                        <TextBlock x:Name="LblBandwidthDesc" 
                                                Text="(Un seul transfert simultané si fichier > seuil)" 
                                                TextWrapping="Wrap" 
                                                Margin="12,0,0,0" 
                                                VerticalAlignment="Center" 
                                                Style="{StaticResource DescriptionText}"/>
+                                    </StackPanel>
                                 </StackPanel>
-                            </StackPanel>
-                        </Border>
+                            </Border>
 
-                        <!-- Priority File Extensions Card -->
-                        <Border Style="{StaticResource Card}" Margin="0,0,0,20">
-                            <StackPanel>
-                                <TextBlock x:Name="LblPriorityExtensionsHeader" 
+                            <!-- Priority File Extensions Card -->
+                            <Border Style="{StaticResource Card}" Margin="0,0,0,20">
+                                <StackPanel>
+                                    <TextBlock x:Name="LblPriorityExtensionsHeader" 
                                            Text="Extensions prioritaires" 
                                            Style="{StaticResource SectionHeader}"/>
-                                <TextBlock x:Name="LblPriorityExtensionsDesc" 
+                                    <TextBlock x:Name="LblPriorityExtensionsDesc" 
                                            Text="Les fichiers avec ces extensions seront traités en priorité. Aucun fichier non prioritaire ne sera copié tant qu'il reste des fichiers prioritaires en attente."
                                            Style="{StaticResource DescriptionText}"
                                            Margin="0,0,0,16"
                                            TextWrapping="Wrap"/>
 
-                                <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
-                                    <TextBox x:Name="TbNewPriorityExt" 
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                                        <TextBox x:Name="TbNewPriorityExt" 
                                              Style="{StaticResource ModernTextBox}"
                                              Width="320" 
                                              Height="44"
                                              VerticalContentAlignment="Center"
                                              Margin="0,0,12,0"/>
-                                    <Button x:Name="BtnAddPriorityExt" 
+                                        <Button x:Name="BtnAddPriorityExt" 
                                             Content="+ Ajouter" 
                                             Style="{StaticResource SecondaryButton}"
                                             Width="110" Height="44" Margin="0,0,8,0"/>
-                                    <Button x:Name="BtnRemovePriorityExt" 
+                                        <Button x:Name="BtnRemovePriorityExt" 
                                             Content="- Supprimer" 
                                             Style="{StaticResource DangerButton}"
                                             Width="130" Height="44"/>
-                                </StackPanel>
+                                    </StackPanel>
 
-                                <ListBox x:Name="LbPriorityExtensions" 
+                                    <ListBox x:Name="LbPriorityExtensions" 
                                          Style="{StaticResource ModernListBox}"
                                          Height="180" 
                                          Margin="0,0,0,12"/>
 
-                                <TextBlock x:Name="LblPriorityExtensionsHint" 
+                                    <TextBlock x:Name="LblPriorityExtensionsHint" 
                                            Text="Exemple : .pdf, .docx, .xlsx (les extensions critiques pour votre activité)" 
                                            Style="{StaticResource DescriptionText}"
                                            HorizontalAlignment="Center"/>
-                            </StackPanel>
-                        </Border>
+                                </StackPanel>
+                            </Border>
 
-                        <!-- Business Software Status Card -->
-                        <Border Style="{StaticResource Card}" Margin="0,0,0,20">
-                            <StackPanel>
-                                <TextBlock x:Name="LblBusinessSectionTitle" 
+                            <!-- Business Software Status Card -->
+                            <Border Style="{StaticResource Card}" Margin="0,0,0,20">
+                                <StackPanel>
+                                    <TextBlock x:Name="LblBusinessSectionTitle" 
                                            Text="Logiciels métiers" 
                                            Style="{StaticResource SectionHeader}"
                                            Margin="0,0,0,8"/>
-                                <TextBlock x:Name="LblBusinessSectionDesc" 
+                                    <TextBlock x:Name="LblBusinessSectionDesc" 
                                            Text="Bloquer les sauvegardes si un logiciel métier est en cours d'exécution."
                                            Style="{StaticResource DescriptionText}"
                                            Margin="0,0,0,16"
                                            TextWrapping="Wrap"/>
 
-                                <TextBlock x:Name="LblBusinessStatusHeader" 
+                                    <TextBlock x:Name="LblBusinessStatusHeader" 
                                            Text="État actuel" 
                                            Style="{StaticResource SectionHeader}"
                                            FontSize="14"
                                            Margin="0,0,0,8"/>
-                                <Border x:Name="BusinessStatusBorder" 
+                                    <Border x:Name="BusinessStatusBorder" 
                                         CornerRadius="12" 
                                         Padding="16" 
                                         Margin="0,8,0,0"
                                         Background="{StaticResource SuccessSoft}"
                                         BorderBrush="{StaticResource SuccessColor}"
                                         BorderThickness="1">
-                                    <StackPanel>
-                                        <TextBlock x:Name="TbBusinessStatus" 
+                                        <StackPanel>
+                                            <TextBlock x:Name="TbBusinessStatus" 
                                                    Text="✓ Aucun logiciel métier détecté"
                                                    FontWeight="SemiBold"
                                                    FontSize="14"
                                                    Foreground="#15803D"/>
-                                        <TextBlock x:Name="TbBusinessStatusDetail"
+                                            <TextBlock x:Name="TbBusinessStatusDetail"
                                                    Text="Les sauvegardes sont autorisées"
                                                    FontSize="12"
                                                    Foreground="#4D7C0F"
                                                    Margin="0,4,0,0"/>
-                                    </StackPanel>
-                                </Border>
-                                <Button x:Name="BtnRefreshStatus" 
+                                        </StackPanel>
+                                    </Border>
+                                    <Button x:Name="BtnRefreshStatus" 
                                         Content="🔄 Actualiser"
                                         Style="{StaticResource OutlineButton}"
                                         Width="150" 
                                         Height="44"
                                         Margin="0,12,0,0"
                                         HorizontalAlignment="Left"/>
-                            </StackPanel>
-                        </Border>
+                                </StackPanel>
+                            </Border>
 
-                        <!-- Business Software List Card -->
-                        <Border Style="{StaticResource Card}">
-                            <StackPanel>
-                                <TextBlock x:Name="LblBusinessSoftwareHeader" 
+                            <!-- Business Software List Card -->
+                            <Border Style="{StaticResource Card}">
+                                <StackPanel>
+                                    <TextBlock x:Name="LblBusinessSoftwareHeader" 
                                            Text="Processus surveillés" 
                                            Style="{StaticResource SectionHeader}"/>
 
-                                <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
-                                    <TextBox x:Name="TbNewProcess" 
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                                        <TextBox x:Name="TbNewProcess" 
                                              Style="{StaticResource ModernTextBox}"
                                              Width="320" 
                                              VerticalContentAlignment="Center"
                                              Margin="0,0,12,0"/>
-                                    <Button x:Name="BtnAddProcess" 
+                                        <Button x:Name="BtnAddProcess" 
                                             Content="+ Ajouter" 
                                             Style="{StaticResource SecondaryButton}"
                                             Width="110" Height="44" Margin="0,0,8,0"/>
-                                    <Button x:Name="BtnRemoveProcess" 
+                                        <Button x:Name="BtnRemoveProcess" 
                                             Content="- Supprimer" 
                                             Style="{StaticResource DangerButton}"
                                             Width="130" Height="44"/>
-                                </StackPanel>
+                                    </StackPanel>
 
-                                <ListBox x:Name="LbBusinessProcesses" 
+                                    <ListBox x:Name="LbBusinessProcesses" 
                                          Style="{StaticResource ModernListBox}"
                                          Height="180" 
                                          Margin="0,0,0,12"/>
 
-                                <TextBlock x:Name="TbBusinessHint" 
+                                    <TextBlock x:Name="TbBusinessHint" 
                                            Text="Exemple : CalculatorApp (pour la calculatrice), notepad (pour le bloc-notes)" 
                                            Style="{StaticResource DescriptionText}"/>
 
-                                <!-- Quick Add Buttons -->
-                                <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
-                                    <Button x:Name="BtnAddCalc" 
+                                    <!-- Quick Add Buttons -->
+                                    <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
+                                        <Button x:Name="BtnAddCalc" 
                                             Content="Calculatrice" 
                                             Style="{StaticResource OutlineButton}"
                                             Width="130" Height="36" 
                                             Margin="0,0,8,0"
                                             FontSize="12"/>
-                                    <Button x:Name="BtnAddNotepad" 
+                                        <Button x:Name="BtnAddNotepad" 
                                             Content="Bloc-notes" 
                                             Style="{StaticResource OutlineButton}"
                                             Width="130" Height="36"
                                             FontSize="12"/>
+                                    </StackPanel>
                                 </StackPanel>
-                            </StackPanel>
-                        </Border>
-                    </StackPanel>
-                </ScrollViewer>
-            </TabItem>
-        </TabControl>
-    </Grid>
+                            </Border>
+                        </StackPanel>
+                    </ScrollViewer>
+                </TabItem>
+            </TabControl>
+        </Grid>
     </Border>
 </Window>

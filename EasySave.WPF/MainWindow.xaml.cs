@@ -92,21 +92,15 @@ namespace EasySave.WPF
             }
 
             BtnAddJob.Click -= (_, __) => AddJob();
-            BtnStartAll.Click -= (_, __) => StartAll();
-            BtnStopAll.Click -= (_, __) => StopAll();
             BtnStartSelected.Click -= (_, __) => StartSelected();
             BtnStopSelected.Click -= (_, __) => StopSelected();
             BtnPauseSelected.Click -= (_, __) => PauseSelected();
-            BtnPauseAll.Click -= (_, __) => PauseAll();
             CbLanguage.SelectionChanged -= (_, __) => ChangeLanguage();
 
             BtnAddJob.Click += (_, __) => AddJob();
-            BtnStartAll.Click += (_, __) => StartAll();
-            BtnStopAll.Click += (_, __) => StopAll();
             BtnStartSelected.Click += (_, __) => StartSelected();
             BtnStopSelected.Click += (_, __) => StopSelected();
             BtnPauseSelected.Click += (_, __) => PauseSelected();
-            BtnPauseAll.Click += (_, __) => PauseAll();
             CbLanguage.SelectionChanged += (_, __) => ChangeLanguage();
 
             // Initialize and start the progress update timer
@@ -116,9 +110,8 @@ namespace EasySave.WPF
             };
             _progressUpdateTimer.Tick += UpdateJobsProgress;
             _progressUpdateTimer.Start();
-            BtnStopSelected.Click += (_, __) => StopSelected();
             CbLanguage.SelectionChanged += (_, __) => ChangeLanguage();
-            // select combobox to current language
+
             try
             {
                 CbLanguage.SelectedValue = lp.CurrentLanguage;
@@ -277,12 +270,9 @@ namespace EasySave.WPF
                 JobsSectionTitle.Text = lp.GetText("jobs.section.title");
                 JobsSectionDesc.Text = lp.GetText("jobs.section.desc");
                 BtnAddJob.Content = lp.GetText("btn.add");
-                BtnStartAll.Content = lp.GetText("btn.startall");
-                BtnStopAll.Content = lp.GetText("btn.stopall");
                 BtnStartSelected.Content = lp.GetText("btn.startsel");
                 BtnStopSelected.Content = lp.GetText("btn.stopsel");
                 BtnPauseSelected.Content = lp.GetText("btn.pausesel");
-                BtnPauseAll.Content = lp.GetText("btn.pauseall");
                 StatusText.Text = lp.GetText("status.ready");
                 // update column headers
                 try
@@ -345,6 +335,27 @@ namespace EasySave.WPF
                             LblBusinessStatusHeader.Text = lp.GetText("settings.business.status");
                         }
                         catch { }
+
+                        // Update remote logging section texts
+                        try
+                        {
+                            string tabSettings = lp.GetText("tab.settings");
+                            if (!string.IsNullOrWhiteSpace(tabSettings) && tabSettings != "tab.settings")
+                                TabSettingsHeader.Text = tabSettings;
+                            LblRemoteLoggingHeader.Text = lp.GetText("remote.logging.header");
+                            LblRemoteLoggingDesc.Text = lp.GetText("remote.logging.desc");
+                            CbEnableRemoteLogging.Content = lp.GetText("remote.logging.enable");
+                            LblRemoteLoggingHostLabel.Text = lp.GetText("remote.logging.host");
+                            LblRemoteLoggingPortLabel.Text = lp.GetText("remote.logging.port");
+                            CbKeepLocalLogs.Content = lp.GetText("remote.logging.keep.local");
+                            BtnTestConnection.Content = lp.GetText("remote.logging.test");
+                            LblBusinessSoftwareHeader.Text = lp.GetText("settings.business.monitored");
+                            TbBusinessHint.Text = lp.GetText("settings.business.hint");
+                            BtnRefreshStatus.Content = lp.GetText("btn.refresh");
+                            BtnAddCalc.Content = lp.GetText("btn.add.calc");
+                            BtnAddNotepad.Content = lp.GetText("btn.add.notepad");
+                        }
+                        catch { }
                     }
                     catch { }
                 }
@@ -360,7 +371,7 @@ namespace EasySave.WPF
                 if (dlg.ShowDialog() == true && dlg.Job != null)
                 {
                     // create in core BackupManager (it will validate and persist)
-                    if (_backupManager.CreateBackupJob(dlg.Job.Name, dlg.Job.Source, dlg.Job.Destination, BackupType.Full, dlg.Job.PreferredLogFormat, out var err))
+                    if (_backupManager.CreateBackupJob(dlg.Job.Name, dlg.Job.Source, dlg.Job.Destination, dlg.Job.BackupType, dlg.Job.PreferredLogFormat, out var err))
                     {
                         // reload backing list and UI
                         _backupJobs = _backupManager.GetBackupJobs();
@@ -373,57 +384,25 @@ namespace EasySave.WPF
                 }
             }
 
-            void StartAll()
-            {
-                // Start all backups in parallel
-                List<Task> tasks = new();
-                for (int i = 0; i < _backupJobs.Count; i++)
-                {
-                    int index = i + 1; // Capture index for closure
-                    var task = Task.Run(() => StartBackupByIndex(index));
-                    tasks.Add(task);
-                }
-
-                // Update status text to indicate parallel execution
-                var lp = EasySave.Core.LanguageProvider.GetInstance();
-                StatusText.Text = lp.GetText("status.all.started") ?? "Tous les travaux sont lancés en parallèle";
-
-                // Optionally wait for all tasks to complete in the background
-                _ = Task.WhenAll(tasks).ContinueWith(_ =>
-                {
-                    Dispatcher.Invoke(() =>
-                    {
-                        StatusText.Text = lp.GetText("status.all.completed") ?? "Tous les travaux sont terminés";
-                    });
-                });
-            }
-
             void StartSelected()
             {
-                // Start selected backups in parallel
                 List<Task> tasks = new();
-                var selectedItems = JobsList.SelectedItems.Cast<object>().ToList();
+                var selectedItems = Jobs.Where(j => j.IsSelected).ToList();
 
-                foreach (var item in selectedItems)
+                foreach (var vm in selectedItems)
                 {
-                    if (item is JobViewModel vm)
+                    int idx = _backupJobs.FindIndex(b => b.GetName() == vm.Name && b.GetSourcePath() == vm.Source && b.GetTargetPath() == vm.Destination);
+                    if (idx >= 0)
                     {
-                        // find matching backup job index
-                        int idx = _backupJobs.FindIndex(b => b.GetName() == vm.Name && b.GetSourcePath() == vm.Source && b.GetTargetPath() == vm.Destination);
-                        if (idx >= 0)
-                        {
-                            int index = idx + 1; // Capture index for closure
-                            var task = Task.Run(() => StartBackupByIndex(index));
-                            tasks.Add(task);
-                        }
+                        int index = idx + 1;
+                        var task = Task.Run(() => StartBackupByIndex(index));
+                        tasks.Add(task);
                     }
                 }
 
-                // Update status text to indicate parallel execution
                 var lp = EasySave.Core.LanguageProvider.GetInstance();
                 StatusText.Text = lp.GetText("status.selected.started") ?? "Travaux sélectionnés lancés en parallèle";
 
-                // Optionally wait for all tasks to complete in the background
                 if (tasks.Count > 0)
                 {
                     _ = Task.WhenAll(tasks).ContinueWith(_ =>
@@ -438,41 +417,17 @@ namespace EasySave.WPF
 
             void StopSelected()
             {
-                var selectedItems = JobsList.SelectedItems.Cast<object>().ToList();
-                foreach (var item in selectedItems)
+                foreach (var vm in Jobs.Where(j => j.IsSelected))
                 {
-                    if (item is JobViewModel vm)
-                    {
-                        _backupManager.JobController.StopJob(vm.Name);
-                    }
-                }
-            }
-
-            void StopAll()
-            {
-                foreach (var job in Jobs)
-                {
-                    _backupManager.JobController.StopJob(job.Name);
+                    _backupManager.JobController.StopJob(vm.Name);
                 }
             }
 
             void PauseSelected()
             {
-                var selectedItems = JobsList.SelectedItems.Cast<object>().ToList();
-                foreach (var item in selectedItems)
+                foreach (var vm in Jobs.Where(j => j.IsSelected))
                 {
-                    if (item is JobViewModel vm)
-                    {
-                        _backupManager.JobController.PauseJob(vm.Name);
-                    }
-                }
-            }
-
-            void PauseAll()
-            {
-                foreach (var job in Jobs)
-                {
-                    _backupManager.JobController.PauseJob(job.Name);
+                    _backupManager.JobController.PauseJob(vm.Name);
                 }
             }
 
@@ -1007,6 +962,7 @@ namespace EasySave.WPF
         private void UpdateBusinessStatus()
         {
             bool isRunning = _backupManager.IsBusinessSoftwareRunning();
+            var lp = EasySave.Core.LanguageProvider.GetInstance();
 
             if (isRunning)
             {
@@ -1016,10 +972,10 @@ namespace EasySave.WPF
                 // Update to error state
                 BusinessStatusBorder.Background = (System.Windows.Media.Brush)FindResource("DangerSoft");
                 BusinessStatusBorder.BorderBrush = (System.Windows.Media.Brush)FindResource("DangerColor");
-                TbBusinessStatus.Text = $"?? Logiciels métiers détectés : {processNames}";
+                TbBusinessStatus.Text = string.Format(lp.GetText("business.status.detected"), processNames);
                 TbBusinessStatus.Foreground = new System.Windows.Media.SolidColorBrush(
                     System.Windows.Media.Color.FromRgb(0xDC, 0x26, 0x26));
-                TbBusinessStatusDetail.Text = "Les sauvegardes sont bloquées";
+                TbBusinessStatusDetail.Text = lp.GetText("business.status.blocked");
                 TbBusinessStatusDetail.Foreground = new System.Windows.Media.SolidColorBrush(
                     System.Windows.Media.Color.FromRgb(0xB9, 0x1C, 0x1C));
             }
@@ -1028,10 +984,10 @@ namespace EasySave.WPF
                 // Update to success state
                 BusinessStatusBorder.Background = (System.Windows.Media.Brush)FindResource("SuccessSoft");
                 BusinessStatusBorder.BorderBrush = (System.Windows.Media.Brush)FindResource("SuccessColor");
-                TbBusinessStatus.Text = "? Aucun logiciel métier détecté";
+                TbBusinessStatus.Text = lp.GetText("business.status.none");
                 TbBusinessStatus.Foreground = new System.Windows.Media.SolidColorBrush(
                     System.Windows.Media.Color.FromRgb(0x15, 0x80, 0x3D));
-                TbBusinessStatusDetail.Text = "Les sauvegardes sont autorisées";
+                TbBusinessStatusDetail.Text = lp.GetText("business.status.allowed");
                 TbBusinessStatusDetail.Foreground = new System.Windows.Media.SolidColorBrush(
                     System.Windows.Media.Color.FromRgb(0x4D, 0x7C, 0x0F));
             }
@@ -1079,32 +1035,35 @@ namespace EasySave.WPF
 
                 config.SaveConfig();
 
-                ShowRemoteLoggingStatus("✓ Configuration enregistrée avec succès", true);
+                var lp = EasySave.Core.LanguageProvider.GetInstance();
+                ShowRemoteLoggingStatus(lp.GetText("remote.logging.status.saved"), true);
             }
             catch (Exception ex)
             {
-                ShowRemoteLoggingStatus($"✗ Erreur : {ex.Message}", false);
+                var lp = EasySave.Core.LanguageProvider.GetInstance();
+                ShowRemoteLoggingStatus(string.Format(lp.GetText("remote.logging.status.error"), ex.Message), false);
             }
         }
 
         private async Task TestRemoteLoggingConnection()
         {
+            var lp = EasySave.Core.LanguageProvider.GetInstance();
             try
             {
                 string host = TbRemoteLoggingHost.Text?.Trim();
                 if (string.IsNullOrWhiteSpace(host))
                 {
-                    ShowRemoteLoggingStatus("✗ Veuillez entrer une adresse serveur", false);
+                    ShowRemoteLoggingStatus(lp.GetText("remote.logging.status.no.host"), false);
                     return;
                 }
 
                 if (!int.TryParse(TbRemoteLoggingPort.Text, out int port))
                 {
-                    ShowRemoteLoggingStatus("✗ Port invalide", false);
+                    ShowRemoteLoggingStatus(lp.GetText("remote.logging.status.invalid.port"), false);
                     return;
                 }
 
-                ShowRemoteLoggingStatus("🔄 Test de connexion en cours...", null);
+                ShowRemoteLoggingStatus(lp.GetText("remote.logging.status.testing"), null);
 
                 // Test connection
                 await Task.Run(() =>
@@ -1117,14 +1076,14 @@ namespace EasySave.WPF
                     }
                 });
 
-                ShowRemoteLoggingStatus($"✓ Connexion réussie à {host}:{port}", true);
+                ShowRemoteLoggingStatus(string.Format(lp.GetText("remote.logging.status.success"), host, port), true);
 
                 // Auto-save on successful test
                 SaveRemoteLoggingConfig();
             }
             catch (Exception ex)
             {
-                ShowRemoteLoggingStatus($"✗ Connexion échouée : {ex.Message}", false);
+                ShowRemoteLoggingStatus(string.Format(lp.GetText("remote.logging.status.failed"), ex.Message), false);
             }
         }
 
@@ -1157,6 +1116,18 @@ namespace EasySave.WPF
                 RemoteLoggingStatusBorder.BorderBrush = (System.Windows.Media.Brush)FindResource("BorderColor");
                 TbRemoteLoggingStatus.Foreground = (System.Windows.Media.Brush)FindResource("TextSecondary");
             }
+        }
+
+        private void CbSelectAll_Checked(object sender, RoutedEventArgs e)
+        {
+            foreach (var job in Jobs)
+                job.IsSelected = true;
+        }
+
+        private void CbSelectAll_Unchecked(object sender, RoutedEventArgs e)
+        {
+            foreach (var job in Jobs)
+                job.IsSelected = false;
         }
 
         // Input validation for large-file threshold textbox
