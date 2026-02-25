@@ -1,7 +1,7 @@
 <Window x:Class="EasySave.WPF.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="EasySave 2.0" 
+        Title="EasySave 3.0" 
         Height="600" 
         Width="1100"
         MinHeight="500"
@@ -32,7 +32,7 @@
                                    Foreground="{StaticResource TextSecondary}" Margin="0,4,0,0"/>
                         <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
                             <Border Background="{StaticResource AccentSoft}" CornerRadius="999" Padding="10,4" Margin="0,0,8,0">
-                                <TextBlock Text="v2.0" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource PrimaryColor}"/>
+                                <TextBlock Text="v3.0" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource PrimaryColor}"/>
                             </Border>
                             <Border Background="{StaticResource NeutralSoft}" CornerRadius="999" Padding="10,4">
                                 <TextBlock x:Name="HeaderBadgeFast" Text="Backups rapides" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource TextSecondary}"/>
@@ -82,16 +82,16 @@
                                 <Button x:Name="BtnStartSelected" Content="▶ Start Selected" 
                                         Style="{StaticResource SecondaryButton}" 
                                         Margin="0,0,12,0" Width="170" Height="44"/>
-                                <Button x:Name="BtnPauseSelected" Content="⏸ Pause Selected" 
+                                <Button x:Name="BtnPauseSelected" Content="| | Pause Selected" 
                                         Style="{StaticResource OutlineButton}" 
                                         Margin="0,0,12,0" Width="170" Height="44"/>
                                 <Button x:Name="BtnStopSelected" Content="■ Stop Selected" 
                                         Style="{StaticResource OutlineButton}" 
                                         Margin="0,0,12,0" Width="160" Height="44"/>
-                                <Button x:Name="BtnStartAll" Content="▶▶ Start All" 
+                                <Button x:Name="BtnStartAll" Content="▶ Start All" 
                                         Style="{StaticResource SecondaryButton}" 
                                         Margin="0,0,12,0" Width="130" Height="44"/>
-                                <Button x:Name="BtnPauseAll" Content="⏸⏸ Pause All" 
+                                <Button x:Name="BtnPauseAll" Content="| | Pause All" 
                                         Style="{StaticResource OutlineButton}" 
                                         Margin="0,0,12,0" Width="130" Height="44"/>
                                 <Button x:Name="BtnStopAll" Content="■ Stop All" 
@@ -294,7 +294,7 @@
                                                                 </Style>
                                                             </Button.Style>
                                                         </Button>
-                                                        <Button Content="⏸" 
+                                                        <Button Content="| |" 
                                                                 Width="28" Height="28" 
                                                                 Margin="0,0,4,0"
                                                                 FontSize="10"
