@@ -857,6 +857,81 @@ namespace EasySave.WPF
             }
         }
 
+        private void BtnDecryptJob_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is not System.Windows.Controls.Button btn || btn.Tag is not string jobName)
+                return;
+
+            var backupJob = _backupJobs.FirstOrDefault(b => b.GetName() == jobName);
+            if (backupJob == null) return;
+
+            var dialog = new DecryptPasswordDialog { Owner = this };
+            if (dialog.ShowDialog() != true)
+                return;
+
+            string password = dialog.Password;
+
+            List<string> extFilters = new();
+            foreach (var it in LbEncryptionTypes.Items)
+            {
+                if (it is string s)
+                {
+                    var norm = s.Trim();
+                    if (!norm.StartsWith('.')) norm = "." + norm;
+                    extFilters.Add(norm.ToLowerInvariant());
+                }
+            }
+
+            _ = Task.Run(() =>
+            {
+                int successCount = 0, errorCount = 0;
+                try
+                {
+                    var files = Directory.GetFiles(backupJob.GetTargetPath(), "*", SearchOption.AllDirectories);
+                    foreach (var f in files)
+                    {
+                        try
+                        {
+                            string fileExt = Path.GetExtension(f).ToLowerInvariant();
+                            if (extFilters.Count > 0 && !extFilters.Contains(fileExt))
+                                continue;
+
+                            string tmp = f + ".esdec";
+                            CryptoSoft.CryptoService.DecryptFile(f, tmp, password);
+                            File.Delete(f);
+                            File.Move(tmp, f);
+                            successCount++;
+                        }
+                        catch
+                        {
+                            errorCount++;
+                            try { if (File.Exists(f + ".esdec")) File.Delete(f + ".esdec"); } catch { }
+                        }
+                    }
+                }
+                catch { }
+
+                Dispatcher.Invoke(() =>
+                {
+                    var lp = EasySave.Core.LanguageProvider.GetInstance();
+                    if (errorCount == 0)
+                    {
+                        System.Windows.MessageBox.Show(
+                            string.Format(lp.GetText("decrypt.success"), successCount),
+                            lp.GetText("decrypt.prompt.title"),
+                            MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                    else
+                    {
+                        System.Windows.MessageBox.Show(
+                            string.Format(lp.GetText("decrypt.partial"), successCount, errorCount),
+                            lp.GetText("decrypt.prompt.title"),
+                            MessageBoxButton.OK, MessageBoxImage.Warning);
+                    }
+                });
+            });
+        }
+
         // Progress update timer handler
         private void UpdateJobsProgress(object? sender, EventArgs e)
         {
