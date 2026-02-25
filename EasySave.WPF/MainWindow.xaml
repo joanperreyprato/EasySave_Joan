@@ -1,4 +1,4 @@
-<Window x:Class="EasySave.WPF.MainWindow"
+﻿<Window x:Class="EasySave.WPF.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="EasySave 3.0" 
@@ -95,14 +95,7 @@
 
                         <!-- Jobs List Card -->
                         <Border Grid.Row="2" Style="{StaticResource Card}">
-                            <StackPanel>
-                                <CheckBox x:Name="CbSelectAll"
-                                          Content="Tout sélectionner"
-                                          FontSize="13"
-                                          Margin="0,0,0,10"
-                                          Checked="CbSelectAll_Checked"
-                                          Unchecked="CbSelectAll_Unchecked"/>
-                                <ListView x:Name="JobsList"
+                            <ListView x:Name="JobsList"
                                       Style="{StaticResource ModernListView}"
                                       SelectionMode="Single"
                                       ItemContainerStyle="{StaticResource ModernListViewItem}">
@@ -111,7 +104,12 @@
                                     <GridView ColumnHeaderContainerStyle="{StaticResource ModernGridViewHeader}">
                                         <GridViewColumn Width="44">
                                             <GridViewColumn.Header>
-                                                <TextBlock/>
+                                                <CheckBox x:Name="CbSelectAll"
+                                                          HorizontalAlignment="Center"
+                                                          VerticalAlignment="Center"
+                                                          Checked="CbSelectAll_Checked"
+                                                          Unchecked="CbSelectAll_Unchecked"
+                                                          ToolTip="Tout sélectionner"/>
                                             </GridViewColumn.Header>
                                             <GridViewColumn.CellTemplate>
                                                 <DataTemplate>
@@ -408,7 +406,6 @@
                                     </GridView>
                                 </ListView.View>
                             </ListView>
-                            </StackPanel>
                         </Border>
 
                         <!-- Modern Status Bar -->
