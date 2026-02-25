@@ -417,8 +417,7 @@
                                 <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
                                     <TextBox x:Name="TbNewExt" 
                                              Style="{StaticResource ModernTextBox}"
-                                             Width="320" 
-                                             Height="44"
+                                             Width="320"
                                              VerticalContentAlignment="Center"
                                              Margin="0,0,12,0"/>
                                     <Button x:Name="BtnAddExt" 
