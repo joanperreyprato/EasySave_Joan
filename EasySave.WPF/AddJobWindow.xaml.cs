@@ -27,6 +27,9 @@ namespace EasySave.WPF
             LabelSource.Text = lp.GetText("addjob.source");
             LabelDestination.Text = lp.GetText("addjob.target");
             LabelLog.Text = lp.GetText("addjob.log");
+            LabelType.Text = lp.GetText("addjob.type");
+            if (CbItemFull != null) CbItemFull.Content = lp.GetText("backup.type.full");
+            if (CbItemDifferential != null) CbItemDifferential.Content = lp.GetText("backup.type.differential");
             BtnOk.Content = lp.GetText("button.ok");
             BtnCancel.Content = lp.GetText("button.cancel");
         }
@@ -47,6 +50,7 @@ namespace EasySave.WPF
                 format = EasyLog.LogFormat.Xml;
 
             jobVm.PreferredLogFormat = format;
+            jobVm.BackupType = CbBackupType.SelectedIndex == 1 ? EasySave.Core.BackupType.Differential : EasySave.Core.BackupType.Full;
             Job = jobVm;
             DialogResult = true;
             Close();
@@ -86,11 +90,19 @@ namespace EasySave.WPF
         {
             if (sender is System.Windows.Controls.ComboBox cb)
             {
-                // Focus and toggle dropdown when clicking anywhere inside the combo box
                 cb.Focus();
                 if (!cb.IsDropDownOpen)
                     cb.IsDropDownOpen = true;
-                // Allow clicks to propagate so SelectionChanged is triggered on item click
+            }
+        }
+
+        private void CbBackupType_PreviewMouseLeftButtonDown(object? sender, MouseButtonEventArgs e)
+        {
+            if (sender is System.Windows.Controls.ComboBox cb)
+            {
+                cb.Focus();
+                if (!cb.IsDropDownOpen)
+                    cb.IsDropDownOpen = true;
             }
         }
     }

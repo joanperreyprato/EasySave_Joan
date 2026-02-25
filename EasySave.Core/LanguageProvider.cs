@@ -145,7 +145,10 @@ namespace EasySave.Core
                 ["ui.execution.requested"] = "Execution requested.",
                 ["ui.invalid.index"] = "Invalid index.",
                 ["menu.edit"] = "Edit Backup",
-                ["ui.backup.updated"] = "Backup job updated."
+                ["ui.backup.updated"] = "Backup job updated.",
+                ["backup.type.title"] = "-- Backup Type --",
+                ["backup.type.full"] = "Full",
+                ["backup.type.differential"] = "Differential"
                 ,
                 // UI elements
                 ["window.title"] = "EasySave 2.0",
@@ -174,6 +177,7 @@ namespace EasySave.Core
                 ["addjob.source"] = "Source:",
                 ["addjob.target"] = "Destination:",
                 ["addjob.log"] = "Log:",
+                ["addjob.type"] = "Type:",
                 ["button.ok"] = "Ok",
                 ["button.cancel"] = "Cancel"
                 ,
@@ -239,7 +243,39 @@ namespace EasySave.Core
                 ["decrypt.key.missing"] = "Please enter a decryption password.",
                 ["decrypt.success"] = "{0} file(s) decrypted successfully.",
                 ["decrypt.partial"] = "{0} file(s) decrypted, {1} failed (wrong key?).",
-                ["btn.decrypt"] = "Decrypt"
+                ["btn.decrypt"] = "Decrypt",
+                // Status messages
+                ["status.all.started"] = "All jobs started in parallel",
+                ["status.all.completed"] = "All jobs completed successfully",
+                ["status.selected.started"] = "Selected jobs started in parallel",
+                ["status.selected.completed"] = "Selected jobs completed",
+                // Remote logging section
+                ["remote.logging.header"] = "🌐 Remote Log Server",
+                ["remote.logging.desc"] = "Send logs to a centralized server (Docker) in addition to local storage.",
+                ["remote.logging.enable"] = "Enable remote logging",
+                ["remote.logging.host"] = "Server address:",
+                ["remote.logging.port"] = "Port:",
+                ["remote.logging.keep.local"] = "Also keep local logs",
+                ["remote.logging.test"] = "🔌 Test connection",
+                ["remote.logging.status.saved"] = "✓ Configuration saved successfully",
+                ["remote.logging.status.error"] = "✗ Error: {0}",
+                ["remote.logging.status.no.host"] = "✗ Please enter a server address",
+                ["remote.logging.status.invalid.port"] = "✗ Invalid port",
+                ["remote.logging.status.testing"] = "🔄 Testing connection...",
+                ["remote.logging.status.success"] = "✓ Connection successful to {0}:{1}",
+                ["remote.logging.status.failed"] = "✗ Connection failed: {0}",
+                // Settings tab
+                ["tab.settings"] = "Settings",
+                ["settings.business.monitored"] = "Monitored processes",
+                ["settings.business.hint"] = "Example: CalculatorApp (for calculator), notepad (for Notepad)",
+                ["btn.refresh"] = "🔄 Refresh",
+                ["btn.add.calc"] = "Calculator",
+                ["btn.add.notepad"] = "Notepad",
+                // Business status
+                ["business.status.detected"] = "⚠ Business software detected: {0}",
+                ["business.status.blocked"] = "Backups are blocked",
+                ["business.status.none"] = "✓ No business software detected",
+                ["business.status.allowed"] = "Backups are allowed"
             };
 
             translations["fr"] = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
@@ -280,7 +316,10 @@ namespace EasySave.Core
                 ["ui.execution.requested"] = "Exécution lancée.",
                 ["ui.invalid.index"] = "Index invalide.",
                 ["menu.edit"] = "Modifier une sauvegarde",
-                ["ui.backup.updated"] = "Sauvegarde mise à jour."
+                ["ui.backup.updated"] = "Sauvegarde mise à jour.",
+                ["backup.type.title"] = "-- Type de sauvegarde --",
+                ["backup.type.full"] = "Complète",
+                ["backup.type.differential"] = "Différentielle"
                 ,
                 // UI elements
                 ["window.title"] = "EasySave 2.0",
@@ -309,6 +348,7 @@ namespace EasySave.Core
                 ["addjob.source"] = "Source:",
                 ["addjob.target"] = "Cible:",
                 ["addjob.log"] = "Log:",
+                ["addjob.type"] = "Type :",
                 ["button.ok"] = "Ok",
                 ["button.cancel"] = "Annuler"
                 ,
@@ -372,7 +412,39 @@ namespace EasySave.Core
                 ["decrypt.key.missing"] = "Veuillez entrer un mot de passe de déchiffrement.",
                 ["decrypt.success"] = "{0} fichier(s) déchiffré(s) avec succès.",
                 ["decrypt.partial"] = "{0} fichier(s) déchiffré(s), {1} échoué(s) (clé incorrecte ?).",
-                ["btn.decrypt"] = "Déchiffrer"
+                ["btn.decrypt"] = "Déchiffrer",
+                // Messages de statut
+                ["status.all.started"] = "Tous les travaux sont lancés en parallèle",
+                ["status.all.completed"] = "Tous les travaux ont été complétés avec succès",
+                ["status.selected.started"] = "Travaux sélectionnés lancés en parallèle",
+                ["status.selected.completed"] = "Travaux sélectionnés terminés",
+                // Section logs distants
+                ["remote.logging.header"] = "🌐 Serveur de logs distant",
+                ["remote.logging.desc"] = "Envoyez les logs vers un serveur centralisé (Docker) en plus du stockage local.",
+                ["remote.logging.enable"] = "Activer le logging distant",
+                ["remote.logging.host"] = "Adresse du serveur :",
+                ["remote.logging.port"] = "Port :",
+                ["remote.logging.keep.local"] = "Conserver également les logs locaux",
+                ["remote.logging.test"] = "🔌 Tester la connexion",
+                ["remote.logging.status.saved"] = "✓ Configuration enregistrée avec succès",
+                ["remote.logging.status.error"] = "✗ Erreur : {0}",
+                ["remote.logging.status.no.host"] = "✗ Veuillez entrer une adresse serveur",
+                ["remote.logging.status.invalid.port"] = "✗ Port invalide",
+                ["remote.logging.status.testing"] = "🔄 Test de connexion en cours...",
+                ["remote.logging.status.success"] = "✓ Connexion réussie à {0}:{1}",
+                ["remote.logging.status.failed"] = "✗ Connexion échouée : {0}",
+                // Onglet paramètres
+                ["tab.settings"] = "Paramètres",
+                ["settings.business.monitored"] = "Processus surveillés",
+                ["settings.business.hint"] = "Exemple : CalculatorApp (pour la calculatrice), notepad (pour le bloc-notes)",
+                ["btn.refresh"] = "🔄 Actualiser",
+                ["btn.add.calc"] = "Calculatrice",
+                ["btn.add.notepad"] = "Bloc-notes",
+                // Statut logiciels métiers
+                ["business.status.detected"] = "⚠ Logiciels métiers détectés : {0}",
+                ["business.status.blocked"] = "Les sauvegardes sont bloquées",
+                ["business.status.none"] = "✓ Aucun logiciel métier détecté",
+                ["business.status.allowed"] = "Les sauvegardes sont autorisées"
             };
         }
 
