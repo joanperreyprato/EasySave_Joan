@@ -3,6 +3,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
 using System.Threading;
+using System.Xml.Linq;
 
 namespace EasyLog
 {
@@ -19,14 +20,16 @@ namespace EasyLog
         private bool _isConnected;
         private readonly int _reconnectDelayMs = 5000;
         private DateTime _lastConnectionAttempt = DateTime.MinValue;
+        private readonly LogFormat _format;
 
-        public LogFormat Format => LogFormat.Json;
+        public LogFormat Format => _format;
 
-        public SocketLogger(string serverHost, int serverPort = 5555)
+        public SocketLogger(string serverHost, int serverPort = 5555, LogFormat format = LogFormat.Json)
         {
             _serverHost = serverHost;
             _serverPort = serverPort;
             _isConnected = false;
+            _format = format;
         }
 
         public void LogAction(LogEntry entry)
@@ -59,28 +62,46 @@ namespace EasyLog
                     }
                     catch { }
 
-                    // Add machine name to the log entry
-                    var logData = new
+                    // Serialize based on configured format
+                    string serialized;
+                    if (_format == LogFormat.Xml)
                     {
-                        entry.Timestamp,
-                        entry.BackupName,
-                        entry.SourceFilePath,
-                        entry.TargetFilePath,
-                        entry.FileSize,
-                        entry.TransferTime,
-                        entry.EncryptionTime,
-                        entry.Type,
-                        MachineName = Environment.MachineName
-                    };
-
-                    // Serialize and send
-                    string json = JsonSerializer.Serialize(logData, new JsonSerializerOptions
+                        var doc = new XDocument(new XElement("log",
+                            new XElement("timestamp", entry.Timestamp),
+                            new XElement("backupName", entry.BackupName),
+                            new XElement("sourceFilePath", entry.SourceFilePath),
+                            new XElement("targetFilePath", entry.TargetFilePath),
+                            new XElement("fileSize", entry.FileSize),
+                            new XElement("transferTime", entry.TransferTime),
+                            new XElement("encryptionTime", entry.EncryptionTime),
+                            new XElement("type", entry.Type.ToString()),
+                            new XElement("machineName", Environment.MachineName)
+                        ));
+                        serialized = doc.ToString(SaveOptions.DisableFormatting);
+                    }
+                    else
                     {
-                        WriteIndented = false,
-                        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-                    });
+                        var logData = new
+                        {
+                            entry.Timestamp,
+                            entry.BackupName,
+                            entry.SourceFilePath,
+                            entry.TargetFilePath,
+                            entry.FileSize,
+                            entry.TransferTime,
+                            entry.EncryptionTime,
+                            entry.Type,
+                            MachineName = Environment.MachineName
+                        };
 
-                    byte[] data = Encoding.UTF8.GetBytes(json + "\n");
+                        serialized = JsonSerializer.Serialize(logData, new JsonSerializerOptions
+                        {
+                            WriteIndented = false,
+                            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                        });
+                    }
+
+                    byte[] data = Encoding.UTF8.GetBytes(serialized + "\n");
                     _stream.Write(data, 0, data.Length);
                     _stream.Flush();
                 }

@@ -1,4 +1,4 @@
-﻿using EasyLog;
+using EasyLog;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
@@ -274,6 +274,37 @@ namespace EasySave.Core
             return UpdateBackupJob(index, name, source, target, type, out _);
         }
 
+        public ILogger CreateLoggerForJob(BackupJob job)
+        {
+            try
+            {
+                string formatStr = job.GetLogFormat() == EasyLog.LogFormat.Xml ? "xml" : "json";
+                var config = AppConfig.Instance;
+                var remote = config?.RemoteLogging;
+                bool remoteEnabled = remote?.Enabled ?? false;
+                string host = remote?.ServerHost ?? "localhost";
+                int port = remote?.ServerPort ?? 5555;
+                bool localEnabled = remote?.EnableLocalLogging ?? true;
+
+                string logDir;
+                try
+                {
+                    logDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "EasySave", "logs");
+                }
+                catch
+                {
+                    logDir = Path.Combine(Directory.GetCurrentDirectory(), "logs");
+                }
+                Directory.CreateDirectory(logDir);
+
+                return EasyLog.LoggerFactory.CreateLogger(logDir, remoteEnabled, host, port, localEnabled, formatStr);
+            }
+            catch
+            {
+                return logger;
+            }
+        }
+
         public void ExecuteBackupJob(int index)
         {
             index -= 1; // Adjust for 0-based index
@@ -286,7 +317,10 @@ namespace EasySave.Core
             string encKey = enc?.Key ?? string.Empty;
             List<string>? encExt = enc?.Extensions;
 
-            BackupExecutor executor = new BackupExecutor(logger, stateManager, businessMonitor, _largeFileThresholdKb, priorityExtensions, jobController, encEnabled, encKey, encExt);
+            // Create a per-job logger that respects the job's log format
+            ILogger jobLogger = CreateLoggerForJob(job);
+
+            BackupExecutor executor = new BackupExecutor(jobLogger, stateManager, businessMonitor, _largeFileThresholdKb, priorityExtensions, jobController, encEnabled, encKey, encExt);
 
             if (job.GetBackupType() == BackupType.Full)
                 executor.ExecuteFullBackup(job);
