@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading;
 
 using EasyLog;
+using CryptoSoft;
 
 namespace EasySave.Core
 {
@@ -19,12 +20,15 @@ namespace EasySave.Core
         private static readonly SemaphoreSlim LargeFileSemaphore = new SemaphoreSlim(1, 1);
         private readonly long _largeFileThresholdBytes;
         private readonly List<string> _priorityExtensions;
+        private readonly bool _encryptionEnabled;
+        private readonly string _encryptionKey;
+        private readonly HashSet<string> _encryptionExtensions;
         // Global tracking of pending priority files across all jobs
         private static readonly object PriorityLock = new object();
         private static int PendingPriorityFilesCount = 0;
 
         // largeFileThresholdKb: 0 disables the limit. Otherwise files larger than this (in KB) are considered "large".
-        public BackupExecutor(ILogger logger, StateManager stateManager, BusinessSoftwareMonitor? businessMonitor = null, int largeFileThresholdKb = 0, List<string>? priorityExtensions = null, JobController? jobController = null)
+        public BackupExecutor(ILogger logger, StateManager stateManager, BusinessSoftwareMonitor? businessMonitor = null, int largeFileThresholdKb = 0, List<string>? priorityExtensions = null, JobController? jobController = null, bool encryptionEnabled = false, string? encryptionKey = null, List<string>? encryptionExtensions = null)
         {
             this.logger = logger;
             this.stateManager = stateManager;
@@ -32,6 +36,20 @@ namespace EasySave.Core
             this.jobController = jobController;
             _largeFileThresholdBytes = (largeFileThresholdKb <= 0) ? 0 : (largeFileThresholdKb * 1024L);
             _priorityExtensions = priorityExtensions ?? new List<string>();
+            _encryptionEnabled = encryptionEnabled;
+            _encryptionKey = encryptionKey ?? string.Empty;
+            _encryptionExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            if (encryptionExtensions != null)
+            {
+                foreach (var ext in encryptionExtensions)
+                {
+                    if (string.IsNullOrWhiteSpace(ext)) continue;
+                    var normalized = ext.Trim().ToLowerInvariant();
+                    if (!normalized.StartsWith('.')) normalized = "." + normalized;
+                    _encryptionExtensions.Add(normalized);
+                }
+            }
         }
 
         public void ExecuteFullBackup(BackupJob job)
@@ -83,6 +101,7 @@ namespace EasySave.Core
                 stateManager.SaveState();
 
                 long totalTransferMs = 0;
+                long totalEncryptionMs = 0;
 
                 // Register priority files count
                 if (priorityFiles.Count > 0)
@@ -126,7 +145,9 @@ namespace EasySave.Core
                         }
                     }
 
-                    totalTransferMs += ProcessSingleFile(job, fi, source, target, state);
+                    var (tMs, eMs) = ProcessSingleFile(job, fi, source, target, state);
+                    totalTransferMs += tMs;
+                    totalEncryptionMs += eMs;
 
                     // Decrement priority counter after processing
                     lock (PriorityLock)
@@ -189,7 +210,9 @@ namespace EasySave.Core
                         }
                     }
 
-                    totalTransferMs += ProcessSingleFile(job, fi, source, target, state);
+                    var (tMs, eMs) = ProcessSingleFile(job, fi, source, target, state);
+                    totalTransferMs += tMs;
+                    totalEncryptionMs += eMs;
                 }
 
                 state.Status = StateStatus.Completed;
@@ -198,7 +221,7 @@ namespace EasySave.Core
                 stateManager.UpdateJobState(jobName, state);
                 stateManager.SaveState();
 
-                LogEntry log = new LogEntry(jobName, source, target, state.TotalSize, totalTransferMs, LogEntry.EntryType.Summary);
+                LogEntry log = new LogEntry(jobName, source, target, state.TotalSize, totalTransferMs, LogEntry.EntryType.Summary, totalEncryptionMs);
                 try { logger?.LogAction(log); } catch { }
             }
             finally
@@ -255,6 +278,7 @@ namespace EasySave.Core
                 stateManager.UpdateJobState(jobName, state);
 
                 long totalTransferMs = 0;
+                long totalEncryptionMs = 0;
 
                 // Register priority files count
                 if (priorityFiles.Count > 0)
@@ -298,7 +322,9 @@ namespace EasySave.Core
                         }
                     }
 
-                    totalTransferMs += ProcessSingleFile(job, fi, source, target, state);
+                    var (tMs, eMs) = ProcessSingleFile(job, fi, source, target, state);
+                    totalTransferMs += tMs;
+                    totalEncryptionMs += eMs;
 
                     // Decrement priority counter after processing
                     lock (PriorityLock)
@@ -361,7 +387,9 @@ namespace EasySave.Core
                         }
                     }
 
-                    totalTransferMs += ProcessSingleFile(job, fi, source, target, state);
+                    var (tMs, eMs) = ProcessSingleFile(job, fi, source, target, state);
+                    totalTransferMs += tMs;
+                    totalEncryptionMs += eMs;
                 }
 
                 state.Status = StateStatus.Completed;
@@ -370,7 +398,7 @@ namespace EasySave.Core
                 stateManager.UpdateJobState(jobName, state);
                 stateManager.SaveState();
 
-                LogEntry log = new LogEntry(jobName, source, target, state.TotalSize, totalTransferMs, LogEntry.EntryType.Summary);
+                LogEntry log = new LogEntry(jobName, source, target, state.TotalSize, totalTransferMs, LogEntry.EntryType.Summary, totalEncryptionMs);
                 try { logger?.LogAction(log); } catch { }
             }
             finally
@@ -516,7 +544,7 @@ namespace EasySave.Core
             return (priorityFiles, nonPriorityFiles);
         }
 
-        private long ProcessSingleFile(BackupJob job, FileInfo fi, string source, string target, JobState state)
+        private (long transferMs, long encryptionMs) ProcessSingleFile(BackupJob job, FileInfo fi, string source, string target, JobState state)
         {
             // Check if business software started during backup - PAUSE if detected
             if (businessMonitor != null && businessMonitor.IsBusinessSoftwareRunning())
@@ -563,10 +591,55 @@ namespace EasySave.Core
 
             long elapsed = CopyFile(fi.FullName, dest);
 
+            // Attempt encryption if enabled and extension matches
+            long encryptionElapsed = 0;
+            try
+            {
+                if (elapsed > 0 && _encryptionEnabled && !string.IsNullOrWhiteSpace(_encryptionKey))
+                {
+                    string ext = Path.GetExtension(fi.FullName).ToLowerInvariant();
+                    if (_encryptionExtensions.Count == 0 || _encryptionExtensions.Contains(ext))
+                    {
+                        var encSw = Stopwatch.StartNew();
+                        try
+                        {
+                            string tmp = dest + ".enc_tmp";
+                            // Encrypt the destination file in place (write to temp then replace)
+                            CryptoService.EncryptFile(dest, tmp, _encryptionKey);
+                            encSw.Stop();
+                            // Replace original with encrypted file
+                            try
+                            {
+                                File.Delete(dest);
+                            }
+                            catch { }
+
+                            try
+                            {
+                                File.Move(tmp, dest);
+                            }
+                            catch { }
+
+                            encryptionElapsed = encSw.ElapsedMilliseconds;
+                        }
+                        catch
+                        {
+                            try { encSw.Stop(); } catch { }
+                            // indicate encryption error
+                            encryptionElapsed = -1;
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                // ignore encryption orchestration errors
+            }
+
             // Log per-file action (transfer time negative indicates error)
             try
             {
-                LogEntry fileLog = new LogEntry(job.GetName(), fi.FullName, dest, fi.Length, elapsed, LogEntry.EntryType.File);
+                LogEntry fileLog = new LogEntry(job.GetName(), fi.FullName, dest, fi.Length, elapsed, LogEntry.EntryType.File, encryptionElapsed);
                 logger?.LogAction(fileLog);
             }
             catch
@@ -580,8 +653,10 @@ namespace EasySave.Core
             stateManager.UpdateJobState(job.GetName(), state);
             stateManager.SaveState();
 
-            // Return elapsed time for accumulation (only positive values)
-            return elapsed > 0 ? elapsed : 0;
+            // For summary accumulation return only non-negative times
+            long transferForSum = elapsed > 0 ? elapsed : 0;
+            long encryptionForSum = encryptionElapsed > 0 ? encryptionElapsed : 0;
+            return (transferForSum, encryptionForSum);
         }
     }
 }

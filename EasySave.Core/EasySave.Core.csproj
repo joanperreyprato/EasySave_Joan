@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\EasyLog\EasyLog.csproj" />
+	<ProjectReference Include="..\CryptoSoft\CryptoSoft.csproj" />
   </ItemGroup>
 
   <!-- Exclude UI files from core project; they are compiled into the UI project -->

@@ -18,10 +18,18 @@ namespace EasySave.Core
         public string LogFormat { get; set; } = "Json";
     }
 
+    public class EncryptionConfig
+    {
+        public bool Enabled { get; set; } = false;
+        public string Key { get; set; } = string.Empty;
+        public List<string> Extensions { get; set; } = new();
+    }
+
     public class AppConfig
     {
         public RemoteLoggingConfig RemoteLogging { get; set; } = new();
         public LoggingConfig Logging { get; set; } = new();
+        public EncryptionConfig Encryption { get; set; } = new();
 
         private static AppConfig? _instance;
         private static readonly object _lock = new();

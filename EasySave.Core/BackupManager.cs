@@ -280,7 +280,13 @@ namespace EasySave.Core
             if (index < 0 || index >= backupJobs.Count) return;
 
             BackupJob job = backupJobs[index];
-            BackupExecutor executor = new BackupExecutor(logger, stateManager, businessMonitor, _largeFileThresholdKb, priorityExtensions, jobController);
+            // Read encryption settings from AppConfig (may be default disabled)
+            var enc = AppConfig.Instance?.Encryption;
+            bool encEnabled = enc?.Enabled ?? false;
+            string encKey = enc?.Key ?? string.Empty;
+            List<string>? encExt = enc?.Extensions;
+
+            BackupExecutor executor = new BackupExecutor(logger, stateManager, businessMonitor, _largeFileThresholdKb, priorityExtensions, jobController, encEnabled, encKey, encExt);
 
             if (job.GetBackupType() == BackupType.Full)
                 executor.ExecuteFullBackup(job);
