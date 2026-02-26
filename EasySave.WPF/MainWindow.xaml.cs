@@ -518,6 +518,7 @@ namespace EasySave.WPF
                                 var job = _backupJobs.ElementAtOrDefault(oneBasedIndex - 1);
                                 if (job != null)
                                 {
+                                    var encLogger = _backupManager.CreateLoggerForJob(job);
                                     // collect extension filters from UI
                                     List<string> extFilters = new();
                                     Dispatcher.Invoke(() =>
@@ -578,7 +579,7 @@ namespace EasySave.WPF
                                                 long fsize = 0;
                                                 try { fsize = new FileInfo(f).Length; } catch { }
                                                 var elog = new LogEntry(job.GetName(), f, f, fsize, 0, LogEntry.EntryType.File, encTime);
-                                                _logger?.LogAction(elog);
+                                                encLogger?.LogAction(elog);
                                             }
                                             catch { }
                                         }
@@ -709,6 +710,7 @@ namespace EasySave.WPF
                                         _backupManager.ExecuteBackupJob(index);
                                         try
                                         {
+                                            var encLogger2 = _backupManager.CreateLoggerForJob(backupJob);
                                             // collect extension filters from UI
                                             List<string> extFilters = new();
                                             Dispatcher.Invoke(() =>
@@ -769,7 +771,7 @@ namespace EasySave.WPF
                                                         long fsize = 0;
                                                         try { fsize = new FileInfo(f).Length; } catch { }
                                                         var elog = new LogEntry(backupJob.GetName(), f, f, fsize, 0, LogEntry.EntryType.File, encTime);
-                                                        _logger?.LogAction(elog);
+                                                        encLogger2?.LogAction(elog);
                                                     }
                                                     catch { }
                                                 }

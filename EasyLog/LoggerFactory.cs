@@ -44,7 +44,8 @@ namespace EasyLog
             {
                 try
                 {
-                    var socketLogger = new SocketLogger(remoteHost, remotePort);
+                    LogFormat remoteFormat = logFormat.Equals("xml", StringComparison.OrdinalIgnoreCase) ? LogFormat.Xml : LogFormat.Json;
+                    var socketLogger = new SocketLogger(remoteHost, remotePort, remoteFormat);
                     loggers.Add(socketLogger);
                 }
                 catch (Exception ex)
