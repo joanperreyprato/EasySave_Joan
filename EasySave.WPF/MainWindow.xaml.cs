@@ -510,84 +510,23 @@ namespace EasySave.WPF
                         }
                         else
                         {
-                            // Execute then encrypt copied files in target directory
-                            _backupManager.ExecuteBackupJob(oneBasedIndex);
-                            try
+                            // Collect extension filters from UI
+                            List<string> extFilters = new();
+                            Dispatcher.Invoke(() =>
                             {
-                                // find job and encrypt files in target
-                                var job = _backupJobs.ElementAtOrDefault(oneBasedIndex - 1);
-                                if (job != null)
+                                foreach (var it in LbEncryptionTypes.Items)
                                 {
-                                    var encLogger = _backupManager.CreateLoggerForJob(job);
-                                    // collect extension filters from UI
-                                    List<string> extFilters = new();
-                                    Dispatcher.Invoke(() =>
+                                    if (it is string s)
                                     {
-                                        foreach (var it in LbEncryptionTypes.Items)
-                                        {
-                                            if (it is string s)
-                                            {
-                                                var norm = s.Trim();
-                                                if (!norm.StartsWith('.')) norm = "." + norm;
-                                                extFilters.Add(norm.ToLowerInvariant());
-                                            }
-                                        }
-                                    });
-
-                                    var files = Directory.GetFiles(job.GetTargetPath(), "*", SearchOption.AllDirectories);
-                                    foreach (var f in files)
-                                    {
-                                        try
-                                        {
-                                            string fileExt = Path.GetExtension(f).ToLowerInvariant();
-                                            if (extFilters.Count > 0 && !extFilters.Contains(fileExt))
-                                                continue;
-
-                                            // measure encryption time
-                                            long encTime = 0;
-                                            string tmp = f + ".esenc";
-                                            var swEnc = Stopwatch.StartNew();
-                                            try
-                                            {
-                                                CryptoSoft.CryptoService.EncryptFile(f, tmp, EncryptionKey);
-                                                swEnc.Stop();
-                                                encTime = swEnc.ElapsedMilliseconds;
-                                            }
-                                            catch
-                                            {
-                                                try { swEnc.Stop(); } catch { }
-                                                encTime = -1; // indicate error
-                                            }
-
-                                            try
-                                            {
-                                                if (encTime > 0 && File.Exists(tmp))
-                                                {
-                                                    File.Delete(f);
-                                                    File.Move(tmp, f);
-                                                }
-                                                else
-                                                {
-                                                    if (File.Exists(tmp)) File.Delete(tmp);
-                                                }
-                                            }
-                                            catch { }
-
-                                            // log encryption time for this file (use File entry type)
-                                            try
-                                            {
-                                                long fsize = 0;
-                                                try { fsize = new FileInfo(f).Length; } catch { }
-                                                var elog = new LogEntry(job.GetName(), f, f, fsize, 0, LogEntry.EntryType.File, encTime);
-                                                encLogger?.LogAction(elog);
-                                            }
-                                            catch { }
-                                        }
-                                        catch { }
+                                        var norm = s.Trim();
+                                        if (!norm.StartsWith('.')) norm = "." + norm;
+                                        extFilters.Add(norm.ToLowerInvariant());
                                     }
                                 }
-                            }
-                            catch { }
+                            });
+
+                            // Execute backup with encryption in a single pass
+                            _backupManager.ExecuteBackupJob(oneBasedIndex, true, EncryptionKey, extFilters);
                         }
                     }
                     catch { }
@@ -706,79 +645,23 @@ namespace EasySave.WPF
                                     }
                                     else
                                     {
-                                        // Execute then encrypt copied files in target directory
-                                        _backupManager.ExecuteBackupJob(index);
-                                        try
+                                        // Collect extension filters from UI
+                                        List<string> extFilters = new();
+                                        Dispatcher.Invoke(() =>
                                         {
-                                            var encLogger2 = _backupManager.CreateLoggerForJob(backupJob);
-                                            // collect extension filters from UI
-                                            List<string> extFilters = new();
-                                            Dispatcher.Invoke(() =>
+                                            foreach (var it in LbEncryptionTypes.Items)
                                             {
-                                                foreach (var it in LbEncryptionTypes.Items)
+                                                if (it is string s)
                                                 {
-                                                    if (it is string s)
-                                                    {
-                                                        var norm = s.Trim();
-                                                        if (!norm.StartsWith('.')) norm = "." + norm;
-                                                        extFilters.Add(norm.ToLowerInvariant());
-                                                    }
+                                                    var norm = s.Trim();
+                                                    if (!norm.StartsWith('.')) norm = "." + norm;
+                                                    extFilters.Add(norm.ToLowerInvariant());
                                                 }
-                                            });
-
-                                            var files = Directory.GetFiles(backupJob.GetTargetPath(), "*", SearchOption.AllDirectories);
-                                            foreach (var f in files)
-                                            {
-                                                try
-                                                {
-                                                    string fileExt = Path.GetExtension(f).ToLowerInvariant();
-                                                    if (extFilters.Count > 0 && !extFilters.Contains(fileExt))
-                                                        continue;
-
-                                                    // measure encryption time
-                                                    long encTime = 0;
-                                                    string tmp = f + ".esenc";
-                                                    var swEnc = Stopwatch.StartNew();
-                                                    try
-                                                    {
-                                                        CryptoSoft.CryptoService.EncryptFile(f, tmp, EncryptionKey);
-                                                        swEnc.Stop();
-                                                        encTime = swEnc.ElapsedMilliseconds;
-                                                    }
-                                                    catch
-                                                    {
-                                                        try { swEnc.Stop(); } catch { }
-                                                        encTime = -1; // indicate error
-                                                    }
-
-                                                    try
-                                                    {
-                                                        if (encTime > 0 && File.Exists(tmp))
-                                                        {
-                                                            File.Delete(f);
-                                                            File.Move(tmp, f);
-                                                        }
-                                                        else
-                                                        {
-                                                            if (File.Exists(tmp)) File.Delete(tmp);
-                                                        }
-                                                    }
-                                                    catch { }
-
-                                                    // log encryption time for this file
-                                                    try
-                                                    {
-                                                        long fsize = 0;
-                                                        try { fsize = new FileInfo(f).Length; } catch { }
-                                                        var elog = new LogEntry(backupJob.GetName(), f, f, fsize, 0, LogEntry.EntryType.File, encTime);
-                                                        encLogger2?.LogAction(elog);
-                                                    }
-                                                    catch { }
-                                                }
-                                                catch { }
                                             }
-                                        }
-                                        catch { }
+                                        });
+
+                                        // Execute backup with encryption in a single pass
+                                        _backupManager.ExecuteBackupJob(index, true, EncryptionKey, extFilters);
                                     }
                                 }
                                 catch { }
