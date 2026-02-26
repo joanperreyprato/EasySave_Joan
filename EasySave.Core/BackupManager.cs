@@ -307,17 +307,34 @@ namespace EasySave.Core
 
         public void ExecuteBackupJob(int index)
         {
+            ExecuteBackupJob(index, false, null, null);
+        }
+
+        public void ExecuteBackupJob(int index, bool encrypt, string? encryptionKey, List<string>? encryptionExtensions)
+        {
             index -= 1; // Adjust for 0-based index
             if (index < 0 || index >= backupJobs.Count) return;
 
             BackupJob job = backupJobs[index];
-            // Read encryption settings from AppConfig (may be default disabled)
-            var enc = AppConfig.Instance?.Encryption;
-            bool encEnabled = enc?.Enabled ?? false;
-            string encKey = enc?.Key ?? string.Empty;
-            List<string>? encExt = enc?.Extensions;
 
-            // Create a per-job logger that respects the job's log format
+            bool encEnabled;
+            string encKey;
+            List<string>? encExt;
+
+            if (encrypt && !string.IsNullOrEmpty(encryptionKey))
+            {
+                encEnabled = true;
+                encKey = encryptionKey;
+                encExt = encryptionExtensions;
+            }
+            else
+            {
+                var enc = AppConfig.Instance?.Encryption;
+                encEnabled = enc?.Enabled ?? false;
+                encKey = enc?.Key ?? string.Empty;
+                encExt = enc?.Extensions;
+            }
+
             ILogger jobLogger = CreateLoggerForJob(job);
 
             BackupExecutor executor = new BackupExecutor(jobLogger, stateManager, businessMonitor, _largeFileThresholdKb, priorityExtensions, jobController, encEnabled, encKey, encExt);
