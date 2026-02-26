@@ -135,12 +135,6 @@ namespace EasySave.Core
                 return false;
             }
 
-            // Limit to 5 jobs
-            if (backupJobs.Count >= 5)
-            {
-                error = BackupCreationError.MaxJobsExceeded;
-                return false;
-            }
 
             // Validate source path
             if (!IsValidPath(source))
