@@ -125,7 +125,7 @@ namespace EasySave.WPF
             BtnRemoveExt.Click -= (_, __) => { };
             BtnAddExt.Click += (_, __) =>
             {
-                string ext = TbNewExt.Text?.Trim();
+                string? ext = TbNewExt.Text?.Trim();
                 if (string.IsNullOrWhiteSpace(ext)) return;
                 if (!ext.StartsWith('.')) ext = "." + ext;
                 if (!LbEncryptionTypes.Items.Contains(ext)) LbEncryptionTypes.Items.Add(ext);
@@ -144,7 +144,7 @@ namespace EasySave.WPF
 
             BtnAddProcess.Click += (_, __) =>
             {
-                string process = TbNewProcess.Text?.Trim();
+                string? process = TbNewProcess.Text?.Trim();
                 if (string.IsNullOrWhiteSpace(process)) return;
 
                 _backupManager.AddMonitoredProcess(process);
@@ -187,7 +187,7 @@ namespace EasySave.WPF
 
             BtnAddPriorityExt.Click += (_, __) =>
             {
-                string ext = TbNewPriorityExt.Text?.Trim();
+                string? ext = TbNewPriorityExt.Text?.Trim();
                 if (string.IsNullOrWhiteSpace(ext)) return;
                 if (!ext.StartsWith('.')) ext = "." + ext;
 
@@ -320,7 +320,10 @@ namespace EasySave.WPF
                         {
                             LblBandwidthHeader.Text = lp.GetText("bandwidth.header");
                             LblLargeFileThreshold.Text = lp.GetText("bandwidth.threshold.label");
-                            TbLargeFileThresholdKb.ToolTip = lp.GetText("bandwidth.threshold.tooltip");
+                            if (TbLargeFileThresholdKb != null)
+                            {
+                                TbLargeFileThresholdKb.ToolTip = lp.GetText("bandwidth.threshold.tooltip");
+                            }
                             LblBandwidthDesc.Text = lp.GetText("bandwidth.threshold.desc");
                         }
                         catch { }
@@ -1050,7 +1053,7 @@ namespace EasySave.WPF
             var lp = EasySave.Core.LanguageProvider.GetInstance();
             try
             {
-                string host = TbRemoteLoggingHost.Text?.Trim();
+                string? host = TbRemoteLoggingHost.Text?.Trim();
                 if (string.IsNullOrWhiteSpace(host))
                 {
                     ShowRemoteLoggingStatus(lp.GetText("remote.logging.status.no.host"), false);

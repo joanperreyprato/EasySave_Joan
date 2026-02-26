@@ -6,7 +6,7 @@ namespace EasySave.WPF
 {
     public partial class AddJobWindow : Window
     {
-        public EasySave.WPF.JobViewModel Job { get; private set; }
+        public EasySave.WPF.JobViewModel? Job { get; private set; }
 
         public AddJobWindow()
         {
