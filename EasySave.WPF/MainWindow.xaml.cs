@@ -5,9 +5,11 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
-using EasySave_v1._0;
+using EasySave.Core;
 using EasyLog;
 using System.Collections.Generic;
+using System.Windows.Input;
+using System.Windows.Threading;
 
 namespace EasySave.WPF
 {
@@ -20,6 +22,10 @@ namespace EasySave.WPF
         readonly ILogger _logger;
         readonly string _logDir;
         List<BackupJob> _backupJobs = new();
+        // Track running backup tasks for parallel execution
+        readonly Dictionary<string, Task> _runningTasks = new();
+        // Timer for updating job progress
+        readonly DispatcherTimer _progressUpdateTimer;
         // encryption key from UI (may be empty)
         public string EncryptionKey => PbEncryptionKey?.Password ?? string.Empty;
 
@@ -29,7 +35,7 @@ namespace EasySave.WPF
             JobsList.ItemsSource = Jobs;
 
             // Initialize UI language using core LanguageProvider
-            var lp = EasySave_v1._0.LanguageProvider.GetInstance();
+            var lp = EasySave.Core.LanguageProvider.GetInstance();
 
             // Initialize core services from library projects
             string logDir;
@@ -41,12 +47,16 @@ namespace EasySave.WPF
             {
                 logDir = Path.Combine(Directory.GetCurrentDirectory(), "logs");
             }
+
+            // Toggle dropdown when clicking anywhere in the language combo box
+
             Directory.CreateDirectory(logDir);
 
             _stateManager = new StateManager();
             _stateManager.LoadState();
 
-            _logger = new JsonLogger(logDir);
+            // Create logger based on configuration (supports local + remote logging)
+            _logger = LoggerFactory.CreateFromConfig(logDir);
             _logDir = logDir;
 
             // Prefer existing config file if present (project root or common appdata)
@@ -56,10 +66,17 @@ namespace EasySave.WPF
             if (File.Exists(localConfig)) chosenConfig = localConfig;
             else if (File.Exists(appDataConfig)) chosenConfig = appDataConfig;
 
+            // Read large-file threshold (KB) from UI; default to 0 if parsing fails or control missing
+            int largeFileThresholdKb = 0;
+            if (TbLargeFileThresholdKb != null)
+            {
+                int.TryParse(TbLargeFileThresholdKb.Text?.Trim() ?? string.Empty, out largeFileThresholdKb);
+            }
+
             if (chosenConfig != null)
-                _backupManager = new BackupManager(_stateManager, _logger, chosenConfig);
+                _backupManager = new BackupManager(_stateManager, _logger, chosenConfig, largeFileThresholdKb);
             else
-                _backupManager = new BackupManager(_stateManager, logger: _logger);
+                _backupManager = new BackupManager(_stateManager, logger: _logger, largeFileThresholdKb: largeFileThresholdKb);
 
             // load existing backup jobs from config
             _backupJobs = _backupManager.GetBackupJobs();
@@ -68,23 +85,36 @@ namespace EasySave.WPF
                 Jobs.Add(new JobViewModel { Name = b.GetName(), Source = b.GetSourcePath(), Destination = b.GetTargetPath(), State = "Stopped", PreferredLogFormat = b.GetLogFormat() });
             }
 
+            // Ensure threshold textbox has a default value for clarity
+            if (TbLargeFileThresholdKb != null && string.IsNullOrWhiteSpace(TbLargeFileThresholdKb.Text))
+            {
+                TbLargeFileThresholdKb.Text = largeFileThresholdKb.ToString();
+            }
+
             BtnAddJob.Click -= (_, __) => AddJob();
-            BtnStartAll.Click -= (_, __) => StartAll();
-            BtnStopAll.Click -= (_, __) => StopAll();
             BtnStartSelected.Click -= (_, __) => StartSelected();
             BtnStopSelected.Click -= (_, __) => StopSelected();
+            BtnPauseSelected.Click -= (_, __) => PauseSelected();
             CbLanguage.SelectionChanged -= (_, __) => ChangeLanguage();
 
             BtnAddJob.Click += (_, __) => AddJob();
-            BtnStartAll.Click += (_, __) => StartAll();
-            BtnStopAll.Click += (_, __) => StopAll();
             BtnStartSelected.Click += (_, __) => StartSelected();
             BtnStopSelected.Click += (_, __) => StopSelected();
+            BtnPauseSelected.Click += (_, __) => PauseSelected();
             CbLanguage.SelectionChanged += (_, __) => ChangeLanguage();
-            // select combobox to current language
+
+            // Initialize and start the progress update timer
+            _progressUpdateTimer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromMilliseconds(500) // Update every 500ms
+            };
+            _progressUpdateTimer.Tick += UpdateJobsProgress;
+            _progressUpdateTimer.Start();
+            CbLanguage.SelectionChanged += (_, __) => ChangeLanguage();
+
             try
             {
-                CbLanguage.SelectedIndex = string.Equals(lp.GetText("language.english"), "English", StringComparison.OrdinalIgnoreCase) ? 0 : 1;
+                CbLanguage.SelectedValue = lp.CurrentLanguage;
             }
             catch { CbLanguage.SelectedIndex = 0; }
 
@@ -95,7 +125,7 @@ namespace EasySave.WPF
             BtnRemoveExt.Click -= (_, __) => { };
             BtnAddExt.Click += (_, __) =>
             {
-                string ext = TbNewExt.Text?.Trim();
+                string? ext = TbNewExt.Text?.Trim();
                 if (string.IsNullOrWhiteSpace(ext)) return;
                 if (!ext.StartsWith('.')) ext = "." + ext;
                 if (!LbEncryptionTypes.Items.Contains(ext)) LbEncryptionTypes.Items.Add(ext);
@@ -108,10 +138,103 @@ namespace EasySave.WPF
                     LbEncryptionTypes.Items.Remove(LbEncryptionTypes.SelectedItem);
                 }
             };
+
+            // Wire up business software monitoring handlers
+            LoadBusinessProcesses();
+
+            BtnAddProcess.Click += (_, __) =>
+            {
+                string? process = TbNewProcess.Text?.Trim();
+                if (string.IsNullOrWhiteSpace(process)) return;
+
+                _backupManager.AddMonitoredProcess(process);
+                LoadBusinessProcesses();
+                UpdateBusinessStatus();
+                TbNewProcess.Text = string.Empty;
+            };
+
+            BtnRemoveProcess.Click += (_, __) =>
+            {
+                if (LbBusinessProcesses.SelectedItem is string selectedProcess)
+                {
+                    _backupManager.RemoveMonitoredProcess(selectedProcess);
+                    LoadBusinessProcesses();
+                    UpdateBusinessStatus();
+                }
+            };
+
+            BtnAddCalc.Click += (_, __) =>
+            {
+                _backupManager.AddMonitoredProcess("CalculatorApp");
+                LoadBusinessProcesses();
+                UpdateBusinessStatus();
+            };
+
+            BtnAddNotepad.Click += (_, __) =>
+            {
+                _backupManager.AddMonitoredProcess("notepad");
+                LoadBusinessProcesses();
+                UpdateBusinessStatus();
+            };
+
+            BtnRefreshStatus.Click += (_, __) =>
+            {
+                UpdateBusinessStatus();
+            };
+
+            // Wire up priority extensions handlers
+            LoadPriorityExtensions();
+
+            BtnAddPriorityExt.Click += (_, __) =>
+            {
+                string? ext = TbNewPriorityExt.Text?.Trim();
+                if (string.IsNullOrWhiteSpace(ext)) return;
+                if (!ext.StartsWith('.')) ext = "." + ext;
+
+                _backupManager.AddPriorityExtension(ext);
+                LoadPriorityExtensions();
+                TbNewPriorityExt.Text = string.Empty;
+            };
+
+            BtnRemovePriorityExt.Click += (_, __) =>
+            {
+                if (LbPriorityExtensions.SelectedItem is string selectedExt)
+                {
+                    _backupManager.RemovePriorityExtension(selectedExt);
+                    LoadPriorityExtensions();
+                }
+            };
+
+            // Wire up remote logging handlers
+            LoadRemoteLoggingConfig();
+
+            CbEnableRemoteLogging.Checked += (_, __) =>
+            {
+                PnlRemoteLoggingSettings.IsEnabled = true;
+                PnlRemoteLoggingSettings.Opacity = 1.0;
+            };
+
+            CbEnableRemoteLogging.Unchecked += (_, __) =>
+            {
+                PnlRemoteLoggingSettings.IsEnabled = false;
+                PnlRemoteLoggingSettings.Opacity = 0.5;
+            };
+
+            BtnTestConnection.Click += async (_, __) =>
+            {
+                await TestRemoteLoggingConnection();
+            };
+
+            // Save remote logging config on window closing
+            this.Closing += (_, __) =>
+            {
+                SaveRemoteLoggingConfig();
+            };
+
             // Localize add/remove buttons and list description
             try
             {
-                var l = EasySave_v1._0.LanguageProvider.GetInstance();
+                var l = EasySave.Core.LanguageProvider.GetInstance();
                 BtnAddExt.Content = l.GetText("encryption.add");
                 BtnRemoveExt.Content = l.GetText("encryption.remove");
                 LblEncryptionListDesc.Text = l.GetText("encryption.list.desc");
@@ -119,9 +242,9 @@ namespace EasySave.WPF
             catch { }
             void ChangeLanguage()
             {
-                if (CbLanguage.SelectedItem is System.Windows.Controls.ComboBoxItem it && it.Tag is string code)
+                if (CbLanguage.SelectedValue is string code)
                 {
-                    var lp = EasySave_v1._0.LanguageProvider.GetInstance();
+                    var lp = EasySave.Core.LanguageProvider.GetInstance();
                     lp.SetLanguage(code);
                     ApplyLanguage(lp);
 
@@ -133,46 +256,116 @@ namespace EasySave.WPF
                         Jobs.Add(new JobViewModel { Name = b.GetName(), Source = b.GetSourcePath(), Destination = b.GetTargetPath(), State = "Stopped", PreferredLogFormat = b.GetLogFormat() });
                     }
                 }
+
             }
 
-            void ApplyLanguage(EasySave_v1._0.LanguageProvider lp)
+            void ApplyLanguage(EasySave.Core.LanguageProvider lp)
             {
                 // Only update UI texts here. Do not modify Jobs collection or reattach handlers.
                 this.Title = lp.GetText("window.title");
+                HeaderSubtitle.Text = lp.GetText("header.subtitle");
+                HeaderBadgeFast.Text = lp.GetText("header.badge.fast");
+                LblLanguage.Text = lp.GetText("label.language");
+                TabJobsHeader.Text = lp.GetText("tab.jobs");
+                JobsSectionTitle.Text = lp.GetText("jobs.section.title");
+                JobsSectionDesc.Text = lp.GetText("jobs.section.desc");
                 BtnAddJob.Content = lp.GetText("btn.add");
-                BtnStartAll.Content = lp.GetText("btn.startall");
-                BtnStopAll.Content = lp.GetText("btn.stopall");
                 BtnStartSelected.Content = lp.GetText("btn.startsel");
                 BtnStopSelected.Content = lp.GetText("btn.stopsel");
+                BtnPauseSelected.Content = lp.GetText("btn.pausesel");
                 StatusText.Text = lp.GetText("status.ready");
-            // update column headers
-            try
-            {
-                ColNameHeader.Text = lp.GetText("col.name");
-                ColSourceHeader.Text = lp.GetText("col.source");
-                ColTargetHeader.Text = lp.GetText("col.target");
-                ColStateHeader.Text = lp.GetText("col.state");
-                // Update encryption tab texts
+                // update column headers
                 try
                 {
-                    LblEncryptionHeader.Text = lp.GetText("encryption.code.label");
-                    TbEncryptionDesc.Text = lp.GetText("encryption.description");
-                    // Update tab header if translation exists
-                    string tabHeader = lp.GetText("tab.encryption");
-                    if (!string.IsNullOrWhiteSpace(tabHeader) && tabHeader != "tab.encryption")
-                        TabEncryption.Header = tabHeader;
-                    // Update add/remove button texts and list description
+                    ColNameHeader.Text = lp.GetText("col.name");
+                    ColSourceHeader.Text = lp.GetText("col.source");
+                    ColTargetHeader.Text = lp.GetText("col.target");
+                    ColStateHeader.Text = lp.GetText("col.state");
+                    ColProgressHeader.Text = lp.GetText("col.progress");
+                    ColActionsHeader.Text = lp.GetText("col.actions");
+                    // Update encryption tab texts
                     try
                     {
-                        BtnAddExt.Content = lp.GetText("encryption.add");
-                        BtnRemoveExt.Content = lp.GetText("encryption.remove");
-                        LblEncryptionListDesc.Text = lp.GetText("encryption.list.desc");
+                        LblEncryptionHeader.Text = lp.GetText("encryption.code.label");
+                        TbEncryptionDesc.Text = lp.GetText("encryption.description");
+                        SecuritySectionTitle.Text = lp.GetText("security.section.title");
+                        SecuritySectionDesc.Text = lp.GetText("security.section.desc");
+                        EncryptionExtensionsTitle.Text = lp.GetText("encryption.extensions.title");
+                        // Update tab header if translation exists
+                        string tabHeader = lp.GetText("tab.encryption");
+                        if (!string.IsNullOrWhiteSpace(tabHeader) && tabHeader != "tab.encryption")
+                            TabEncryption.Header = tabHeader;
+                        // Update add/remove button texts and list description
+                        try
+                        {
+                            BtnAddExt.Content = lp.GetText("encryption.add");
+                            BtnRemoveExt.Content = lp.GetText("encryption.remove");
+                            LblEncryptionListDesc.Text = lp.GetText("encryption.list.desc");
+                        }
+                        catch { }
+
+                        // Update priority extensions texts
+                        try
+                        {
+                            LblPriorityExtensionsHeader.Text = lp.GetText("priority.extensions.title");
+                            LblPriorityExtensionsDesc.Text = lp.GetText("priority.extensions.desc");
+                            LblPriorityExtensionsHint.Text = lp.GetText("priority.extensions.hint");
+                            BtnAddPriorityExt.Content = lp.GetText("encryption.add");
+                            BtnRemovePriorityExt.Content = lp.GetText("encryption.remove");
+                        }
+                        catch { }
+
+                        // Update bandwidth settings texts
+                        try
+                        {
+                            LblBandwidthHeader.Text = lp.GetText("bandwidth.header");
+                            LblLargeFileThreshold.Text = lp.GetText("bandwidth.threshold.label");
+                            if (TbLargeFileThresholdKb != null)
+                            {
+                                TbLargeFileThresholdKb.ToolTip = lp.GetText("bandwidth.threshold.tooltip");
+                            }
+                            LblBandwidthDesc.Text = lp.GetText("bandwidth.threshold.desc");
+                        }
+                        catch { }
+
+                        // Update settings tab texts
+                        try
+                        {
+                            SettingsSectionTitle.Text = lp.GetText("settings.section.title");
+                            SettingsSectionDesc.Text = lp.GetText("settings.section.desc");
+                            LblBusinessSectionTitle.Text = lp.GetText("settings.business.title");
+                            LblBusinessSectionDesc.Text = lp.GetText("settings.business.desc");
+                            LblBusinessStatusHeader.Text = lp.GetText("settings.business.status");
+                        }
+                        catch { }
+
+                        // Update remote logging section texts
+                        try
+                        {
+                            string tabSettings = lp.GetText("tab.settings");
+                            if (!string.IsNullOrWhiteSpace(tabSettings) && tabSettings != "tab.settings")
+                                TabSettingsHeader.Text = tabSettings;
+                            LblRemoteLoggingHeader.Text = lp.GetText("remote.logging.header");
+                            LblRemoteLoggingDesc.Text = lp.GetText("remote.logging.desc");
+                            CbEnableRemoteLogging.Content = lp.GetText("remote.logging.enable");
+                            LblRemoteLoggingHostLabel.Text = lp.GetText("remote.logging.host");
+                            LblRemoteLoggingPortLabel.Text = lp.GetText("remote.logging.port");
+                            CbKeepLocalLogs.Content = lp.GetText("remote.logging.keep.local");
+                            BtnTestConnection.Content = lp.GetText("remote.logging.test");
+                            LblBusinessSoftwareHeader.Text = lp.GetText("settings.business.monitored");
+                            TbBusinessHint.Text = lp.GetText("settings.business.hint");
+                            BtnRefreshStatus.Content = lp.GetText("btn.refresh");
+                            BtnAddCalc.Content = lp.GetText("btn.add.calc");
+                            BtnAddNotepad.Content = lp.GetText("btn.add.notepad");
+                        }
+                        catch { }
                     }
                     catch { }
                 }
                 catch { }
-            }
-            catch { }
+
+                // Update job states with translated text
+                UpdateJobStatesTranslation();
             }
 
             void AddJob()
@@ -181,7 +374,7 @@ namespace EasySave.WPF
                 if (dlg.ShowDialog() == true && dlg.Job != null)
                 {
                     // create in core BackupManager (it will validate and persist)
-                    if (_backupManager.CreateBackupJob(dlg.Job.Name, dlg.Job.Source, dlg.Job.Destination, BackupType.Full, dlg.Job.PreferredLogFormat, out var err))
+                    if (_backupManager.CreateBackupJob(dlg.Job.Name, dlg.Job.Source, dlg.Job.Destination, dlg.Job.BackupType, dlg.Job.PreferredLogFormat, out var err))
                     {
                         // reload backing list and UI
                         _backupJobs = _backupManager.GetBackupJobs();
@@ -189,76 +382,124 @@ namespace EasySave.WPF
                     }
                     else
                     {
-                        MessageBox.Show($"Failed to create job: {err}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        System.Windows.MessageBox.Show($"Failed to create job: {err}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     }
                 }
-            }
-
-            void StartAll()
-            {
-                for (int i = 0; i < _backupJobs.Count; i++)
-                {
-                    StartBackupByIndex(i + 1);
-                }
-                StatusText.Text = "Tous les travaux sont lancés";
             }
 
             void StartSelected()
             {
-                foreach (var item in JobsList.SelectedItems.Cast<object>())
+                List<Task> tasks = new();
+                var selectedItems = Jobs.Where(j => j.IsSelected).ToList();
+
+                foreach (var vm in selectedItems)
                 {
-                    if (item is JobViewModel vm)
+                    int idx = _backupJobs.FindIndex(b => b.GetName() == vm.Name && b.GetSourcePath() == vm.Source && b.GetTargetPath() == vm.Destination);
+                    if (idx >= 0)
                     {
-                        // find matching backup job index
-                        int idx = _backupJobs.FindIndex(b => b.GetName() == vm.Name && b.GetSourcePath() == vm.Source && b.GetTargetPath() == vm.Destination);
-                        if (idx >= 0) StartBackupByIndex(idx + 1);
+                        int index = idx + 1;
+                        var task = Task.Run(() => StartBackupByIndex(index));
+                        tasks.Add(task);
                     }
                 }
-                StatusText.Text = "Travaux sélectionnés lancés";
+
+                var lp = EasySave.Core.LanguageProvider.GetInstance();
+                StatusText.Text = lp.GetText("status.selected.started") ?? "Travaux sÃ©lectionnÃ©s lancÃ©s en parallÃ¨le";
+
+                if (tasks.Count > 0)
+                {
+                    _ = Task.WhenAll(tasks).ContinueWith(_ =>
+                    {
+                        Dispatcher.Invoke(() =>
+                        {
+                            StatusText.Text = lp.GetText("status.selected.completed") ?? "Travaux sÃ©lectionnÃ©s terminÃ©s";
+                        });
+                    });
+                }
             }
 
             void StopSelected()
             {
-                // BackupExecutor does not support cancellation in this codebase; notify the user
-                MessageBox.Show("Arrêt immédiat non supporté pour les sauvegardes en cours.", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
+                foreach (var vm in Jobs.Where(j => j.IsSelected))
+                {
+                    _backupManager.JobController.StopJob(vm.Name);
+                }
             }
 
-            void StopAll()
+            void PauseSelected()
             {
-                // Similarly, no cancellation available
-                MessageBox.Show("Arrêt immédiat non supporté pour les sauvegardes en cours.", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
+                foreach (var vm in Jobs.Where(j => j.IsSelected))
+                {
+                    _backupManager.JobController.PauseJob(vm.Name);
+                }
             }
 
             void StartBackupByIndex(int oneBasedIndex)
             {
+                // Check if business software is running before starting backup
+                if (_backupManager.IsBusinessSoftwareRunning())
+                {
+                    var runningProcesses = _backupManager.GetRunningMonitoredProcesses();
+                    var lpLocal = EasySave.Core.LanguageProvider.GetInstance();
+
+                    string title = lpLocal.GetText("business.error.title");
+                    string message = lpLocal.GetText("business.error.message");
+                    string instruction = lpLocal.GetText("business.error.instruction");
+
+                    string fullMessage = $"{message}\n\nÂ• {string.Join("\nÂ• ", runningProcesses)}\n\n{instruction}";
+
+                    System.Windows.MessageBox.Show(fullMessage, title, MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
                 // set UI state and run in background without progress polling
                 var b = _backupJobs.ElementAtOrDefault(oneBasedIndex - 1);
                 if (b == null) return;
 
-                var vm = Jobs.FirstOrDefault(j => j.Name == b.GetName() && j.Source == b.GetSourcePath() && j.Destination == b.GetTargetPath());
-                if (vm != null) vm.State = "Running";
+                // Check if this backup is already running
+                string jobKey = $"{b.GetName()}_{b.GetSourcePath()}_{b.GetTargetPath()}";
+                lock (_runningTasks)
+                {
+                    if (_runningTasks.ContainsKey(jobKey))
+                    {
+                        // Job is already running, skip
+                        return;
+                    }
+                }
 
-                _ = Task.Run(() =>
+                var vm = Jobs.FirstOrDefault(j => j.Name == b.GetName() && j.Source == b.GetSourcePath() && j.Destination == b.GetTargetPath());
+                if (vm != null)
+                {
+                    Dispatcher.Invoke(() => 
+                    { 
+                        vm.Progress = 0.0;  // Reset progress to 0
+                        vm.State = "Running";
+                    });
+                }
+
+                var task = Task.Run(() =>
                 {
                     try
                     {
                         // Ask user whether to encrypt (on UI thread)
                         bool encrypt = false;
-                        Dispatcher.Invoke(() => {
-                            var lpLocal = EasySave_v1._0.LanguageProvider.GetInstance();
+                        Dispatcher.Invoke(() =>
+                        {
+                            var lpLocal = EasySave.Core.LanguageProvider.GetInstance();
                             string prompt = lpLocal.GetText("encryption.prompt.encrypt");
                             string title = lpLocal.GetText("encryption.prompt.title");
-                            var res = MessageBox.Show(prompt, title, MessageBoxButton.YesNo, MessageBoxImage.Question);
+                            var res = System.Windows.MessageBox.Show(prompt, title, MessageBoxButton.YesNo, MessageBoxImage.Question);
                             encrypt = (res == MessageBoxResult.Yes);
                         });
 
                         if (encrypt && string.IsNullOrEmpty(EncryptionKey))
                         {
-                            Dispatcher.Invoke(() => {
-                                var lpLocal = EasySave_v1._0.LanguageProvider.GetInstance();
+                            Dispatcher.Invoke(() =>
+                            {
+                                var lpLocal = EasySave.Core.LanguageProvider.GetInstance();
                                 string missing = lpLocal.GetText("encryption.key.missing");
                                 string title = lpLocal.GetText("encryption.prompt.title");
-                                MessageBox.Show(missing, title, MessageBoxButton.OK, MessageBoxImage.Information);
+                                System.Windows.MessageBox.Show(missing, title, MessageBoxButton.OK, MessageBoxImage.Information);
                             });
                             encrypt = false;
                         }
@@ -269,91 +510,541 @@ namespace EasySave.WPF
                         }
                         else
                         {
-                            // Execute then encrypt copied files in target directory
-                            _backupManager.ExecuteBackupJob(oneBasedIndex);
-                            try
+                            // Collect extension filters from UI
+                            List<string> extFilters = new();
+                            Dispatcher.Invoke(() =>
                             {
-                                // find job and encrypt files in target
-                                var job = _backupJobs.ElementAtOrDefault(oneBasedIndex - 1);
-                                if (job != null)
+                                foreach (var it in LbEncryptionTypes.Items)
                                 {
-                                    // collect extension filters from UI
-                                    List<string> extFilters = new();
-                                    Dispatcher.Invoke(() =>
+                                    if (it is string s)
                                     {
-                                        foreach (var it in LbEncryptionTypes.Items)
-                                        {
-                                            if (it is string s)
-                                            {
-                                                var norm = s.Trim();
-                                                if (!norm.StartsWith('.')) norm = "." + norm;
-                                                extFilters.Add(norm.ToLowerInvariant());
-                                            }
-                                        }
-                                    });
-
-                                    var files = Directory.GetFiles(job.GetTargetPath(), "*", SearchOption.AllDirectories);
-                                    foreach (var f in files)
-                                    {
-                                        try
-                                        {
-                                            string fileExt = Path.GetExtension(f).ToLowerInvariant();
-                                            if (extFilters.Count > 0 && !extFilters.Contains(fileExt))
-                                                continue;
-
-                                            // measure encryption time
-                                            long encTime = 0;
-                                            string tmp = f + ".esenc";
-                                            var swEnc = Stopwatch.StartNew();
-                                            try
-                                            {
-                                                CryptoSoft.CryptoService.EncryptFile(f, tmp, EncryptionKey);
-                                                swEnc.Stop();
-                                                encTime = swEnc.ElapsedMilliseconds;
-                                            }
-                                            catch
-                                            {
-                                                try { swEnc.Stop(); } catch { }
-                                                encTime = -1; // indicate error
-                                            }
-
-                                            try
-                                            {
-                                                if (encTime > 0 && File.Exists(tmp))
-                                                {
-                                                    File.Delete(f);
-                                                    File.Move(tmp, f);
-                                                }
-                                                else
-                                                {
-                                                    if (File.Exists(tmp)) File.Delete(tmp);
-                                                }
-                                            }
-                                            catch { }
-
-                                            // log encryption time for this file (use File entry type)
-                                            try
-                                            {
-                                                long fsize = 0;
-                                                try { fsize = new FileInfo(f).Length; } catch { }
-                                                var elog = new LogEntry(job.GetName(), f, f, fsize, 0, LogEntry.EntryType.File, encTime);
-                                                _logger?.LogAction(elog);
-                                            }
-                                            catch { }
-                                        }
-                                        catch { }
+                                        var norm = s.Trim();
+                                        if (!norm.StartsWith('.')) norm = "." + norm;
+                                        extFilters.Add(norm.ToLowerInvariant());
                                     }
                                 }
-                            }
-                            catch { }
+                            });
+
+                            // Execute backup with encryption in a single pass
+                            _backupManager.ExecuteBackupJob(oneBasedIndex, true, EncryptionKey, extFilters);
                         }
                     }
                     catch { }
                     finally
                     {
+                        // Remove from running tasks and update UI state
+                        lock (_runningTasks)
+                        {
+                            _runningTasks.Remove(jobKey);
+                        }
                         Dispatcher.Invoke(() => { if (vm != null) vm.State = "Stopped"; });
                     }
                 });
+
+                // Store the task in the tracking dictionary
+                lock (_runningTasks)
+                {
+                    _runningTasks[jobKey] = task;
+                }
+            }
+        }
+
+        private void CbLanguage_PreviewMouseLeftButtonDown(object? sender, MouseButtonEventArgs e)
+        {
+            if (sender is System.Windows.Controls.ComboBox cb)
+            {
+                cb.Focus();
+                // Only open the dropdown if it's not already open. Avoid toggling here to prevent
+                // closing the dropdown when clicking an item which can prevent SelectionChanged.
+                if (!cb.IsDropDownOpen)
+                    cb.IsDropDownOpen = true;
+             }
+        }
+
+        // Individual job control handlers
+        private void BtnPlayJob_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is System.Windows.Controls.Button btn && btn.Tag is string jobName)
+            {
+                // Find the job and start/resume it
+                var job = Jobs.FirstOrDefault(j => j.Name == jobName);
+                if (job != null)
+                {
+                    // Check if paused, if so resume
+                    if (_backupManager.JobController.IsPaused(jobName))
+                    {
+                        _backupManager.JobController.ResumeJob(jobName);
+                    }
+                    else
+                    {
+                        // Start the job - find the index and execute via BackupManager
+                        var backupJob = _backupJobs.FirstOrDefault(b => b.GetName() == jobName);
+                        if (backupJob != null)
+                        {
+                            int index = _backupJobs.IndexOf(backupJob) + 1;
+
+                            // Check if already running
+                            string jobKey = $"{backupJob.GetName()}_{backupJob.GetSourcePath()}_{backupJob.GetTargetPath()}";
+                            lock (_runningTasks)
+                            {
+                                if (_runningTasks.ContainsKey(jobKey))
+                                {
+                                    return; // Already running
+                                }
+                            }
+
+                            // Check for business software
+                            if (_backupManager.IsBusinessSoftwareRunning())
+                            {
+                                var runningProcesses = _backupManager.GetRunningMonitoredProcesses();
+                                var lp = EasySave.Core.LanguageProvider.GetInstance();
+                                string title = lp.GetText("business.error.title");
+                                string message = lp.GetText("business.error.message");
+                                string instruction = lp.GetText("business.error.instruction");
+                                string fullMessage = $"{message}\n\n {string.Join("\n ", runningProcesses)}\n\n{instruction}";
+                                System.Windows.MessageBox.Show(fullMessage, title, MessageBoxButton.OK, MessageBoxImage.Warning);
+                                return;
+                            }
+
+                            // Reset progress to 0
+                            job.Progress = 0.0;
+
+                            // Start the backup task
+                            var task = Task.Run(() =>
+                            {
+                                try
+                                {
+                                    // Ask user whether to encrypt (on UI thread)
+                                    bool encrypt = false;
+                                    Dispatcher.Invoke(() =>
+                                    {
+                                        var lpLocal = EasySave.Core.LanguageProvider.GetInstance();
+                                        string prompt = lpLocal.GetText("encryption.prompt.encrypt");
+                                        string title = lpLocal.GetText("encryption.prompt.title");
+                                        var res = System.Windows.MessageBox.Show(prompt, title, MessageBoxButton.YesNo, MessageBoxImage.Question);
+                                        encrypt = (res == MessageBoxResult.Yes);
+                                    });
+
+                                    if (encrypt && string.IsNullOrEmpty(EncryptionKey))
+                                    {
+                                        Dispatcher.Invoke(() =>
+                                        {
+                                            var lpLocal = EasySave.Core.LanguageProvider.GetInstance();
+                                            string missing = lpLocal.GetText("encryption.key.missing");
+                                            string title = lpLocal.GetText("encryption.prompt.title");
+                                            System.Windows.MessageBox.Show(missing, title, MessageBoxButton.OK, MessageBoxImage.Information);
+                                        });
+                                        encrypt = false;
+                                    }
+
+                                    Dispatcher.Invoke(() => { if (job != null) job.State = "Running"; });
+
+                                    if (!encrypt)
+                                    {
+                                        _backupManager.ExecuteBackupJob(index);
+                                    }
+                                    else
+                                    {
+                                        // Collect extension filters from UI
+                                        List<string> extFilters = new();
+                                        Dispatcher.Invoke(() =>
+                                        {
+                                            foreach (var it in LbEncryptionTypes.Items)
+                                            {
+                                                if (it is string s)
+                                                {
+                                                    var norm = s.Trim();
+                                                    if (!norm.StartsWith('.')) norm = "." + norm;
+                                                    extFilters.Add(norm.ToLowerInvariant());
+                                                }
+                                            }
+                                        });
+
+                                        // Execute backup with encryption in a single pass
+                                        _backupManager.ExecuteBackupJob(index, true, EncryptionKey, extFilters);
+                                    }
+                                }
+                                catch { }
+                                finally
+                                {
+                                    lock (_runningTasks)
+                                    {
+                                        _runningTasks.Remove(jobKey);
+                                    }
+                                }
+                            });
+
+                            lock (_runningTasks)
+                            {
+                                _runningTasks[jobKey] = task;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private void BtnPauseJob_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is System.Windows.Controls.Button btn && btn.Tag is string jobName)
+            {
+                _backupManager.JobController.PauseJob(jobName);
+            }
+        }
+
+        private void BtnStopJob_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is System.Windows.Controls.Button btn && btn.Tag is string jobName)
+            {
+                _backupManager.JobController.StopJob(jobName);
+            }
+        }
+
+        private void BtnDecryptJob_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is not System.Windows.Controls.Button btn || btn.Tag is not string jobName)
+                return;
+
+            var backupJob = _backupJobs.FirstOrDefault(b => b.GetName() == jobName);
+            if (backupJob == null) return;
+
+            var dialog = new DecryptPasswordDialog { Owner = this };
+            if (dialog.ShowDialog() != true)
+                return;
+
+            string password = dialog.Password;
+
+            List<string> extFilters = new();
+            foreach (var it in LbEncryptionTypes.Items)
+            {
+                if (it is string s)
+                {
+                    var norm = s.Trim();
+                    if (!norm.StartsWith('.')) norm = "." + norm;
+                    extFilters.Add(norm.ToLowerInvariant());
+                }
+            }
+
+            _ = Task.Run(() =>
+            {
+                int successCount = 0, errorCount = 0;
+                try
+                {
+                    var files = Directory.GetFiles(backupJob.GetTargetPath(), "*", SearchOption.AllDirectories);
+                    foreach (var f in files)
+                    {
+                        try
+                        {
+                            string fileExt = Path.GetExtension(f).ToLowerInvariant();
+                            if (extFilters.Count > 0 && !extFilters.Contains(fileExt))
+                                continue;
+
+                            string tmp = f + ".esdec";
+                            CryptoSoft.CryptoService.DecryptFile(f, tmp, password);
+                            File.Delete(f);
+                            File.Move(tmp, f);
+                            successCount++;
+                        }
+                        catch
+                        {
+                            errorCount++;
+                            try { if (File.Exists(f + ".esdec")) File.Delete(f + ".esdec"); } catch { }
+                        }
+                    }
+                }
+                catch { }
+
+                Dispatcher.Invoke(() =>
+                {
+                    var lp = EasySave.Core.LanguageProvider.GetInstance();
+                    if (errorCount == 0)
+                    {
+                        System.Windows.MessageBox.Show(
+                            string.Format(lp.GetText("decrypt.success"), successCount),
+                            lp.GetText("decrypt.prompt.title"),
+                            MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                    else
+                    {
+                        System.Windows.MessageBox.Show(
+                            string.Format(lp.GetText("decrypt.partial"), successCount, errorCount),
+                            lp.GetText("decrypt.prompt.title"),
+                            MessageBoxButton.OK, MessageBoxImage.Warning);
+                    }
+                });
+            });
+        }
+
+        // Progress update timer handler
+        private void UpdateJobsProgress(object? sender, EventArgs e)
+        {
+            foreach (var job in Jobs)
+            {
+                var state = _stateManager.GetJobState(job.Name);
+                if (state != null)
+                {
+                    // Update progress
+                    job.Progress = state.Progress;
+
+                    // Update state with translation
+                    var lp = EasySave.Core.LanguageProvider.GetInstance();
+                    string translatedState = state.Status switch
+                    {
+                        StateStatus.Active => lp.GetText("state.running"),
+                        StateStatus.Paused => lp.GetText("state.paused"),
+                        StateStatus.Inactive => lp.GetText("state.stopped"),
+                        StateStatus.Completed => lp.GetText("state.completed"),
+                        StateStatus.Error => lp.GetText("state.error"),
+                        _ => lp.GetText("state.inactive")
+                    };
+
+                    job.State = translatedState;
+                }
+            }
+        }
+
+        // Update job states with current language
+        private void UpdateJobStatesTranslation()
+        {
+            foreach (var job in Jobs)
+            {
+                var state = _stateManager.GetJobState(job.Name);
+                if (state != null)
+                {
+                    var lp = EasySave.Core.LanguageProvider.GetInstance();
+                    string translatedState = state.Status switch
+                    {
+                        StateStatus.Active => lp.GetText("state.running"),
+                        StateStatus.Paused => lp.GetText("state.paused"),
+                        StateStatus.Inactive => lp.GetText("state.stopped"),
+                        StateStatus.Completed => lp.GetText("state.completed"),
+                        StateStatus.Error => lp.GetText("state.error"),
+                        _ => lp.GetText("state.inactive")
+                    };
+
+                    job.State = translatedState;
+                }
+            }
+        }
+
+        private void LoadBusinessProcesses()
+        {
+            LbBusinessProcesses.Items.Clear();
+            var processes = _backupManager.GetMonitoredProcesses();
+            foreach (var process in processes)
+            {
+                LbBusinessProcesses.Items.Add(process);
+            }
+        }
+
+        private void LoadPriorityExtensions()
+        {
+            LbPriorityExtensions.Items.Clear();
+            var extensions = _backupManager.GetPriorityExtensions();
+            foreach (var ext in extensions)
+            {
+                LbPriorityExtensions.Items.Add(ext);
+            }
+        }
+
+        private void UpdateBusinessStatus()
+        {
+            bool isRunning = _backupManager.IsBusinessSoftwareRunning();
+            var lp = EasySave.Core.LanguageProvider.GetInstance();
+
+            if (isRunning)
+            {
+                var runningProcesses = _backupManager.GetRunningMonitoredProcesses();
+                string processNames = string.Join(", ", runningProcesses);
+
+                // Update to error state
+                BusinessStatusBorder.Background = (System.Windows.Media.Brush)FindResource("DangerSoft");
+                BusinessStatusBorder.BorderBrush = (System.Windows.Media.Brush)FindResource("DangerColor");
+                TbBusinessStatus.Text = string.Format(lp.GetText("business.status.detected"), processNames);
+                TbBusinessStatus.Foreground = new System.Windows.Media.SolidColorBrush(
+                    System.Windows.Media.Color.FromRgb(0xDC, 0x26, 0x26));
+                TbBusinessStatusDetail.Text = lp.GetText("business.status.blocked");
+                TbBusinessStatusDetail.Foreground = new System.Windows.Media.SolidColorBrush(
+                    System.Windows.Media.Color.FromRgb(0xB9, 0x1C, 0x1C));
+            }
+            else
+            {
+                // Update to success state
+                BusinessStatusBorder.Background = (System.Windows.Media.Brush)FindResource("SuccessSoft");
+                BusinessStatusBorder.BorderBrush = (System.Windows.Media.Brush)FindResource("SuccessColor");
+                TbBusinessStatus.Text = lp.GetText("business.status.none");
+                TbBusinessStatus.Foreground = new System.Windows.Media.SolidColorBrush(
+                    System.Windows.Media.Color.FromRgb(0x15, 0x80, 0x3D));
+                TbBusinessStatusDetail.Text = lp.GetText("business.status.allowed");
+                TbBusinessStatusDetail.Foreground = new System.Windows.Media.SolidColorBrush(
+                    System.Windows.Media.Color.FromRgb(0x4D, 0x7C, 0x0F));
+            }
+        }
+
+        private void LoadRemoteLoggingConfig()
+        {
+            try
+            {
+                var config = AppConfig.Instance;
+
+                CbEnableRemoteLogging.IsChecked = config.RemoteLogging.Enabled;
+                TbRemoteLoggingHost.Text = config.RemoteLogging.ServerHost;
+                TbRemoteLoggingPort.Text = config.RemoteLogging.ServerPort.ToString();
+                CbKeepLocalLogs.IsChecked = config.RemoteLogging.EnableLocalLogging;
+
+                // Update panel state
+                if (config.RemoteLogging.Enabled)
+                {
+                    PnlRemoteLoggingSettings.IsEnabled = true;
+                    PnlRemoteLoggingSettings.Opacity = 1.0;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to load remote logging config: {ex.Message}");
+            }
+        }
+
+        private void SaveRemoteLoggingConfig()
+        {
+            try
+            {
+                var config = AppConfig.Instance;
+
+                config.RemoteLogging.Enabled = CbEnableRemoteLogging.IsChecked == true;
+                config.RemoteLogging.ServerHost = TbRemoteLoggingHost.Text?.Trim() ?? "localhost";
+
+                if (int.TryParse(TbRemoteLoggingPort.Text, out int port))
+                {
+                    config.RemoteLogging.ServerPort = port;
+                }
+
+                config.RemoteLogging.EnableLocalLogging = CbKeepLocalLogs.IsChecked == true;
+
+                config.SaveConfig();
+
+                var lp = EasySave.Core.LanguageProvider.GetInstance();
+                ShowRemoteLoggingStatus(lp.GetText("remote.logging.status.saved"), true);
+            }
+            catch (Exception ex)
+            {
+                var lp = EasySave.Core.LanguageProvider.GetInstance();
+                ShowRemoteLoggingStatus(string.Format(lp.GetText("remote.logging.status.error"), ex.Message), false);
+            }
+        }
+
+        private async Task TestRemoteLoggingConnection()
+        {
+            var lp = EasySave.Core.LanguageProvider.GetInstance();
+            try
+            {
+                string? host = TbRemoteLoggingHost.Text?.Trim();
+                if (string.IsNullOrWhiteSpace(host))
+                {
+                    ShowRemoteLoggingStatus(lp.GetText("remote.logging.status.no.host"), false);
+                    return;
+                }
+
+                if (!int.TryParse(TbRemoteLoggingPort.Text, out int port))
+                {
+                    ShowRemoteLoggingStatus(lp.GetText("remote.logging.status.invalid.port"), false);
+                    return;
+                }
+
+                ShowRemoteLoggingStatus(lp.GetText("remote.logging.status.testing"), null);
+
+                // Test connection
+                await Task.Run(() =>
+                {
+                    using var client = new System.Net.Sockets.TcpClient();
+                    var connectTask = client.ConnectAsync(host, port);
+                    if (!connectTask.Wait(TimeSpan.FromSeconds(5)))
+                    {
+                        throw new TimeoutException("Timeout de connexion");
+                    }
+                });
+
+                ShowRemoteLoggingStatus(string.Format(lp.GetText("remote.logging.status.success"), host, port), true);
+
+                // Auto-save on successful test
+                SaveRemoteLoggingConfig();
+            }
+            catch (Exception ex)
+            {
+                ShowRemoteLoggingStatus(string.Format(lp.GetText("remote.logging.status.failed"), ex.Message), false);
+            }
+        }
+
+        private void ShowRemoteLoggingStatus(string message, bool? success)
+        {
+            RemoteLoggingStatusBorder.Visibility = Visibility.Visible;
+            TbRemoteLoggingStatus.Text = message;
+
+            if (success.HasValue)
+            {
+                if (success.Value)
+                {
+                    RemoteLoggingStatusBorder.Background = (System.Windows.Media.Brush)FindResource("SuccessSoft");
+                    RemoteLoggingStatusBorder.BorderBrush = (System.Windows.Media.Brush)FindResource("SuccessColor");
+                    TbRemoteLoggingStatus.Foreground = new System.Windows.Media.SolidColorBrush(
+                        System.Windows.Media.Color.FromRgb(0x15, 0x80, 0x3D));
+                }
+                else
+                {
+                    RemoteLoggingStatusBorder.Background = (System.Windows.Media.Brush)FindResource("DangerSoft");
+                    RemoteLoggingStatusBorder.BorderBrush = (System.Windows.Media.Brush)FindResource("DangerColor");
+                    TbRemoteLoggingStatus.Foreground = new System.Windows.Media.SolidColorBrush(
+                        System.Windows.Media.Color.FromRgb(0xDC, 0x26, 0x26));
+                }
+            }
+            else
+            {
+                // Neutral (loading state)
+                RemoteLoggingStatusBorder.Background = (System.Windows.Media.Brush)FindResource("NeutralSoft");
+                RemoteLoggingStatusBorder.BorderBrush = (System.Windows.Media.Brush)FindResource("BorderColor");
+                TbRemoteLoggingStatus.Foreground = (System.Windows.Media.Brush)FindResource("TextSecondary");
+            }
+        }
+
+        private void CbSelectAll_Checked(object sender, RoutedEventArgs e)
+        {
+            foreach (var job in Jobs)
+                job.IsSelected = true;
+        }
+
+        private void CbSelectAll_Unchecked(object sender, RoutedEventArgs e)
+        {
+            foreach (var job in Jobs)
+                job.IsSelected = false;
+        }
+
+        // Input validation for large-file threshold textbox
+        private void TbLargeFileThresholdKb_PreviewTextInput(object sender, System.Windows.Input.TextCompositionEventArgs e)
+        {
+            foreach (char c in e.Text)
+            {
+                if (!char.IsDigit(c))
+                {
+                    e.Handled = true;
+                    return;
+                }
+            }
+            e.Handled = false;
+        }
+
+        private void TbLargeFileThresholdKb_Pasting(object sender, System.Windows.DataObjectPastingEventArgs e)
+        {
+            if (e.DataObject.GetDataPresent(typeof(string)))
+            {
+                string text = (string)e.DataObject.GetData(typeof(string));
+                if (!int.TryParse(text, out _))
+                {
+                    e.CancelCommand();
+                }
+            }
+            else
+            {
+                e.CancelCommand();
             }
         }
     }

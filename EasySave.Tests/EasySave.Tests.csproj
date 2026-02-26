@@ -9,12 +9,13 @@
   <ItemGroup>
     <PackageReference Include="xunit" Version="2.5.3" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.5.3" />
-    <PackageReference Include="Moq" Version="4.18.6" />
+    <PackageReference Include="Moq" Version="4.20.72" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\EasySave v1.0\EasySave v1.0.csproj" />
+    <ProjectReference Include="..\EasySave.Core\EasySave.Core.csproj" />
     <ProjectReference Include="..\EasyLog\EasyLog.csproj" />
+    <ProjectReference Include="..\CryptoSoft\CryptoSoft.csproj" />
   </ItemGroup>
 </Project>
