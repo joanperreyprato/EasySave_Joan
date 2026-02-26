@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
+using System.Xml.Linq;
 
 namespace EasySave.LogServer
 {
@@ -116,32 +117,54 @@ namespace EasySave.LogServer
         {
             try
             {
-                // Verify it's valid JSON
-                using var doc = JsonDocument.Parse(jsonLog);
-                
-                // Extract timestamp for organizing logs
+                string trimmed = jsonLog.TrimStart();
+                bool isJson = false;
+                bool isXml = false;
+
+                if (trimmed.Length > 0)
+                {
+                    char c = trimmed[0];
+                    if (c == '{' || c == '[') isJson = true;
+                    else if (c == '<') isXml = true;
+                }
+
                 string date = DateTime.UtcNow.ToString("yyyy-MM-dd");
-                
-                // Try to get client machine name or use endpoint
+
                 string clientIdentifier = GetClientIdentifier(jsonLog, clientEndpoint);
-                
-                // Create client-specific directory
                 string clientDirectory = Path.Combine(_logDirectory, SanitizeFileName(clientIdentifier));
                 Directory.CreateDirectory(clientDirectory);
-                
-                // Create daily log file
-                string logFilePath = Path.Combine(clientDirectory, $"{date}.json");
-                
-                // Append log entry
-                await File.AppendAllTextAsync(logFilePath, jsonLog + Environment.NewLine);
-                
-                // Display log info
+
+                if (isJson)
+                {
+                    // Validate JSON
+                    using var doc = JsonDocument.Parse(jsonLog);
+                    string logFilePath = Path.Combine(clientDirectory, $"{date}.json");
+                    await File.AppendAllTextAsync(logFilePath, jsonLog + Environment.NewLine);
+                }
+                else if (isXml)
+                {
+                    // Accept raw XML and save as .xml daily file
+                    string logFilePath = Path.Combine(clientDirectory, $"{date}.xml");
+                    await File.AppendAllTextAsync(logFilePath, jsonLog + Environment.NewLine);
+                }
+                else
+                {
+                    // Try to parse as JSON, otherwise save raw
+                    try
+                    {
+                        using var doc = JsonDocument.Parse(jsonLog);
+                        string logFilePath = Path.Combine(clientDirectory, $"{date}.json");
+                        await File.AppendAllTextAsync(logFilePath, jsonLog + Environment.NewLine);
+                    }
+                    catch
+                    {
+                        string logFilePath = Path.Combine(clientDirectory, $"{date}.log");
+                        await File.AppendAllTextAsync(logFilePath, jsonLog + Environment.NewLine);
+                    }
+                }
+
                 Console.WriteLine($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 📝 Log received from {clientIdentifier}");
                 DisplayLogSummary(jsonLog);
-            }
-            catch (JsonException ex)
-            {
-                Console.WriteLine($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] ✗ Invalid JSON from {clientEndpoint}: {ex.Message}");
             }
             catch (Exception ex)
             {
@@ -153,26 +176,35 @@ namespace EasySave.LogServer
         {
             try
             {
-                using var doc = JsonDocument.Parse(jsonLog);
-                var root = doc.RootElement;
-                
-                // Try to get machine name from log if available
-                if (root.TryGetProperty("machineName", out var machineNameProp))
+                string trimmed = jsonLog.TrimStart();
+                if (trimmed.Length > 0 && (trimmed[0] == '{' || trimmed[0] == '['))
                 {
-                    return machineNameProp.GetString() ?? fallbackEndpoint;
+                    using var doc = JsonDocument.Parse(jsonLog);
+                    var root = doc.RootElement;
+
+                    // case-insensitive lookup for machine/backup
+                    string? machine = GetJsonStringValue(root, new[] { "machineName", "machinename", "machine" });
+                    if (!string.IsNullOrWhiteSpace(machine)) return machine;
+
+                    string? backup = GetJsonStringValue(root, new[] { "backupName", "backupname", "backup" });
+                    if (!string.IsNullOrWhiteSpace(backup)) return $"{fallbackEndpoint.Split(':')[0]}_{backup}";
                 }
-                
-                if (root.TryGetProperty("backupName", out var backupNameProp))
+
+                if (trimmed.Length > 0 && trimmed[0] == '<')
                 {
-                    var backupName = backupNameProp.GetString();
-                    if (!string.IsNullOrEmpty(backupName))
+                    try
                     {
-                        return $"{fallbackEndpoint.Split(':')[0]}_{backupName}";
+                        var el = XElement.Parse(trimmed);
+                        var machine = el.Element("machineName")?.Value ?? el.Element("MachineName")?.Value;
+                        if (!string.IsNullOrWhiteSpace(machine)) return machine;
+                        var backup = el.Element("backupName")?.Value ?? el.Element("BackupName")?.Value;
+                        if (!string.IsNullOrWhiteSpace(backup)) return $"{fallbackEndpoint.Split(':')[0]}_{backup}";
                     }
+                    catch { }
                 }
             }
             catch { }
-            
+
             return fallbackEndpoint.Split(':')[0];
         }
 
@@ -180,19 +212,55 @@ namespace EasySave.LogServer
         {
             try
             {
-                using var doc = JsonDocument.Parse(jsonLog);
-                var root = doc.RootElement;
-                
-                var backupName = root.TryGetProperty("backupName", out var bn) ? bn.GetString() : "N/A";
-                var sourceFile = root.TryGetProperty("sourceFilePath", out var sf) ? sf.GetString() : "N/A";
-                var type = root.TryGetProperty("type", out var t) ? t.GetString() : "N/A";
-                
-                // Truncate long paths for display
+                string trimmed = jsonLog.TrimStart();
+                string backupName = "N/A";
+                string sourceFile = "N/A";
+                string type = "N/A";
+
+                if (trimmed.Length > 0 && (trimmed[0] == '{' || trimmed[0] == '['))
+                {
+                    using var doc = JsonDocument.Parse(jsonLog);
+                    var root = doc.RootElement;
+                    backupName = GetJsonStringValue(root, new[] { "backupName", "backupname", "backup" }) ?? "N/A";
+                    sourceFile = GetJsonStringValue(root, new[] { "sourceFilePath", "sourcefilePath", "sourcefilepath", "sourceFile" }) ?? "N/A";
+                    type = GetJsonStringValue(root, new[] { "type", "entryType", "entrytype" }) ?? "N/A";
+
+                    // Additional details for JSON (case-insensitive)
+                    var machineName = GetJsonStringValue(root, new[] { "machineName", "machinename", "machine" });
+                    var fileSizeProp = GetJsonStringValue(root, new[] { "fileSize", "filesize", "size" });
+                    var transferTimeProp = GetJsonStringValue(root, new[] { "transferTime", "transfertime", "transfer_time", "tx" });
+                    var encryptionTimeProp = GetJsonStringValue(root, new[] { "encryptionTime", "encryptiontime", "enc" });
+
+                    if (!string.IsNullOrWhiteSpace(machineName))
+                        backupName = (backupName == "N/A" ? string.Empty : backupName + " ") + "(" + machineName + ")";
+
+                    // append size and times to type display for quick info
+                    var extras = new List<string>();
+                    if (!string.IsNullOrWhiteSpace(fileSizeProp)) extras.Add($"size={fileSizeProp}");
+                    if (!string.IsNullOrWhiteSpace(transferTimeProp)) extras.Add($"tx={transferTimeProp}ms");
+                    if (!string.IsNullOrWhiteSpace(encryptionTimeProp)) extras.Add($"enc={encryptionTimeProp}ms");
+                    if (extras.Count > 0)
+                    {
+                        type = type == "N/A" ? string.Join(";", extras) : type + " (" + string.Join(", ", extras) + ")";
+                    }
+                }
+                else if (trimmed.Length > 0 && trimmed[0] == '<')
+                {
+                    try
+                    {
+                        var el = XElement.Parse(trimmed);
+                        backupName = el.Element("backupName")?.Value ?? "N/A";
+                        sourceFile = el.Element("sourceFilePath")?.Value ?? "N/A";
+                        type = el.Element("type")?.Value ?? "N/A";
+                    }
+                    catch { }
+                }
+
                 if (sourceFile != null && sourceFile.Length > 50)
                 {
                     sourceFile = "..." + sourceFile.Substring(sourceFile.Length - 47);
                 }
-                
+
                 Console.WriteLine($"    ↳ Backup: {backupName}, Type: {type}, File: {sourceFile}");
             }
             catch { }
@@ -202,6 +270,35 @@ namespace EasySave.LogServer
         {
             var invalid = Path.GetInvalidFileNameChars();
             return string.Join("_", name.Split(invalid, StringSplitOptions.RemoveEmptyEntries)).TrimEnd('.');
+        }
+
+        // Helper: case-insensitive string lookup in a JsonElement
+        private static string? GetJsonStringValue(JsonElement root, string[] candidateNames)
+        {
+            try
+            {
+                foreach (var prop in root.EnumerateObject())
+                {
+                    foreach (var name in candidateNames)
+                    {
+                        if (string.Equals(prop.Name, name, StringComparison.OrdinalIgnoreCase))
+                        {
+                            try
+                            {
+                                if (prop.Value.ValueKind == JsonValueKind.String)
+                                    return prop.Value.GetString();
+                                if (prop.Value.ValueKind == JsonValueKind.Number)
+                                    return prop.Value.GetRawText();
+                                return prop.Value.ToString();
+                            }
+                            catch { return prop.Value.ToString(); }
+                        }
+                    }
+                }
+            }
+            catch { }
+
+            return null;
         }
 
         public void Stop()
