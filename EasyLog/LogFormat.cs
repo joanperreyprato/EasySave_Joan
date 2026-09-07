@@ -1,8 +1,10 @@
-namespace EasyLog
+namespace EasyLog;
+
+/// <summary>Supported log file formats.</summary>
+public enum LogFormat
 {
-    public enum LogFormat
-    {
-        Json,
-        Xml
-    }
+    /// <summary>JavaScript Object Notation format.</summary>
+    Json,
+    /// <summary>Extensible Markup Language format.</summary>
+    Xml
 }
