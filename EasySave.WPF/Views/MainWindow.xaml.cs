@@ -36,6 +36,9 @@ public partial class MainWindow : Window
 
     private void LogFormatCombo_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
     {
+        // Guard: ViewModel may not be set yet during XAML initialization
+        if (_viewModel is null) return;
+
         if (sender is WpfComboBox combo && combo.SelectedItem is WpfComboBoxItem item)
         {
             string format = item.Content?.ToString() ?? "JSON";
