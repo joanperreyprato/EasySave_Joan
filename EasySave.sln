@@ -11,6 +11,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasySave.CLI", "EasySave.CL
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasySave.Tests", "EasySave.Tests\EasySave.Tests.csproj", "{5537B7CC-3686-497E-A7CA-399CA749E958}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasySave.WPF", "EasySave.WPF\EasySave.WPF.csproj", "{DFFB84DA-B853-4565-B6B9-C92238D11D6E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CryptoSoft", "CryptoSoft\CryptoSoft.csproj", "{2D0F26CA-5D50-4244-8640-1B134DB8A71B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,5 +40,13 @@ Global
 		{5537B7CC-3686-497E-A7CA-399CA749E958}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5537B7CC-3686-497E-A7CA-399CA749E958}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5537B7CC-3686-497E-A7CA-399CA749E958}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DFFB84DA-B853-4565-B6B9-C92238D11D6E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DFFB84DA-B853-4565-B6B9-C92238D11D6E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DFFB84DA-B853-4565-B6B9-C92238D11D6E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DFFB84DA-B853-4565-B6B9-C92238D11D6E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2D0F26CA-5D50-4244-8640-1B134DB8A71B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2D0F26CA-5D50-4244-8640-1B134DB8A71B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2D0F26CA-5D50-4244-8640-1B134DB8A71B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2D0F26CA-5D50-4244-8640-1B134DB8A71B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
