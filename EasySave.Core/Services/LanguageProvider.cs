@@ -76,6 +76,13 @@ public sealed class LanguageProvider : ILanguageProvider
             ["settings_log_format"]     = "Log format",
             ["log_format_json"]         = "JSON",
             ["log_format_xml"]          = "XML",
+            ["btn_new_job"]             = "＋ New Job",
+            ["btn_run_selected"]        = "▶ Run Selected",
+            ["btn_run_all"]             = "▶▶ Run All",
+            ["btn_delete"]              = "✕ Delete",
+            ["lbl_business_software"]   = "Business Software:",
+            ["lbl_encrypt_extensions"]  = "Encrypt Extensions:",
+            ["lbl_save"]                = "Save"
         },
         ["fr"] = new()
         {
@@ -117,6 +124,13 @@ public sealed class LanguageProvider : ILanguageProvider
             ["settings_log_format"]     = "Format du journal",
             ["log_format_json"]         = "JSON",
             ["log_format_xml"]          = "XML",
+            ["btn_new_job"]             = "＋ Nouveau",
+            ["btn_run_selected"]        = "▶ Lancer sélection",
+            ["btn_run_all"]             = "▶▶ Lancer tout",
+            ["btn_delete"]              = "✕ Supprimer",
+            ["lbl_business_software"]   = "Logiciel métier :",
+            ["lbl_encrypt_extensions"]  = "Extensions à chiffrer :",
+            ["lbl_save"]                = "Sauvegarder"
         }
     };
 

@@ -114,13 +114,13 @@
 
             <!-- Toolbar -->
             <WrapPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
-                <Button Content="＋ New Job" Style="{StaticResource PrimaryButton}"
+                <Button Content="{Binding [btn_new_job]}" Style="{StaticResource PrimaryButton}"
                         Click="NewJobButton_Click" IsEnabled="{Binding IsNotBusy}"/>
-                <Button Content="▶ Run Selected" Style="{StaticResource PrimaryButton}"
+                <Button Content="{Binding [btn_run_selected]}" Style="{StaticResource PrimaryButton}"
                         Command="{Binding RunSelectedJobsCommand}"/>
-                <Button Content="▶▶ Run All" Style="{StaticResource PrimaryButton}"
+                <Button Content="{Binding [btn_run_all]}" Style="{StaticResource PrimaryButton}"
                         Command="{Binding RunAllJobsCommand}"/>
-                <Button Content="✕ Delete" Style="{StaticResource DangerButton}"
+                <Button Content="{Binding [btn_delete]}" Style="{StaticResource DangerButton}"
                         Command="{Binding DeleteJobCommand}"/>
             </WrapPanel>
 
@@ -130,10 +130,10 @@
                           SelectedItem="{Binding SelectedJob}" SelectionChanged="JobsGrid_SelectionChanged">
                     <DataGrid.Columns>
                         <DataGridCheckBoxColumn Header="" Binding="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" Width="36"/>
-                        <DataGridTextColumn Header="Name"   Binding="{Binding Name}"   Width="200" IsReadOnly="True"/>
-                        <DataGridTextColumn Header="Type"   Binding="{Binding TypeText}" Width="100" IsReadOnly="True"/>
-                        <DataGridTextColumn Header="Source" Binding="{Binding SourceDirectory}" Width="*" IsReadOnly="True"/>
-                        <DataGridTextColumn Header="Target" Binding="{Binding TargetDirectory}" Width="*" IsReadOnly="True"/>
+                        <DataGridTextColumn Header="{Binding DataContext.[job_name], RelativeSource={RelativeSource AncestorType=DataGrid}}"   Binding="{Binding Name}"   Width="200" IsReadOnly="True"/>
+                        <DataGridTextColumn Header="{Binding DataContext.[job_type], RelativeSource={RelativeSource AncestorType=DataGrid}}"   Binding="{Binding TypeText}" Width="100" IsReadOnly="True"/>
+                        <DataGridTextColumn Header="{Binding DataContext.[job_source], RelativeSource={RelativeSource AncestorType=DataGrid}}" Binding="{Binding SourceDirectory}" Width="*" IsReadOnly="True"/>
+                        <DataGridTextColumn Header="{Binding DataContext.[job_target], RelativeSource={RelativeSource AncestorType=DataGrid}}" Binding="{Binding TargetDirectory}" Width="*" IsReadOnly="True"/>
                         <DataGridTextColumn Header="Status" Binding="{Binding StatusText}" Width="110" IsReadOnly="True"/>
                         <DataGridTemplateColumn Header="Progress" Width="160">
                             <DataGridTemplateColumn.CellTemplate>
@@ -159,7 +159,7 @@
                     BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="4"
                     Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibility}}">
                 <StackPanel>
-                    <TextBlock FontWeight="SemiBold" Text="Active backup details:"/>
+                    <TextBlock FontWeight="SemiBold" Text="{Binding [info_backing_up]}"/>
                     <TextBlock Text="{Binding SelectedJob.Name, StringFormat='Job: {0}'}"
                                Foreground="{DynamicResource SubtextBrush}"/>
                     <TextBlock Text="{Binding SelectedJob.RemainingFiles, StringFormat='Files remaining: {0}'}"
@@ -169,7 +169,7 @@
         </Grid>
 
         <!-- ── Settings Panel ─────────────────────────────────────────────── -->
-        <Expander Grid.Row="2" Header="⚙ Settings" Margin="12,0,12,6"
+        <Expander Grid.Row="2" Header="{Binding [menu_settings]}" Margin="12,0,12,6"
                   Background="{DynamicResource SurfaceBrush}"
                   Foreground="{DynamicResource TextBrush}"
                   BorderBrush="{DynamicResource BorderBrush}">
@@ -189,22 +189,22 @@
                     <RowDefinition/>
                 </Grid.RowDefinitions>
 
-                <TextBlock Grid.Column="0" Text="Business Software:" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                <TextBlock Grid.Column="0" Text="{Binding [lbl_business_software]}" VerticalAlignment="Center" Margin="0,0,8,0"/>
                 <TextBox Grid.Column="1" Text="{Binding BusinessSoftwareName, UpdateSourceTrigger=PropertyChanged}"
                          ToolTip="Process name to monitor (e.g. calc, outlook)"/>
 
-                <TextBlock Grid.Column="3" Text="Encrypt Extensions:" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                <TextBlock Grid.Column="3" Text="{Binding [lbl_encrypt_extensions]}" VerticalAlignment="Center" Margin="0,0,8,0"/>
                 <TextBox Grid.Column="4" Text="{Binding EncryptionExtensions, UpdateSourceTrigger=PropertyChanged}"
                          ToolTip="Comma-separated extensions to encrypt (e.g. .docx, .xlsx)"/>
 
-                <TextBlock Grid.Column="6" Text="Log Format:" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                <TextBlock Grid.Column="6" Text="{Binding [settings_log_format]}" VerticalAlignment="Center" Margin="0,0,8,0"/>
                 <ComboBox Grid.Column="7" x:Name="LogFormatCombo" SelectionChanged="LogFormatCombo_SelectionChanged"
                           SelectedIndex="0" VerticalAlignment="Center">
                     <ComboBoxItem Content="JSON"/>
                     <ComboBoxItem Content="XML"/>
                 </ComboBox>
 
-                <Button Grid.Column="8" Content="Save" Style="{StaticResource PrimaryButton}"
+                <Button Grid.Column="8" Content="{Binding [lbl_save]}" Style="{StaticResource PrimaryButton}"
                         Command="{Binding SaveSettingsCommand}" VerticalAlignment="Center"/>
             </Grid>
         </Expander>

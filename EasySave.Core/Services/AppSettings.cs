@@ -31,10 +31,16 @@ public sealed class AppSettings
     private SettingsData _data;
 
     /// <summary>Initializes the settings service, loading persisted values from disk.</summary>
-    public AppSettings()
+    /// <param name="settingsPath">Optional custom path for testing; defaults to ProgramData location.</param>
+    public AppSettings(string? settingsPath = null)
     {
+        if (settingsPath is not null)
+            _settingsPath = settingsPath;
         _data = Load();
     }
+
+    // Override the static field with an instance field for testability
+    private readonly string _settingsPath;
 
     // ── Properties ─────────────────────────────────────────────────────────────
 
@@ -88,8 +94,9 @@ public sealed class AppSettings
     {
         try
         {
-            if (!File.Exists(SettingsPath)) return new SettingsData();
-            var json = File.ReadAllText(SettingsPath);
+            string targetPath = _settingsPath ?? SettingsPath;
+            if (!File.Exists(targetPath)) return new SettingsData();
+            var json = File.ReadAllText(targetPath);
             return JsonSerializer.Deserialize<SettingsData>(json, JsonOptions) ?? new SettingsData();
         }
         catch { return new SettingsData(); }
@@ -99,8 +106,9 @@ public sealed class AppSettings
     {
         try
         {
-            Directory.CreateDirectory(Path.GetDirectoryName(SettingsPath)!);
-            File.WriteAllText(SettingsPath, JsonSerializer.Serialize(_data, JsonOptions));
+            string targetPath = _settingsPath ?? SettingsPath;
+            Directory.CreateDirectory(Path.GetDirectoryName(targetPath)!);
+            File.WriteAllText(targetPath, JsonSerializer.Serialize(_data, JsonOptions));
         }
         catch { /* Ignore write errors */ }
     }

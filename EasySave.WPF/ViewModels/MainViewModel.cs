@@ -106,6 +106,9 @@ public sealed class MainViewModel : ViewModelBase
     /// <summary>Gets the theme toggle button text.</summary>
     public string ThemeButtonText => _isDarkTheme ? "☀ Light" : "🌙 Dark";
 
+    /// <summary>Gets translated strings for the UI based on the current language.</summary>
+    public string this[string key] => LanguageProvider.Instance.Get(key);
+
     /// <summary>Creates a new backup job and refreshes the list.</summary>
     public BackupCreationResult CreateJob(string name, string source, string target, BackupType type)
     {
@@ -147,7 +150,11 @@ public sealed class MainViewModel : ViewModelBase
     {
         _currentLanguage = _currentLanguage == "en" ? "fr" : "en";
         _settings.Language = _currentLanguage;
+        LanguageProvider.Instance.SetLanguage(_currentLanguage);
+
         OnPropertyChanged(nameof(CurrentLanguageText));
+        OnPropertyChanged("Item[]"); // Force WPF to re-evaluate all {Binding [key]} expressions
+
         StatusMessage = _currentLanguage == "fr" ? "Langue : Français" : "Language: English";
     }
 
