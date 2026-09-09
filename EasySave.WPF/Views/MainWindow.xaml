@@ -129,13 +129,42 @@
                 <DataGrid x:Name="JobsGrid" ItemsSource="{Binding Jobs}"
                           SelectedItem="{Binding SelectedJob}" SelectionChanged="JobsGrid_SelectionChanged">
                     <DataGrid.Columns>
-                        <DataGridCheckBoxColumn Header="" Binding="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" Width="36"/>
-                        <DataGridTextColumn Header="{Binding DataContext.[job_name], RelativeSource={RelativeSource AncestorType=DataGrid}}"   Binding="{Binding Name}"   Width="200" IsReadOnly="True"/>
-                        <DataGridTextColumn Header="{Binding DataContext.[job_type], RelativeSource={RelativeSource AncestorType=DataGrid}}"   Binding="{Binding TypeText}" Width="100" IsReadOnly="True"/>
-                        <DataGridTextColumn Header="{Binding DataContext.[job_source], RelativeSource={RelativeSource AncestorType=DataGrid}}" Binding="{Binding SourceDirectory}" Width="*" IsReadOnly="True"/>
-                        <DataGridTextColumn Header="{Binding DataContext.[job_target], RelativeSource={RelativeSource AncestorType=DataGrid}}" Binding="{Binding TargetDirectory}" Width="*" IsReadOnly="True"/>
-                        <DataGridTextColumn Header="Status" Binding="{Binding StatusText}" Width="110" IsReadOnly="True"/>
-                        <DataGridTemplateColumn Header="Progress" Width="160">
+                        <DataGridCheckBoxColumn Binding="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" Width="36"/>
+                        
+                        <DataGridTextColumn Binding="{Binding Name}" Width="200" IsReadOnly="True">
+                            <DataGridTextColumn.Header>
+                                <TextBlock Text="{Binding DataContext.[job_name], RelativeSource={RelativeSource AncestorType=DataGrid}}"/>
+                            </DataGridTextColumn.Header>
+                        </DataGridTextColumn>
+
+                        <DataGridTextColumn Binding="{Binding TypeText}" Width="100" IsReadOnly="True">
+                            <DataGridTextColumn.Header>
+                                <TextBlock Text="{Binding DataContext.[job_type], RelativeSource={RelativeSource AncestorType=DataGrid}}"/>
+                            </DataGridTextColumn.Header>
+                        </DataGridTextColumn>
+
+                        <DataGridTextColumn Binding="{Binding SourceDirectory}" Width="*" IsReadOnly="True">
+                            <DataGridTextColumn.Header>
+                                <TextBlock Text="{Binding DataContext.[job_source], RelativeSource={RelativeSource AncestorType=DataGrid}}"/>
+                            </DataGridTextColumn.Header>
+                        </DataGridTextColumn>
+
+                        <DataGridTextColumn Binding="{Binding TargetDirectory}" Width="*" IsReadOnly="True">
+                            <DataGridTextColumn.Header>
+                                <TextBlock Text="{Binding DataContext.[job_target], RelativeSource={RelativeSource AncestorType=DataGrid}}"/>
+                            </DataGridTextColumn.Header>
+                        </DataGridTextColumn>
+
+                        <DataGridTextColumn Binding="{Binding StatusText}" Width="110" IsReadOnly="True">
+                            <DataGridTextColumn.Header>
+                                <TextBlock Text="{Binding DataContext.[status_active], RelativeSource={RelativeSource AncestorType=DataGrid}}"/>
+                            </DataGridTextColumn.Header>
+                        </DataGridTextColumn>
+                        
+                        <DataGridTemplateColumn Width="160">
+                            <DataGridTemplateColumn.Header>
+                                <TextBlock Text="Progress"/>
+                            </DataGridTemplateColumn.Header>
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <Grid>

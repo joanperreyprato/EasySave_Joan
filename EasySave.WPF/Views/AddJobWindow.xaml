@@ -22,28 +22,28 @@
         </Grid.ColumnDefinitions>
 
         <!-- Name -->
-        <TextBlock Grid.Row="0" Grid.Column="0" Text="Job Name:" VerticalAlignment="Center" Margin="0,6"/>
+        <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding [job_name]}" VerticalAlignment="Center" Margin="0,6"/>
         <TextBox Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" x:Name="NameBox" Margin="0,6"/>
 
         <!-- Source -->
-        <TextBlock Grid.Row="1" Grid.Column="0" Text="Source Directory:" VerticalAlignment="Center" Margin="0,6"/>
+        <TextBlock Grid.Row="1" Grid.Column="0" Text="{Binding [job_source]}" VerticalAlignment="Center" Margin="0,6"/>
         <TextBox Grid.Row="1" Grid.Column="1" x:Name="SourceBox" Margin="0,6,6,6"/>
         <Button Grid.Row="1" Grid.Column="2" Content="📂" Width="32" Click="BrowseSource_Click"
                 ToolTip="Browse source directory" Padding="4" Margin="0,6"/>
 
         <!-- Target -->
-        <TextBlock Grid.Row="2" Grid.Column="0" Text="Target Directory:" VerticalAlignment="Center" Margin="0,6"/>
+        <TextBlock Grid.Row="2" Grid.Column="0" Text="{Binding [job_target]}" VerticalAlignment="Center" Margin="0,6"/>
         <TextBox Grid.Row="2" Grid.Column="1" x:Name="TargetBox" Margin="0,6,6,6"/>
         <Button Grid.Row="2" Grid.Column="2" Content="📂" Width="32" Click="BrowseTarget_Click"
                 ToolTip="Browse target directory" Padding="4" Margin="0,6"/>
 
         <!-- Type -->
-        <TextBlock Grid.Row="3" Grid.Column="0" Text="Backup Type:" VerticalAlignment="Center" Margin="0,6"/>
+        <TextBlock Grid.Row="3" Grid.Column="0" Text="{Binding [job_type]}" VerticalAlignment="Center" Margin="0,6"/>
         <StackPanel Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2"
                     Orientation="Horizontal" Margin="0,6">
-            <RadioButton x:Name="FullRadio" Content="Full" IsChecked="True" Margin="0,0,20,0"
+            <RadioButton x:Name="FullRadio" Content="{Binding [job_type_full]}" IsChecked="True" Margin="0,0,20,0"
                          Foreground="{DynamicResource TextBrush}" VerticalAlignment="Center"/>
-            <RadioButton x:Name="DiffRadio" Content="Differential"
+            <RadioButton x:Name="DiffRadio" Content="{Binding [job_type_differential]}"
                          Foreground="{DynamicResource TextBrush}" VerticalAlignment="Center"/>
         </StackPanel>
 
@@ -55,7 +55,7 @@
         <!-- Buttons -->
         <StackPanel Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="3"
                     Orientation="Horizontal" HorizontalAlignment="Right">
-            <Button Content="Cancel" Width="90" Click="Cancel_Click"
+            <Button Content="{Binding [btn_cancel]}" Width="90" Click="Cancel_Click"
                     Margin="0,0,10,0" Padding="8,6"
                     Background="{DynamicResource BorderBrush}"
                     Foreground="{DynamicResource TextBrush}" BorderThickness="0">
@@ -67,7 +67,7 @@
                     </ControlTemplate>
                 </Button.Template>
             </Button>
-            <Button Content="✓ Create Job" Width="110" Click="Create_Click"
+            <Button Content="{Binding [btn_create]}" Width="110" Click="Create_Click"
                     Padding="8,6" Background="{DynamicResource PrimaryBrush}" Foreground="White" BorderThickness="0">
                 <Button.Template>
                     <ControlTemplate TargetType="Button">

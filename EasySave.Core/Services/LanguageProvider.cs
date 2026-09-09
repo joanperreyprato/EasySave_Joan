@@ -82,7 +82,9 @@ public sealed class LanguageProvider : ILanguageProvider
             ["btn_delete"]              = "✕ Delete",
             ["lbl_business_software"]   = "Business Software:",
             ["lbl_encrypt_extensions"]  = "Encrypt Extensions:",
-            ["lbl_save"]                = "Save"
+            ["lbl_save"]                = "Save",
+            ["btn_cancel"]              = "Cancel",
+            ["btn_create"]              = "✓ Create Job"
         },
         ["fr"] = new()
         {
@@ -130,7 +132,9 @@ public sealed class LanguageProvider : ILanguageProvider
             ["btn_delete"]              = "✕ Supprimer",
             ["lbl_business_software"]   = "Logiciel métier :",
             ["lbl_encrypt_extensions"]  = "Extensions à chiffrer :",
-            ["lbl_save"]                = "Sauvegarder"
+            ["lbl_save"]                = "Sauvegarder",
+            ["btn_cancel"]              = "Annuler",
+            ["btn_create"]              = "✓ Créer"
         }
     };
 

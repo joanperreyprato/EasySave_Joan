@@ -17,6 +17,7 @@ public partial class AddJobWindow : Window
     {
         InitializeComponent();
         _viewModel = viewModel;
+        DataContext = _viewModel;
     }
 
     private void BrowseSource_Click(object sender, RoutedEventArgs e)
