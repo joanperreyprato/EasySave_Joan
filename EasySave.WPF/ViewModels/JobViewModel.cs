@@ -45,48 +45,29 @@ public sealed class JobViewModel : ViewModelBase
     /// <summary>Gets or sets whether this job is selected in the list.</summary>
     public bool IsSelected { get => _isSelected; set => SetField(ref _isSelected, value); }
 
-    /// <summary>Gets a human-readable status string based on the current language.</summary>
-    public string StatusText
+    /// <summary>Gets the localized string representation of the current status.</summary>
+    public string StatusText => EasySave.Core.Services.LanguageProvider.Instance.Get(Status switch
     {
-        get
-        {
-            string statusKey = Status switch
-            {
-                JobStatus.Active => "status_active",
-                JobStatus.Completed => "status_completed",
-                JobStatus.Error => "status_error",
-                JobStatus.Paused => "status_paused",
-                _ => "status_inactive"
-            };
-            
-            // Adds a small icon based on status
-            string icon = Status switch
-            {
-                JobStatus.Active => "▶ ",
-                JobStatus.Completed => "✓ ",
-                JobStatus.Error => "✗ ",
-                JobStatus.Paused => "⏸ ",
-                _ => "● "
-            };
+        JobStatus.Active    => "status_active",
+        JobStatus.Paused    => "status_paused",
+        JobStatus.Completed => "status_completed",
+        JobStatus.Error     => "status_error",
+        _                   => "status_inactive"
+    });
 
-            return icon + EasySave.Core.Services.LanguageProvider.Instance.Get(statusKey);
-        }
+    /// <summary>Forces UI to refresh translated texts.</summary>
+    public void RefreshTranslations()
+    {
+        OnPropertyChanged(nameof(TypeText));
+        OnPropertyChanged(nameof(StatusText));
     }
 
     /// <summary>Gets whether the job is currently running.</summary>
     public bool IsRunning => Status == JobStatus.Active;
 
-    /// <summary>Gets the backup type as a translated display string.</summary>
-    public string TypeText => Type == BackupType.Full 
-        ? EasySave.Core.Services.LanguageProvider.Instance.Get("job_type_full") 
-        : EasySave.Core.Services.LanguageProvider.Instance.Get("job_type_differential");
-
-    /// <summary>Forces UI to re-read the translated properties.</summary>
-    public void RefreshTranslations()
-    {
-        OnPropertyChanged(nameof(StatusText));
-        OnPropertyChanged(nameof(TypeText));
-    }
+    /// <summary>Gets the localized string representation of the backup type.</summary>
+    public string TypeText => EasySave.Core.Services.LanguageProvider.Instance.Get(
+        Type == BackupType.Full ? "job_type_full" : "job_type_differential");
 
     /// <summary>Creates a <see cref="JobViewModel"/> from a <see cref="BackupJob"/> model.</summary>
     public static JobViewModel FromModel(BackupJob job) => new()

@@ -56,6 +56,15 @@
             <Setter Property="FontSize"   Value="13"/>
         </Style>
 
+        <Style TargetType="DataGridColumnHeader">
+            <Setter Property="Background"          Value="{DynamicResource BackgroundBrush}"/>
+            <Setter Property="Foreground"          Value="{DynamicResource TextBrush}"/>
+            <Setter Property="BorderBrush"         Value="{DynamicResource BorderBrush}"/>
+            <Setter Property="BorderThickness"     Value="0,0,1,1"/>
+            <Setter Property="Padding"             Value="8,6"/>
+            <Setter Property="FontWeight"          Value="SemiBold"/>
+        </Style>
+
         <!-- DataGrid Style -->
         <Style TargetType="DataGrid">
             <Setter Property="Background"          Value="{DynamicResource SurfaceBrush}"/>
