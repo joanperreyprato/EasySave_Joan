@@ -45,21 +45,48 @@ public sealed class JobViewModel : ViewModelBase
     /// <summary>Gets or sets whether this job is selected in the list.</summary>
     public bool IsSelected { get => _isSelected; set => SetField(ref _isSelected, value); }
 
-    /// <summary>Gets a human-readable status string.</summary>
-    public string StatusText => Status switch
+    /// <summary>Gets a human-readable status string based on the current language.</summary>
+    public string StatusText
     {
-        JobStatus.Active => "▶ Running",
-        JobStatus.Completed => "✓ Done",
-        JobStatus.Error => "✗ Error",
-        JobStatus.Paused => "⏸ Paused",
-        _ => "● Idle"
-    };
+        get
+        {
+            string statusKey = Status switch
+            {
+                JobStatus.Active => "status_active",
+                JobStatus.Completed => "status_completed",
+                JobStatus.Error => "status_error",
+                JobStatus.Paused => "status_paused",
+                _ => "status_inactive"
+            };
+            
+            // Adds a small icon based on status
+            string icon = Status switch
+            {
+                JobStatus.Active => "▶ ",
+                JobStatus.Completed => "✓ ",
+                JobStatus.Error => "✗ ",
+                JobStatus.Paused => "⏸ ",
+                _ => "● "
+            };
+
+            return icon + EasySave.Core.Services.LanguageProvider.Instance.Get(statusKey);
+        }
+    }
 
     /// <summary>Gets whether the job is currently running.</summary>
     public bool IsRunning => Status == JobStatus.Active;
 
-    /// <summary>Gets the backup type as a display string.</summary>
-    public string TypeText => Type == BackupType.Full ? "Full" : "Differential";
+    /// <summary>Gets the backup type as a translated display string.</summary>
+    public string TypeText => Type == BackupType.Full 
+        ? EasySave.Core.Services.LanguageProvider.Instance.Get("job_type_full") 
+        : EasySave.Core.Services.LanguageProvider.Instance.Get("job_type_differential");
+
+    /// <summary>Forces UI to re-read the translated properties.</summary>
+    public void RefreshTranslations()
+    {
+        OnPropertyChanged(nameof(StatusText));
+        OnPropertyChanged(nameof(TypeText));
+    }
 
     /// <summary>Creates a <see cref="JobViewModel"/> from a <see cref="BackupJob"/> model.</summary>
     public static JobViewModel FromModel(BackupJob job) => new()

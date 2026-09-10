@@ -155,6 +155,9 @@ public sealed class MainViewModel : ViewModelBase
         OnPropertyChanged(nameof(CurrentLanguageText));
         OnPropertyChanged("Item[]"); // Force WPF to re-evaluate all {Binding [key]} expressions
 
+        foreach (var job in Jobs)
+            job.RefreshTranslations();
+
         StatusMessage = _currentLanguage == "fr" ? "Langue : Français" : "Language: English";
     }
 
