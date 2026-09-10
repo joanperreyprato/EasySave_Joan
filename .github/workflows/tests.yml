@@ -1,0 +1,30 @@
+name: .NET Tests CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-test:
+    name: Build and Run Tests
+    runs-on: windows-latest # Obligatoire car EasySave.WPF utilise net8.0-windows
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET 8.0
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+
+    - name: Restore dependencies
+      run: dotnet restore EasySave.sln
+
+    - name: Build Solution
+      run: dotnet build EasySave.sln --no-restore --configuration Release
+
+    - name: Run Unit & Integration Tests
+      run: dotnet test EasySave.sln --no-build --configuration Release --verbosity normal
