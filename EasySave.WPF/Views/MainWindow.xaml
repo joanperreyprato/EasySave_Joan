@@ -442,28 +442,11 @@
                                 <DataTemplate>
                                     <Grid Margin="8,6">
                                         <ProgressBar Value="{Binding Progress}" Maximum="100" Minimum="0"
-                                                     Height="6" Background="{DynamicResource Surface2Brush}">
-                                            <ProgressBar.Foreground>
-                                                <SolidColorBrush Color="#2563EB"/>
-                                            </ProgressBar.Foreground>
-                                            <ProgressBar.Template>
-                                                <ControlTemplate TargetType="ProgressBar">
-                                                    <Border CornerRadius="3" Background="{TemplateBinding Background}">
-                                                        <Border x:Name="PART_Indicator" HorizontalAlignment="Left"
-                                                                CornerRadius="3" Background="{TemplateBinding Foreground}"/>
-                                                    </Border>
-                                                    <ControlTemplate.Triggers>
-                                                        <Trigger Property="Value" Value="100">
-                                                            <Setter TargetName="PART_Indicator" Property="Background" Value="#16A34A"/>
-                                                        </Trigger>
-                                                    </ControlTemplate.Triggers>
-                                                </ControlTemplate>
-                                            </ProgressBar.Template>
-                                        </ProgressBar>
+                                                     Height="12" Foreground="#2563EB" Background="{DynamicResource Surface2Brush}" 
+                                                     BorderThickness="0"/>
                                         <TextBlock Text="{Binding Progress, StringFormat={}{0:0}%}"
-                                                   HorizontalAlignment="Right" VerticalAlignment="Center"
-                                                   Margin="0,-14,0,0" FontSize="10"
-                                                   Foreground="{DynamicResource SubtextBrush}"/>
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                   FontSize="10" FontWeight="Bold" Foreground="White"/>
                                     </Grid>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
