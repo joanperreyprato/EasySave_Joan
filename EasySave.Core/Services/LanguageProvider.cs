@@ -88,7 +88,21 @@ public sealed class LanguageProvider : ILanguageProvider
             ["lbl_priority_extensions"] = "Priority Ext.:",
             ["lbl_large_file_kb"]       = "Large File (Ko):",
             ["status_paused"]           = "⏸ Paused",
-            ["status_stopped"]          = "⏹ Stopped"
+            ["status_stopped"]          = "⏹ Stopped",
+            ["section_jobs"]            = "JOBS",
+            ["section_playback"]        = "PLAYBACK",
+            ["section_all_jobs"]        = "ALL JOBS",
+            ["btn_play"]                = "▶ Play",
+            ["btn_pause"]               = "⏸ Pause",
+            ["btn_stop"]                = "⏹ Stop",
+            ["btn_play_all"]            = "▶▶ Play All",
+            ["btn_pause_all"]           = "⏸⏸ Pause All",
+            ["btn_stop_all"]            = "⏹⏹ Stop All",
+            ["header_progress"]         = "Progress",
+            ["header_status"]           = "Status",
+            ["detail_active_job"]       = "ACTIVE JOB",
+            ["detail_files_remaining"]  = "FILES REMAINING",
+            ["detail_progress"]         = "PROGRESS"
         },
         ["fr"] = new()
         {
@@ -142,7 +156,21 @@ public sealed class LanguageProvider : ILanguageProvider
             ["lbl_priority_extensions"] = "Ext. prioritaires :",
             ["lbl_large_file_kb"]       = "Gros fichier (Ko) :",
             ["status_paused"]           = "⏸ En pause",
-            ["status_stopped"]          = "⏹ Arrêté"
+            ["status_stopped"]          = "⏹ Arrêté",
+            ["section_jobs"]            = "SAUVEGARDES",
+            ["section_playback"]        = "CONTRÔLES",
+            ["section_all_jobs"]        = "TOUTES LES SAUVEGARDES",
+            ["btn_play"]                = "▶ Reprendre",
+            ["btn_pause"]               = "⏸ Suspendre",
+            ["btn_stop"]                = "⏹ Arrêter",
+            ["btn_play_all"]            = "▶▶ Tout reprendre",
+            ["btn_pause_all"]           = "⏸⏸ Tout suspendre",
+            ["btn_stop_all"]            = "⏹⏹ Tout arrêter",
+            ["header_progress"]         = "Progression",
+            ["header_status"]           = "Statut",
+            ["detail_active_job"]       = "JOB ACTIF",
+            ["detail_files_remaining"]  = "FICHIERS RESTANTS",
+            ["detail_progress"]         = "PROGRESSION"
         }
     };
 

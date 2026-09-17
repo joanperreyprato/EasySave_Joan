@@ -213,49 +213,49 @@
                 <!-- Nav -->
                 <StackPanel Grid.Row="1" Margin="8,0">
 
-                    <TextBlock Text="JOBS" Style="{StaticResource SectionLabel}"/>
+                    <TextBlock Text="{Binding [section_jobs]}" Style="{StaticResource SectionLabel}"/>
 
-                    <Button Content="＋  New Job" Style="{StaticResource SideBtn}"
+                    <Button Content="{Binding [btn_new_job]}" Style="{StaticResource SideBtn}"
                             Click="NewJobButton_Click" IsEnabled="{Binding IsNotBusy}"
                             Foreground="{DynamicResource TextBrush}"/>
 
-                    <Button Content="▶  Run Selected" Style="{StaticResource SideBtn}"
+                    <Button Content="{Binding [btn_run_selected]}" Style="{StaticResource SideBtn}"
                             Command="{Binding RunSelectedJobsCommand}"
                             Foreground="{DynamicResource TextBrush}"/>
 
-                    <Button Content="▶▶  Run All" Style="{StaticResource SideBtn}"
+                    <Button Content="{Binding [btn_run_all]}" Style="{StaticResource SideBtn}"
                             Command="{Binding RunAllJobsCommand}"
                             Foreground="{DynamicResource TextBrush}"/>
 
-                    <Button Content="✕  Delete" Style="{StaticResource SideBtn}"
+                    <Button Content="{Binding [btn_delete]}" Style="{StaticResource SideBtn}"
                             Command="{Binding DeleteJobCommand}"
                             Foreground="{DynamicResource ErrorBrush}"/>
 
                     <Separator/>
 
-                    <TextBlock Text="PLAYBACK" Style="{StaticResource SectionLabel}"/>
+                    <TextBlock Text="{Binding [section_playback]}" Style="{StaticResource SectionLabel}"/>
 
-                    <Button Content="▶  Play" Style="{StaticResource SideBtn}"
+                    <Button Content="{Binding [btn_play]}" Style="{StaticResource SideBtn}"
                             Command="{Binding ResumeJobCommand}"
                             Foreground="#3FB950"/>
-                    <Button Content="⏸  Pause" Style="{StaticResource SideBtn}"
+                    <Button Content="{Binding [btn_pause]}" Style="{StaticResource SideBtn}"
                             Command="{Binding PauseJobCommand}"
                             Foreground="{DynamicResource WarningBrush}"/>
-                    <Button Content="⏹  Stop" Style="{StaticResource SideBtn}"
+                    <Button Content="{Binding [btn_stop]}" Style="{StaticResource SideBtn}"
                             Command="{Binding StopJobCommand}"
                             Foreground="{DynamicResource ErrorBrush}"/>
 
                     <Separator/>
 
-                    <TextBlock Text="ALL JOBS" Style="{StaticResource SectionLabel}"/>
+                    <TextBlock Text="{Binding [section_all_jobs]}" Style="{StaticResource SectionLabel}"/>
 
-                    <Button Content="▶▶  Play All" Style="{StaticResource SideBtn}"
+                    <Button Content="{Binding [btn_play_all]}" Style="{StaticResource SideBtn}"
                             Command="{Binding ResumeAllCommand}"
                             Foreground="#3FB950"/>
-                    <Button Content="⏸⏸  Pause All" Style="{StaticResource SideBtn}"
+                    <Button Content="{Binding [btn_pause_all]}" Style="{StaticResource SideBtn}"
                             Command="{Binding PauseAllCommand}"
                             Foreground="{DynamicResource WarningBrush}"/>
-                    <Button Content="⏹⏹  Stop All" Style="{StaticResource SideBtn}"
+                    <Button Content="{Binding [btn_stop_all]}" Style="{StaticResource SideBtn}"
                             Command="{Binding StopAllCommand}"
                             Foreground="{DynamicResource ErrorBrush}"/>
                 </StackPanel>
@@ -374,7 +374,7 @@
                         <!-- Status badge -->
                         <DataGridTemplateColumn Width="110">
                             <DataGridTemplateColumn.Header>
-                                <TextBlock Text="Status" Style="{StaticResource {x:Type TextBlock}}"/>
+                                <TextBlock Text="{Binding DataContext.[header_status], RelativeSource={RelativeSource AncestorType=DataGrid}}" Style="{StaticResource {x:Type TextBlock}}"/>
                             </DataGridTemplateColumn.Header>
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
@@ -428,7 +428,7 @@
                         <!-- Progress bar -->
                         <DataGridTemplateColumn Width="160">
                             <DataGridTemplateColumn.Header>
-                                <TextBlock Text="Progress" Style="{StaticResource {x:Type TextBlock}}"/>
+                                <TextBlock Text="{Binding DataContext.[header_progress], RelativeSource={RelativeSource AncestorType=DataGrid}}" Style="{StaticResource {x:Type TextBlock}}"/>
                             </DataGridTemplateColumn.Header>
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
@@ -475,17 +475,17 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Column="0">
-                        <TextBlock Text="ACTIVE JOB" FontSize="10" FontWeight="SemiBold"
+                        <TextBlock Text="{Binding [detail_active_job]}" FontSize="10" FontWeight="SemiBold"
                                    Foreground="{DynamicResource SubtextBrush}"/>
                         <TextBlock Text="{Binding SelectedJob.Name}" FontWeight="SemiBold" Margin="0,2,0,0"/>
                     </StackPanel>
                     <StackPanel Grid.Column="1">
-                        <TextBlock Text="FILES REMAINING" FontSize="10" FontWeight="SemiBold"
+                        <TextBlock Text="{Binding [detail_files_remaining]}" FontSize="10" FontWeight="SemiBold"
                                    Foreground="{DynamicResource SubtextBrush}"/>
                         <TextBlock Text="{Binding SelectedJob.RemainingFiles}" Margin="0,2,0,0"/>
                     </StackPanel>
                     <StackPanel Grid.Column="2">
-                        <TextBlock Text="PROGRESS" FontSize="10" FontWeight="SemiBold"
+                        <TextBlock Text="{Binding [detail_progress]}" FontSize="10" FontWeight="SemiBold"
                                    Foreground="{DynamicResource SubtextBrush}"/>
                         <TextBlock Text="{Binding SelectedJob.Progress, StringFormat={}{0:0}%}" Margin="0,2,0,0"
                                    Foreground="#3FB950" FontWeight="SemiBold"/>
