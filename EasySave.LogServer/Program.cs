@@ -43,8 +43,43 @@ class Program
             {
                 while (await reader.ReadLineAsync() is { } line)
                 {
-                    // Print received log entry in console
-                    Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] {line}");
+                    try
+                    {
+                        using var doc = System.Text.Json.JsonDocument.Parse(line);
+                        var root = doc.RootElement;
+                        
+                        string backupName = root.GetProperty("backupName").GetString() ?? "Unknown";
+                        string sourceFile = root.GetProperty("sourceFilePath").GetString() ?? "";
+                        long size = root.GetProperty("fileSize").GetInt64();
+                        long transferMs = root.GetProperty("transferDurationMs").GetInt64();
+                        long cryptoMs = root.GetProperty("encryptionDurationMs").GetInt64();
+
+                        string fileName = Path.GetFileName(sourceFile);
+                        string cryptoTag = cryptoMs > 0 ? $" [🔒 {cryptoMs}ms]" : "";
+
+                        Console.ForegroundColor = ConsoleColor.DarkGray;
+                        Console.Write($"[{DateTime.Now:HH:mm:ss}] ");
+                        
+                        Console.ForegroundColor = ConsoleColor.Cyan;
+                        Console.Write($"[{backupName}] ");
+                        
+                        Console.ForegroundColor = ConsoleColor.White;
+                        Console.Write($"Copied '");
+                        
+                        Console.ForegroundColor = ConsoleColor.Yellow;
+                        Console.Write(fileName);
+                        
+                        Console.ForegroundColor = ConsoleColor.White;
+                        Console.WriteLine($"' ({size} B) in {transferMs}ms{cryptoTag}");
+                        
+                        Console.ResetColor();
+                    }
+                    catch
+                    {
+                        // Fallback si le texte reçu n'est pas du JSON valide
+                        Console.ResetColor();
+                        Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] {line}");
+                    }
                 }
             }
             catch (Exception)
@@ -52,6 +87,8 @@ class Program
                 // Client disconnected abruptly
             }
         }
+        Console.ForegroundColor = ConsoleColor.Red;
         Console.WriteLine($"[-] Disconnected: {endPoint}");
+        Console.ResetColor();
     }
 }
