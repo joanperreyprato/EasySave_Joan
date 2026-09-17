@@ -313,8 +313,16 @@
                           SelectedItem="{Binding SelectedJob}" SelectionChanged="JobsGrid_SelectionChanged"
                           Padding="0">
                     <DataGrid.Columns>
-                        <DataGridCheckBoxColumn Binding="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}"
-                                               Width="42"/>
+                        <!-- Checkbox column -->
+                        <DataGridTemplateColumn Width="42">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <CheckBox IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}"
+                                              HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
 
                         <DataGridTextColumn Binding="{Binding Name}" Width="180" IsReadOnly="True">
                             <DataGridTextColumn.Header>
