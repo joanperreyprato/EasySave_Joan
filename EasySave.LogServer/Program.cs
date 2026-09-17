@@ -57,28 +57,17 @@ class Program
                         string fileName = Path.GetFileName(sourceFile);
                         string cryptoTag = cryptoMs > 0 ? $" [🔒 {cryptoMs}ms]" : "";
 
-                        Console.ForegroundColor = ConsoleColor.DarkGray;
-                        Console.Write($"[{DateTime.Now:HH:mm:ss}] ");
+                        // Codes ANSI : 90=Gris, 36=Cyan, 33=Jaune, 97=Blanc, 0=Reset
+                        string time = $"\x1b[90m[{DateTime.Now:HH:mm:ss}]\x1b[0m";
+                        string job = $"\x1b[36m[{backupName}]\x1b[0m";
+                        string msg = $"\x1b[97mCopied '\x1b[33m{fileName}\x1b[97m' ({size} B) in {transferMs}ms{cryptoTag}\x1b[0m";
                         
-                        Console.ForegroundColor = ConsoleColor.Cyan;
-                        Console.Write($"[{backupName}] ");
-                        
-                        Console.ForegroundColor = ConsoleColor.White;
-                        Console.Write($"Copied '");
-                        
-                        Console.ForegroundColor = ConsoleColor.Yellow;
-                        Console.Write(fileName);
-                        
-                        Console.ForegroundColor = ConsoleColor.White;
-                        Console.WriteLine($"' ({size} B) in {transferMs}ms{cryptoTag}");
-                        
-                        Console.ResetColor();
+                        Console.WriteLine($"{time} {job} {msg}");
                     }
                     catch
                     {
-                        // Fallback si le texte reçu n'est pas du JSON valide
-                        Console.ResetColor();
-                        Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] {line}");
+                        // Fallback
+                        Console.WriteLine($"\x1b[0m[{DateTime.Now:HH:mm:ss}] {line}\x1b[0m");
                     }
                 }
             }
@@ -87,8 +76,6 @@ class Program
                 // Client disconnected abruptly
             }
         }
-        Console.ForegroundColor = ConsoleColor.Red;
-        Console.WriteLine($"[-] Disconnected: {endPoint}");
-        Console.ResetColor();
+        Console.WriteLine($"\x1b[31m[-] Disconnected: {endPoint}\x1b[0m");
     }
 }
