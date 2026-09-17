@@ -88,6 +88,13 @@ public sealed class AppSettings
         set { lock (_lock) { _data.PriorityExtensions = value; Save(); } }
     }
 
+    /// <summary>Alias for LargeFileSizeKb — max file size (Ko) for parallel transfer.</summary>
+    public long MaxParallelFileSizeKb
+    {
+        get => LargeFileSizeKb;
+        set => LargeFileSizeKb = value;
+    }
+
     // ── Persistence ────────────────────────────────────────────────────────────
 
     private SettingsData Load()

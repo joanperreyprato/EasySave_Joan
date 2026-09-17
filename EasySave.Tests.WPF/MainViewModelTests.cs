@@ -26,7 +26,7 @@ public sealed class MainViewModelTests : IDisposable
         var stateManager = new StateManager(_statePath);
         var settings     = new AppSettings(_appSetPath);
         var monitor      = new BusinessSoftwareMonitor();
-        var backupSvc    = new BackupServiceV2(stateManager, settings, monitor, _cfgPath);
+        var backupSvc    = new BackupServiceV3(stateManager, settings, monitor, _cfgPath);
 
         _viewModel = new MainViewModel(backupSvc, settings, monitor, stateManager);
     }

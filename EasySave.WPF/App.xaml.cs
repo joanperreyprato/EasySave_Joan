@@ -20,7 +20,7 @@ public partial class App : System.Windows.Application
         {
             ProcessName = appSettings.BusinessSoftwareName
         };
-        var backupService = new BackupServiceV2(stateManager, appSettings, monitor);
+        var backupService = new BackupServiceV3(stateManager, appSettings, monitor);
         var viewModel = new MainViewModel(backupService, appSettings, monitor, stateManager);
 
         // Apply light theme on startup

@@ -84,7 +84,11 @@ public sealed class LanguageProvider : ILanguageProvider
             ["lbl_encrypt_extensions"]  = "Encrypt Extensions:",
             ["lbl_save"]                = "Save",
             ["btn_cancel"]              = "Cancel",
-            ["btn_create"]              = "✓ Create Job"
+            ["btn_create"]              = "✓ Create Job",
+            ["lbl_priority_extensions"] = "Priority Ext.:",
+            ["lbl_large_file_kb"]       = "Large File (Ko):",
+            ["status_paused"]           = "⏸ Paused",
+            ["status_stopped"]          = "⏹ Stopped"
         },
         ["fr"] = new()
         {
@@ -134,7 +138,11 @@ public sealed class LanguageProvider : ILanguageProvider
             ["lbl_encrypt_extensions"]  = "Extensions à chiffrer :",
             ["lbl_save"]                = "Sauvegarder",
             ["btn_cancel"]              = "Annuler",
-            ["btn_create"]              = "✓ Créer"
+            ["btn_create"]              = "✓ Créer",
+            ["lbl_priority_extensions"] = "Ext. prioritaires :",
+            ["lbl_large_file_kb"]       = "Gros fichier (Ko) :",
+            ["status_paused"]           = "⏸ En pause",
+            ["status_stopped"]          = "⏹ Arrêté"
         }
     };
 

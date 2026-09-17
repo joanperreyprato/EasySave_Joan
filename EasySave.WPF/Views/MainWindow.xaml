@@ -98,7 +98,9 @@
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                     <TextBlock Text="💾 EasySave" FontSize="20" FontWeight="Bold"
                                Foreground="White" VerticalAlignment="Center"/>
-                    <TextBlock Text=" v2.0" FontSize="14" Foreground="#BBDEFB"
+                    <TextBlock Text=": EasySave" FontSize="20" FontWeight="Bold"
+                               Foreground="White" VerticalAlignment="Center"/>
+                    <TextBlock Text=" v3.0" FontSize="14" Foreground="#BBDEFB"
                                VerticalAlignment="Bottom" Margin="0,0,0,2"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right"
@@ -116,13 +118,14 @@
         <!-- ── Main content ───────────────────────────────────────────────── -->
         <Grid Grid.Row="1" Margin="12">
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/> <!-- Toolbar -->
+                <RowDefinition Height="Auto"/> <!-- Toolbar row 1: job management -->
+                <RowDefinition Height="Auto"/> <!-- Toolbar row 2: play/pause/stop (v3.0) -->
                 <RowDefinition Height="*"/>    <!-- Job list -->
                 <RowDefinition Height="Auto"/> <!-- Progress detail -->
             </Grid.RowDefinitions>
 
-            <!-- Toolbar -->
-            <WrapPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
+            <!-- Toolbar Row 1: Job management -->
+            <WrapPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,4">
                 <Button Content="{Binding [btn_new_job]}" Style="{StaticResource PrimaryButton}"
                         Click="NewJobButton_Click" IsEnabled="{Binding IsNotBusy}"/>
                 <Button Content="{Binding [btn_run_selected]}" Style="{StaticResource PrimaryButton}"
@@ -133,8 +136,33 @@
                         Command="{Binding DeleteJobCommand}"/>
             </WrapPanel>
 
+            <!-- Toolbar Row 2: Play/Pause/Stop controls (v3.0) -->
+            <WrapPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,8">
+                <!-- Per-job -->
+                <TextBlock Text="Job: " VerticalAlignment="Center" Margin="0,0,4,0"
+                           Foreground="{DynamicResource SubtextBrush}" FontSize="12"/>
+                <Button Content="▶ Play"  Style="{StaticResource PrimaryButton}" Background="#2E7D32"
+                        Command="{Binding ResumeJobCommand}" ToolTip="Resume selected job"/>
+                <Button Content="⏸ Pause" Style="{StaticResource PrimaryButton}" Background="#E65100"
+                        Command="{Binding PauseJobCommand}"  ToolTip="Pause selected job"/>
+                <Button Content="⏹ Stop"  Style="{StaticResource DangerButton}"
+                        Command="{Binding StopJobCommand}"   ToolTip="Stop selected job"/>
+
+                <Separator Margin="8,0" Background="{DynamicResource BorderBrush}" Width="1" Height="22"/>
+
+                <!-- Global -->
+                <TextBlock Text="All: " VerticalAlignment="Center" Margin="0,0,4,0"
+                           Foreground="{DynamicResource SubtextBrush}" FontSize="12"/>
+                <Button Content="▶▶ Play All"  Style="{StaticResource PrimaryButton}" Background="#2E7D32"
+                        Command="{Binding ResumeAllCommand}" ToolTip="Resume all jobs"/>
+                <Button Content="⏸⏸ Pause All" Style="{StaticResource PrimaryButton}" Background="#E65100"
+                        Command="{Binding PauseAllCommand}"  ToolTip="Pause all jobs"/>
+                <Button Content="⏹⏹ Stop All"  Style="{StaticResource DangerButton}"
+                        Command="{Binding StopAllCommand}"   ToolTip="Stop all jobs"/>
+            </WrapPanel>
+
             <!-- Job DataGrid -->
-            <Border Grid.Row="1" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="4">
+            <Border Grid.Row="2" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="4">
                 <DataGrid x:Name="JobsGrid" ItemsSource="{Binding Jobs}"
                           SelectedItem="{Binding SelectedJob}" SelectionChanged="JobsGrid_SelectionChanged">
                     <DataGrid.Columns>
@@ -214,36 +242,52 @@
             <Grid Margin="12,8">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="220"/>
-                    <ColumnDefinition Width="20"/>
+                    <ColumnDefinition Width="180"/>
+                    <ColumnDefinition Width="16"/>
                     <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="220"/>
-                    <ColumnDefinition Width="20"/>
+                    <ColumnDefinition Width="180"/>
+                    <ColumnDefinition Width="16"/>
                     <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="120"/>
+                    <ColumnDefinition Width="180"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="80"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="80"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition/>
-                </Grid.RowDefinitions>
 
+                <!-- Business Software -->
                 <TextBlock Grid.Column="0" Text="{Binding [lbl_business_software]}" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                <TextBox Grid.Column="1" Text="{Binding BusinessSoftwareName, UpdateSourceTrigger=PropertyChanged}"
-                         ToolTip="Process name to monitor (e.g. calc, outlook)"/>
+                <TextBox   Grid.Column="1" Text="{Binding BusinessSoftwareName, UpdateSourceTrigger=PropertyChanged}"
+                           ToolTip="Process name to block (e.g. notepad, calc)"/>
 
+                <!-- Encryption extensions -->
                 <TextBlock Grid.Column="3" Text="{Binding [lbl_encrypt_extensions]}" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                <TextBox Grid.Column="4" Text="{Binding EncryptionExtensions, UpdateSourceTrigger=PropertyChanged}"
-                         ToolTip="Comma-separated extensions to encrypt (e.g. .docx, .xlsx)"/>
+                <TextBox   Grid.Column="4" Text="{Binding EncryptionExtensions, UpdateSourceTrigger=PropertyChanged}"
+                           ToolTip="Comma-separated extensions to encrypt (e.g. .docx, .xlsx)"/>
 
-                <TextBlock Grid.Column="6" Text="{Binding [settings_log_format]}" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                <ComboBox Grid.Column="7" x:Name="LogFormatCombo" SelectionChanged="LogFormatCombo_SelectionChanged"
-                          SelectedIndex="0" VerticalAlignment="Center">
+                <!-- Priority extensions (v3.0) -->
+                <TextBlock Grid.Column="6" Text="{Binding [lbl_priority_extensions]}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                <TextBox   Grid.Column="7" Text="{Binding PriorityExtensions, UpdateSourceTrigger=PropertyChanged}"
+                           ToolTip="Extensions transferred first (e.g. .txt, .xml)"/>
+
+                <!-- Large file threshold (v3.0) -->
+                <TextBlock Grid.Column="9" Text="{Binding [lbl_large_file_kb]}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                <TextBox   Grid.Column="10" Text="{Binding LargeFileSizeKb, UpdateSourceTrigger=PropertyChanged}"
+                           ToolTip="Max size (Ko) for parallel transfer (default: 1024)"/>
+
+                <!-- Log Format -->
+                <TextBlock Grid.Column="12" Text="{Binding [settings_log_format]}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                <ComboBox  Grid.Column="13" x:Name="LogFormatCombo" SelectionChanged="LogFormatCombo_SelectionChanged"
+                           SelectedIndex="0" VerticalAlignment="Center">
                     <ComboBoxItem Content="JSON"/>
                     <ComboBoxItem Content="XML"/>
                 </ComboBox>
 
-                <Button Grid.Column="8" Content="{Binding [lbl_save]}" Style="{StaticResource PrimaryButton}"
-                        Command="{Binding SaveSettingsCommand}" VerticalAlignment="Center"/>
+                <Button Grid.Column="14" Content="{Binding [lbl_save]}" Style="{StaticResource PrimaryButton}"
+                        Command="{Binding SaveSettingsCommand}" VerticalAlignment="Center" Margin="16,0,0,0"/>
             </Grid>
         </Expander>
 
