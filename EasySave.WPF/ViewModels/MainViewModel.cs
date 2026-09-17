@@ -182,7 +182,10 @@ public sealed class MainViewModel : ViewModelBase, IDisposable
             "EasySave", "Logs");
         var format = _settings.LogFormat.Equals("XML", StringComparison.OrdinalIgnoreCase)
             ? LogFormat.Xml : LogFormat.Json;
-        var logger = LoggerFactory.Create(format, logDir);
+        
+        ILogger localLogger = LoggerFactory.Create(format, logDir);
+        ILogger remoteLogger = new SocketLogger("127.0.0.1", 8080);
+        ILogger logger = new CompositeLogger(new[] { localLogger, remoteLogger });
 
         System.Threading.Tasks.Task.Run(async () =>
         {
