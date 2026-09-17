@@ -1,0 +1,52 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "🚀 Launch EasySave (WPF - Interface Graphique)",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build-wpf",
+            "program": "${workspaceFolder}/EasySave.WPF/bin/Debug/net8.0-windows/EasySave.WPF.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/EasySave.WPF",
+            "console": "internalConsole",
+            "stopAtEntry": false
+        },
+        {
+            "name": "📟 Launch EasySave (CLI - Mode Console)",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build-cli",
+            "program": "${workspaceFolder}/EasySave.CLI/bin/Debug/net8.0/EasySave.CLI.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/EasySave.CLI",
+            "console": "integratedTerminal",
+            "stopAtEntry": false
+        },
+        {
+            "name": "🔐 Launch CryptoSoft (test chiffrement)",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build-cryptosoft",
+            "program": "${workspaceFolder}/CryptoSoft/bin/Debug/net8.0/CryptoSoft.dll",
+            "args": ["${input:sourceFile}", "${input:destFile}"],
+            "cwd": "${workspaceFolder}/CryptoSoft",
+            "console": "integratedTerminal",
+            "stopAtEntry": false
+        }
+    ],
+    "inputs": [
+        {
+            "id": "sourceFile",
+            "type": "promptString",
+            "description": "Fichier source à chiffrer",
+            "default": "C:\\temp\\secret.txt"
+        },
+        {
+            "id": "destFile",
+            "type": "promptString",
+            "description": "Fichier de destination (chiffré)",
+            "default": "C:\\temp\\secret.enc.txt"
+        }
+    ]
+}

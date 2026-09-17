@@ -36,6 +36,7 @@ public partial class MainWindow : Window
 
     private void LogFormatCombo_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
     {
+        if (_viewModel == null) return;
         if (sender is WpfComboBox combo && combo.SelectedItem is WpfComboBoxItem item)
         {
             string format = item.Content?.ToString() ?? "JSON";

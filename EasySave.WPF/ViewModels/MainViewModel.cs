@@ -143,11 +143,16 @@ public sealed class MainViewModel : ViewModelBase
         OnPropertyChanged(nameof(ThemeButtonText));
     }
 
+    public string this[string key] => LanguageProvider.Instance.Get(key);
+
     private void ToggleLanguage()
     {
         _currentLanguage = _currentLanguage == "en" ? "fr" : "en";
         _settings.Language = _currentLanguage;
+        LanguageProvider.Instance.SetLanguage(_currentLanguage);
         OnPropertyChanged(nameof(CurrentLanguageText));
+        OnPropertyChanged("Item[]");
+        foreach (var job in Jobs) job.RefreshTranslations();
         StatusMessage = _currentLanguage == "fr" ? "Langue : Français" : "Language: English";
     }
 

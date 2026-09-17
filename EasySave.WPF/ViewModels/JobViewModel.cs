@@ -1,4 +1,5 @@
 using EasySave.Core.Models;
+using EasySave.Core.Services;
 
 namespace EasySave.WPF.ViewModels;
 
@@ -45,21 +46,21 @@ public sealed class JobViewModel : ViewModelBase
     /// <summary>Gets or sets whether this job is selected in the list.</summary>
     public bool IsSelected { get => _isSelected; set => SetField(ref _isSelected, value); }
 
-    /// <summary>Gets a human-readable status string.</summary>
-    public string StatusText => Status switch
+    /// <summary>Gets a localized string representation of the job type.</summary>
+    public string TypeText => LanguageProvider.Instance.Get(Type == BackupType.Full ? "job_type_full" : "job_type_differential");
+
+    /// <summary>Gets a localized string representation of the job status.</summary>
+    public string StatusText => LanguageProvider.Instance.Get("status_" + Status.ToString().ToLowerInvariant());
+
+    /// <summary>Refreshes bindings that depend on the current language.</summary>
+    public void RefreshTranslations()
     {
-        JobStatus.Active => "▶ Running",
-        JobStatus.Completed => "✓ Done",
-        JobStatus.Error => "✗ Error",
-        JobStatus.Paused => "⏸ Paused",
-        _ => "● Idle"
-    };
+        OnPropertyChanged(nameof(TypeText));
+        OnPropertyChanged(nameof(StatusText));
+    }
 
     /// <summary>Gets whether the job is currently running.</summary>
     public bool IsRunning => Status == JobStatus.Active;
-
-    /// <summary>Gets the backup type as a display string.</summary>
-    public string TypeText => Type == BackupType.Full ? "Full" : "Differential";
 
     /// <summary>Creates a <see cref="JobViewModel"/> from a <see cref="BackupJob"/> model.</summary>
     public static JobViewModel FromModel(BackupJob job) => new()
