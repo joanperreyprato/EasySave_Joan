@@ -1,3 +1,4 @@
+using System.Threading;
 using EasySave.Core.Services;
 using EasySave.WPF.ViewModels;
 
@@ -8,10 +9,23 @@ namespace EasySave.WPF;
 /// </summary>
 public partial class App : System.Windows.Application
 {
+    private static Mutex? _mutex;
+
     /// <inheritdoc/>
     protected override void OnStartup(System.Windows.StartupEventArgs e)
     {
         base.OnStartup(e);
+
+        // ── Mono-Instance: block if another EasySave (WPF or CLI) is running ──
+        _mutex = new Mutex(true, @"Global\EasySaveMutex_ProSoft", out bool isNewInstance);
+        if (!isNewInstance)
+        {
+            System.Windows.MessageBox.Show(
+                "EasySave is already running.\nEasySave est déjà en cours d'exécution.",
+                "EasySave", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+            Shutdown();
+            return;
+        }
 
         // Bootstrap services (manual DI — no container needed for this scale)
         var stateManager = new StateManager();

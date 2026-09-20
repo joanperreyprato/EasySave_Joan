@@ -17,6 +17,16 @@ internal static class Program
     /// <param name="args">Command-line arguments. Empty = interactive mode.</param>
     private static void Main(string[] args)
     {
+        // ── Mono-Instance: block if another EasySave (WPF or CLI) is running ──
+        using var mutex = new System.Threading.Mutex(true, @"Global\EasySaveMutex_ProSoft", out bool isNewInstance);
+        if (!isNewInstance)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine("❌ EasySave is already running / EasySave est déjà en cours d'exécution.");
+            Console.ResetColor();
+            return;
+        }
+
         // Bootstrap services
         var stateManager = new StateManager();
         var languageProvider = LanguageProvider.Instance;
