@@ -15,8 +15,11 @@ public sealed class CryptoSoftTests
         var dir = new DirectoryInfo(baseDir);
         while (dir != null)
         {
-            string candidate = Path.Combine(dir.FullName, "CryptoSoft", "bin", "Debug", "net8.0", "CryptoSoft.exe");
-            if (File.Exists(candidate)) return candidate;
+            foreach (var config in new[] { "Release", "Debug" })
+            {
+                string candidate = Path.Combine(dir.FullName, "CryptoSoft", "bin", config, "net8.0", "CryptoSoft.exe");
+                if (File.Exists(candidate)) return candidate;
+            }
             dir = dir.Parent;
         }
 
