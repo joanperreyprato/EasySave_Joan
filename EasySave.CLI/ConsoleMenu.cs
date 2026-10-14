@@ -213,11 +213,12 @@ public sealed class ConsoleMenu
         PrintSuccess(_lang.Get("success_job_deleted"));
     }
 
-    /// <summary>Shows and allows modifying application settings (language).</summary>
+    /// <summary>Shows and allows modifying application settings (language, log format).</summary>
     private void ShowSettings()
     {
         Console.WriteLine($"── {_lang.Get("menu_settings")} ──");
         Console.WriteLine($"  1. {_lang.Get("settings_language")} [{_lang.CurrentLanguage.ToUpper()}]");
+        Console.WriteLine($"  2. {_lang.Get("settings_log_format")}");
         Console.WriteLine($"  0. Back");
         Console.Write(">>> ");
         var choice = Console.ReadLine()?.Trim();
@@ -230,6 +231,16 @@ public sealed class ConsoleMenu
             var lang = Console.ReadLine()?.Trim();
             _lang.SetLanguage(lang == "2" ? "fr" : "en");
             PrintSuccess("Language updated.");
+        }
+        else if (choice == "2")
+        {
+            Console.WriteLine($"  1. {_lang.Get("log_format_json")}");
+            Console.WriteLine($"  2. {_lang.Get("log_format_xml")}");
+            Console.Write(">>> ");
+            var fmt = Console.ReadLine()?.Trim();
+            var format = fmt == "2" ? LogFormat.Xml : LogFormat.Json;
+            _logger = LoggerFactory.Create(format, _logDirectory);
+            PrintSuccess(_lang.Get("settings_log_format") + " → " + format);
         }
     }
 
@@ -270,7 +281,7 @@ public sealed class ConsoleMenu
     {
         Console.ForegroundColor = ConsoleColor.Cyan;
         Console.WriteLine("╔══════════════════════════════════════╗");
-        Console.WriteLine("║        EasySave v1.0 — ProSoft       ║");
+        Console.WriteLine("║        EasySave v1.1 — ProSoft       ║");
         Console.WriteLine("╚══════════════════════════════════════╝");
         Console.ResetColor();
         Console.WriteLine();

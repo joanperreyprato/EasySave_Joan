@@ -22,13 +22,14 @@ internal static class Program
         var languageProvider = LanguageProvider.Instance;
         var backupService = new BackupService(stateManager);
 
-        // Determine log directory from args (--logdir=PATH or -l=PATH)
+        // Determine log directory and format from args (--logdir=PATH, --format=json|xml)
         string logDirectory = ResolveLogDirectory(args);
-        ILogger logger = LoggerFactory.Create(LogFormat.Json, logDirectory);
+        LogFormat logFormat = ResolveLogFormat(args);
+        ILogger logger = LoggerFactory.Create(logFormat, logDirectory);
 
         var ui = new ConsoleMenu(backupService, languageProvider, logger, logDirectory);
 
-        if (args.Length == 0 || args.All(a => a.StartsWith("--logdir") || a.StartsWith("-l=")))
+        if (args.Length == 0 || args.All(a => a.StartsWith("--logdir") || a.StartsWith("-l=") || a.StartsWith("--format") || a.StartsWith("-f=")))
         {
             // Interactive mode
             ui.Run();
@@ -59,5 +60,29 @@ internal static class Program
         return Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
             "EasySave", "Logs");
+    }
+
+    /// <summary>
+    /// Resolves the log format from command-line arguments (--format=xml or -f=xml).
+    /// Defaults to JSON.
+    /// </summary>
+    private static LogFormat ResolveLogFormat(string[] args)
+    {
+        foreach (var arg in args)
+        {
+            if (arg.StartsWith("--format=", StringComparison.OrdinalIgnoreCase))
+            {
+                var val = arg["--format=".Length..];
+                if (val.Equals("xml", StringComparison.OrdinalIgnoreCase))
+                    return LogFormat.Xml;
+            }
+            if (arg.StartsWith("-f=", StringComparison.OrdinalIgnoreCase))
+            {
+                var val = arg["-f=".Length..];
+                if (val.Equals("xml", StringComparison.OrdinalIgnoreCase))
+                    return LogFormat.Xml;
+            }
+        }
+        return LogFormat.Json;
     }
 }
