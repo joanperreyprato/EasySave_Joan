@@ -66,3 +66,6 @@ TestResults/
 # Uncomment if you want to ignore runtime-generated files
 # state.json
 # backup_config.json
+
+# Centralized log server data (docker-compose volume)
+server-logs/

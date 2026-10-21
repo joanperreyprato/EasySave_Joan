@@ -1,21 +1,23 @@
-# Utiliser l'image SDK .NET officielle pour builder
+# Build stage: the server reuses the EasyLog library, so the build context is the repository root
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# Copier le projet et restaurer les dépendances
-COPY ["EasySave.LogServer.csproj", "./"]
-RUN dotnet restore "EasySave.LogServer.csproj"
+COPY ["EasyLog/EasyLog.csproj", "EasyLog/"]
+COPY ["EasySave.LogServer/EasySave.LogServer.csproj", "EasySave.LogServer/"]
+RUN dotnet restore "EasySave.LogServer/EasySave.LogServer.csproj"
 
-# Copier le reste du code et compiler
-COPY . .
-RUN dotnet publish "EasySave.LogServer.csproj" -c Release -o /app/publish /p:UseAppHost=false
+COPY EasyLog/ EasyLog/
+COPY EasySave.LogServer/ EasySave.LogServer/
+RUN dotnet publish "EasySave.LogServer/EasySave.LogServer.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
-# Créer l'image finale légère avec uniquement le runtime
+# Runtime stage
 FROM mcr.microsoft.com/dotnet/runtime:8.0 AS final
 WORKDIR /app
 COPY --from=build /app/publish .
 
-# Le serveur écoute sur le port 8080
+ENV EASYSAVE_LOG_DIR=/logs \
+    EASYSAVE_LOG_PORT=8080
+VOLUME ["/logs"]
 EXPOSE 8080
 
 ENTRYPOINT ["dotnet", "EasySave.LogServer.dll"]

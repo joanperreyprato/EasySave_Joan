@@ -79,6 +79,31 @@ public sealed class BackupIntegrationTests : IDisposable
         Assert.Contains("hello.txt", logContent);
     }
 
+    [Fact]
+    public void ExecuteJob_EncryptedExtension_RunsCryptoSoftAndLogsEncryptionTime()
+    {
+        File.WriteAllText(Path.Combine(_src, "secret.txt"), "confidential data");
+        File.WriteAllText(Path.Combine(_src, "photo.jpg"), "not encrypted");
+        new AppSettings(_appSetPath).EncryptionExtensions = [".txt"];
+        var service = new BackupServiceV2(new StateManager(_statePath), new AppSettings(_appSetPath),
+            new BusinessSoftwareMonitor(), _cfgPath);
+        service.CreateJob("CryptoJob", _src, _tgt, BackupType.Full);
+
+        service.ExecuteJob("CryptoJob", LoggerFactory.Create(LogFormat.Json, _logDir));
+
+        using var log = JsonDocument.Parse(File.ReadAllText(Directory.GetFiles(_logDir, "*.json").Single()));
+        var entries = log.RootElement.EnumerateArray().ToList();
+        long EncryptionOf(string file) => entries
+            .Single(e => e.GetProperty("sourceFilePath").GetString()!.EndsWith(file))
+            .GetProperty("encryptionDurationMs").GetInt64();
+
+        Assert.True(EncryptionOf("secret.txt") > 0, "CryptoSoft must return a positive time");
+        Assert.Equal(0, EncryptionOf("photo.jpg"));
+        Assert.NotEqual("confidential data", File.ReadAllText(Path.Combine(_tgt, "secret.txt")));
+        Assert.Equal("not encrypted", File.ReadAllText(Path.Combine(_tgt, "photo.jpg")));
+        Assert.Empty(Directory.GetFiles(_tgt, "*.tmp"));
+    }
+
     // ── Helpers ──────────────────────────────────────────────────────────────
 
     private static string CreateTempDir()

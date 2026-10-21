@@ -36,7 +36,7 @@ internal static class Program
         bool acquired = false;
         try
         {
-            acquired = mutex.WaitOne(TimeSpan.FromSeconds(30));
+            acquired = AcquireMutex(mutex);
             if (!acquired)
             {
                 Console.Error.WriteLine("Error: another CryptoSoft instance is already running.");
@@ -60,6 +60,22 @@ internal static class Program
         finally
         {
             if (acquired) mutex.ReleaseMutex();
+        }
+    }
+
+    /// <summary>
+    /// Waits up to 30s for the single-instance mutex.
+    /// A mutex left by a CryptoSoft instance that crashed is "abandoned": we then own it and can continue.
+    /// </summary>
+    private static bool AcquireMutex(Mutex mutex)
+    {
+        try
+        {
+            return mutex.WaitOne(TimeSpan.FromSeconds(30));
+        }
+        catch (AbandonedMutexException)
+        {
+            return true;
         }
     }
 

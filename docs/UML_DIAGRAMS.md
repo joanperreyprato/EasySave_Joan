@@ -1,277 +1,365 @@
-# 📐 Dossier de Modélisation UML — EasySave
+# 📐 UML Models — EasySave
 
-Ce document regroupe les diagrammes UML requis par le cahier des charges et le calendrier des livrables (v1.0 à v3.0).  
-Tous les diagrammes sont rédigés au format standard **Mermaid** (rendu direct sur GitHub ou VS Code) et **PlantUML** pour exportation PDF/Word.
+This document gathers the UML diagrams required for each deliverable (v1.0 to v3.0).
+Diagrams are written in **Mermaid** (rendered directly by GitHub and VS Code).
 
 ---
 
-## 1. Diagramme des Cas d'Utilisation (Use Cases)
+## 1. Use case diagram
 
 ```mermaid
 flowchart LR
-    User(["👤 Utilisateur"])
-    SysUser(["💻 Système OS / Processus"])
+    User(["👤 User"])
+    OS(["💻 Operating system"])
 
-    subgraph EasySave ["Application EasySave (v1.x -> v3.0)"]
-        UC_Create["Créer un travail de sauvegarde (v1: 5 max, v2/v3: illimité)"]
-        UC_Run["Exécuter sauvegardes (v1/v2: séquentiel, v3: parallèle)"]
-        UC_Control["Contrôler les travaux (Play / Pause / Stop) (v3)"]
-        UC_Lang["Changer la langue (FR / EN en temps réel)"]
-        UC_Format["Sélectionner format de logs (JSON / XML) (v1.1+)"]
-        UC_Crypto["Chiffrer via CryptoSoft (XOR 64-bit) (v2+)"]
-        UC_Detect["Mettre en pause si Logiciel Métier actif (v2/v3)"]
-        UC_Remote["Centraliser logs sur serveur distant (Docker TCP) (v3)"]
+    subgraph EasySave ["EasySave (v1.x → v3.0)"]
+        UC_Create["Create / delete a backup job (v1: 5 max, v2+: unlimited)"]
+        UC_Run["Run backups (v1/v2: sequential, v3: parallel)"]
+        UC_Cli["Run jobs from the command line (EasySave.exe 1-3)"]
+        UC_Control["Play / Pause / Stop a job or all jobs (v3)"]
+        UC_Settings["Set general settings (log format, log destination, extensions, n KB...)"]
+        UC_Lang["Switch language (EN / FR)"]
+        UC_Crypto["Encrypt files with CryptoSoft (v2+)"]
+        UC_Log["Write daily log and real-time state"]
+        UC_Central["Send logs to the central Docker server (v3)"]
+        UC_Detect["Detect business software (v2: block, v3: pause / resume)"]
     end
 
     User --> UC_Create
     User --> UC_Run
+    User --> UC_Cli
     User --> UC_Control
+    User --> UC_Settings
     User --> UC_Lang
-    User --> UC_Format
-
-    UC_Run -.->|<<include>>| UC_Crypto
-    SysUser --> UC_Detect
-    UC_Detect -.->|<<interrompt/suspend>>| UC_Run
-    UC_Run -.->|<<optionnel>>| UC_Remote
+    UC_Run -.->|include| UC_Log
+    UC_Run -.->|extend: encrypted extension| UC_Crypto
+    UC_Log -.->|extend: Server or Local + Server mode| UC_Central
+    OS --> UC_Detect
+    UC_Detect -.->|pauses| UC_Run
 ```
 
 ---
 
-## 2. Diagramme de Classes (Architecture & Design Patterns)
+## 2. Class diagram
 
-Ce diagramme illustre les principaux Design Patterns mis en œuvre :
-- **MVVM** (Model-View-ViewModel pour l'interface graphique WPF)
-- **Factory** (`LoggerFactory`)
-- **Composite Pattern** (`CompositeLogger` combinant JSON, XML et Socket TCP)
-- **Singleton** (`LanguageProvider`, `PriorityTransferGuard`)
+Design patterns:
+- **MVVM** for the WPF application
+- **Template / inheritance**: `BackupServiceBase` holds the behavior shared by the three versions; each version only adds its own rules
+- **Strategy-like options**: one `BackupEngine` for every version, features enabled by `BackupRunOptions`
+- **Factory** (`LoggerFactory`) and **Composite** (`CompositeLogger`) for logging
+- **Template method** (`FileLogger` → `JsonLogger`, `XmlLogger`)
+- **Singleton** (`LanguageProvider`, application-wide `PriorityTransferGuard` and `LargeFileTransferGuard`)
 
 ```mermaid
 classDiagram
-    %% Core Model
+    %% ── Models ──
     class BackupJob {
         +string Name
         +string SourceDirectory
         +string TargetDirectory
         +BackupType Type
-        +JobStatus Status
     }
-
     class BackupType {
         <<enumeration>>
         Full
         Differential
     }
-
+    class JobState {
+        +string Name
+        +DateTime LastActionTime
+        +JobStatus Status
+        +int TotalFiles
+        +long TotalSize
+        +int RemainingFiles
+        +long RemainingSize
+        +double Progress
+        +string CurrentSourceFile
+        +string CurrentTargetFile
+    }
     class JobStatus {
         <<enumeration>>
-        Idle
-        Running
+        Inactive
+        Active
         Paused
-        Stopped
         Completed
-        Failed
+        Error
+        Stopped
     }
-
     BackupJob --> BackupType
-    BackupJob --> JobStatus
+    JobState --> JobStatus
 
-    %% Services & Guards
+    %% ── Services ──
+    class IBackupService {
+        <<interface>>
+        +CreateJob(name, source, target, type) BackupCreationResult
+        +DeleteJob(name)
+        +GetAllJobs() List~BackupJob~
+        +ExecuteJob(name, ILogger)
+        +ExecuteJobs(names, ILogger)
+    }
+    class BackupServiceBase {
+        <<abstract>>
+        #StateManager StateManager
+        #BackupEngine Engine
+        +CreateJob(...) BackupCreationResult
+        +DeleteJob(name)
+        +GetAllJobs() List~BackupJob~
+        +GetJob(name) BackupJob
+        #RunSequentially(job, logger, options) BackupOutcome
+    }
+    class BackupService {
+        +MaxJobs = 5
+        +ExecuteJob(name, ILogger)
+        +ExecuteJobs(names, ILogger)
+    }
+    class BackupServiceV2 {
+        +ExecuteJob(name, ILogger)
+        +ExecuteJobs(names, ILogger)
+    }
     class BackupServiceV3 {
-        -StateManager _stateManager
-        -AppSettings _settings
-        -BusinessSoftwareMonitor _monitor
-        -Dictionary~string, JobController~ _controllers
-        +ExecuteJobsParallel(List~string~ jobNames, ILogger logger)
-        +PauseJob(string name)
-        +ResumeJob(string name)
-        +StopJob(string name)
+        -Dictionary~string, RunningJob~ _running
+        +ExecuteJobsParallelAsync(names, ILogger) Task
+        +PauseJob(name) / ResumeJob(name) / StopJob(name)
+        +PauseAll() / ResumeAll() / StopAll()
+        +HasRunningJobs bool
+        -PollBusinessSoftware()
     }
-
+    class JobCatalog {
+        +Add(...) BackupCreationResult
+        +Remove(name) bool
+        +GetAll() List~BackupJob~
+        +Find(name) BackupJob
+    }
+    class BackupEngine {
+        +Prepare(job, priorityExtensions) BackupPlan
+        +RunAsync(plan, ILogger, BackupRunOptions) Task~BackupOutcome~
+        +LogEvent(logger, jobName, action)$
+    }
+    class BackupRunOptions {
+        +EncryptionExtensions
+        +PriorityExtensions
+        +LargeFileThresholdKb
+        +JobController Controller
+        +Func~bool~ InterruptRequested
+    }
+    class BackupPlan {
+        +BackupJob Job
+        +List~PlannedFile~ Files
+        +int PriorityFileCount
+    }
     class JobController {
-        -ManualResetEventSlim _pauseEvent
-        -CancellationTokenSource _cts
-        +WaitIfPaused()
-        +ThrowIfStopped()
-        +Pause()
-        +Resume()
+        +Pause() / Resume()
+        +SetBusinessSoftwarePause(bool)
         +Stop()
+        +WaitWhilePaused()
+        +bool IsPaused
+        +CancellationToken Token
     }
-
     class PriorityTransferGuard {
-        <<singleton>>
-        -static PriorityTransferGuard _instance
-        -int _priorityJobsRunning
-        +AcquirePrioritySlot(bool isPriority)
-        +ReleasePrioritySlot()
+        <<shared>>
+        +Register(count)
+        +Release(count)
+        +WaitUntilNoPriorityPendingAsync(ct)
     }
-
     class LargeFileTransferGuard {
-        <<singleton>>
-        -SemaphoreSlim _largeFileLock
-        +AcquireLargeFileSlot(long fileSize, long thresholdBytes)
-        +ReleaseLargeFileSlot()
+        <<shared>>
+        +AcquireAsync(size, thresholdKb, ct) IDisposable
+    }
+    class CryptoSoftRunner {
+        <<static>>
+        +EncryptAsync(file) Task~long~
+    }
+    class BusinessSoftwareMonitor {
+        +string ProcessName
+        +IsRunning() bool
+    }
+    class StateManager {
+        +UpdateJobState(JobState)
+        +GetAllStates() List~JobState~
+    }
+    class AppSettings {
+        +LogFormat / LogMode
+        +LogServerAddress / LogServerPort
+        +EncryptionExtensions / PriorityExtensions
+        +LargeFileSizeKb
+        +BusinessSoftwareName
+        +CreateLogger() ILogger
     }
 
-    BackupServiceV3 --> JobController
-    BackupServiceV3 --> PriorityTransferGuard
-    BackupServiceV3 --> LargeFileTransferGuard
+    IBackupService <|.. BackupService
+    IBackupService <|.. BackupServiceV2
+    BackupServiceBase <|-- BackupService
+    BackupServiceBase <|-- BackupServiceV2
+    BackupServiceBase <|-- BackupServiceV3
+    BackupServiceBase *-- JobCatalog
+    BackupServiceBase *-- BackupEngine
+    BackupServiceV2 --> BusinessSoftwareMonitor
+    BackupServiceV3 --> BusinessSoftwareMonitor
+    BackupServiceV3 o-- JobController
+    BackupEngine ..> BackupRunOptions
+    BackupEngine ..> BackupPlan
+    BackupEngine --> PriorityTransferGuard
+    BackupEngine --> LargeFileTransferGuard
+    BackupEngine ..> CryptoSoftRunner
+    BackupEngine --> StateManager
+    BackupRunOptions --> JobController
 
-    %% Logging & Patterns
+    %% ── EasyLog.dll ──
     class ILogger {
         <<interface>>
         +Log(LogEntry entry)
     }
-
-    class JsonLogger {
-        -string _logDir
-        +Log(LogEntry entry)
+    class LogEntry {
+        +DateTime Timestamp
+        +string BackupName
+        +string Action
+        +string MachineName
+        +string UserName
+        +string SourceFilePath
+        +string TargetFilePath
+        +long FileSize
+        +long TransferDurationMs
+        +long EncryptionDurationMs
     }
-
-    class XmlLogger {
-        -string _logDir
+    class FileLogger {
+        <<abstract>>
         +Log(LogEntry entry)
+        #Serialize(LogEntry)* string
     }
-
+    class JsonLogger
+    class XmlLogger
     class SocketLogger {
-        -string _host
-        -int _port
         +Log(LogEntry entry)
     }
-
     class CompositeLogger {
-        -List~ILogger~ _loggers
         +Log(LogEntry entry)
-        +AddLogger(ILogger logger)
     }
-
     class LoggerFactory {
-        <<factory>>
-        +Create(LogFormat format, string dir) ILogger
-        +CreateComposite(IEnumerable~ILogger~ loggers) ILogger
+        <<static>>
+        +Create(LogFormat, dir) ILogger
+        +Create(LogMode, LogFormat, dir, host, port) ILogger
     }
-
-    ILogger <|.. JsonLogger
-    ILogger <|.. XmlLogger
+    class LogMode {
+        <<enumeration>>
+        Local
+        Centralized
+        Both
+    }
+    ILogger <|.. FileLogger
+    FileLogger <|-- JsonLogger
+    FileLogger <|-- XmlLogger
     ILogger <|.. SocketLogger
     ILogger <|.. CompositeLogger
-    CompositeLogger o-- ILogger : compose
-    LoggerFactory ..> ILogger : instancie
+    CompositeLogger o-- ILogger
+    LoggerFactory ..> ILogger : creates
+    LoggerFactory ..> LogMode
+    ILogger ..> LogEntry
+    AppSettings ..> LoggerFactory
 
-    %% MVVM Pattern
+    %% ── MVVM ──
     class MainViewModel {
         +ObservableCollection~JobViewModel~ Jobs
-        +ICommand RunSelectedJobsCommand
-        +ICommand RunAllJobsCommand
-        +ICommand PauseJobCommand
-        +ICommand ResumeJobCommand
-        +ICommand StopJobCommand
-        +string Item[string key]
+        +ICommand RunSelectedJobsCommand / RunAllJobsCommand
+        +ICommand PlayJobCommand / PauseJobCommand / StopJobCommand
+        +ICommand PlayAllCommand / PauseAllCommand / StopAllCommand
+        +string SelectedLogFormat
+        +string SelectedLogMode
+        +string this[key]
     }
-
     class JobViewModel {
-        +BackupJob Job
-        +double ProgressPercentage
+        +string Name
+        +JobStatus Status
+        +double Progress
         +string StatusText
     }
-
     MainViewModel o-- JobViewModel
     MainViewModel --> BackupServiceV3
+    MainViewModel --> AppSettings
 ```
 
 ---
 
-## 3. Diagramme de Séquence (Sauvegarde Parallèle, Détection Métier & CryptoSoft)
-
-Ce diagramme détaille le cycle d'exécution d'un fichier en v3.0 :
+## 3. Sequence diagram — one v3.0 job
 
 ```mermaid
 sequenceDiagram
     autonumber
-    actor User as Utilisateur
-    participant UI as WPF MainViewModel
+    actor User
+    participant VM as MainViewModel
     participant Svc as BackupServiceV3
-    participant GuardP as PriorityGuard
-    participant GuardL as LargeFileGuard
-    participant Monitor as BusinessSoftwareMonitor
-    participant Crypto as CryptoSoft (Mutex)
-    participant Log as CompositeLogger
+    participant Eng as BackupEngine
+    participant PG as PriorityTransferGuard
+    participant LG as LargeFileTransferGuard
+    participant Ctl as JobController
+    participant Crypto as CryptoSoft.exe
+    participant Log as ILogger (local / server / both)
 
-    User->>UI: Clic sur "▶ Lancer sélection"
-    UI->>Svc: ExecuteJobsParallel(jobs)
-    
-    par Pour chaque travail de sauvegarde
-        loop Pour chaque fichier du répertoire
-            Svc->>Monitor: IsBusinessSoftwareRunning()
-            alt Logiciel métier détecté (ex: Calculatrice)
-                Monitor-->>Svc: true
-                Svc->>UI: Notification Status = "PausedByBusinessSoftware"
-                Note over Svc: Attend terminaison du processus métier
-            end
+    User->>VM: Run selected
+    VM->>VM: logger = settings.CreateLogger()
+    VM->>Svc: ExecuteJobsParallelAsync(jobs, logger)
+    Svc->>Ctl: new JobController (paused if business software is running)
+    Svc->>Eng: Prepare(job) for every job
+    Eng->>PG: Register(priority file count)
+    Note over Svc,Eng: All jobs are registered before any job starts
 
-            alt Fichier Non Prioritaire
-                Svc->>GuardP: WaitIfPriorityFilesPending()
-                GuardP-->>Svc: Autorisation accordée
+    par Each job in parallel
+        loop Each file (priority files first)
+            Eng->>Ctl: WaitWhilePaused() (state "Paused" only if really paused)
+            alt Non-priority file
+                Eng->>PG: WaitUntilNoPriorityPendingAsync()
             end
-
-            alt Taille Fichier > Seuil n Ko
-                Svc->>GuardL: AcquireLargeFileSlot()
-                GuardL-->>Svc: Slot accordé (1 seul gros fichier à la fois)
+            Eng->>LG: AcquireAsync(size, n KB) (one large file at a time)
+            Eng->>Eng: Cancellable copy (Stop = immediate)
+            opt Extension to encrypt
+                Eng->>Crypto: CryptoSoft.exe target target.tmp (one at a time)
+                Crypto-->>Eng: exit code (> 0 = ms, < 0 = error)
             end
-
-            opt Extension à chiffrer
-                Svc->>Crypto: Exécuter CryptoSoft.exe (source, dest)
-                Note over Crypto: Acquisition Global\CryptoSoftMutex
-                Crypto-->>Svc: ExitCode > 0 (temps chiffrement ms)
-            end
-
-            alt Gros fichier transféré
-                Svc->>GuardL: ReleaseLargeFileSlot()
-            end
-
-            Svc->>Log: Log(LogEntry)
-            par Écriture locale & distante
-                Log->>Log: JsonLogger / XmlLogger (disque local)
-                Log->>Log: SocketLogger (TCP 8080 Docker)
-            end
-            
-            Svc->>UI: Update Progress (%) & State.json
+            Eng->>Log: Log(FileTransfer entry)
+            Eng->>PG: Release() if priority file
+            Eng->>Eng: Update state.json
         end
+        Eng->>PG: Release(remaining) (completed, stopped or failed)
     end
-    Svc-->>UI: Jobs Completed
-    UI-->>User: Affichage "✓ Sauvegarde terminée"
+
+    loop Every 500 ms
+        Svc->>Svc: business software running?
+        Svc->>Ctl: SetBusinessSoftwarePause(true / false)
+        Svc->>Log: BusinessSoftwarePaused / Resumed (on change)
+    end
+
+    Svc-->>VM: all jobs finished
+    VM-->>User: "All backups completed"
 ```
 
 ---
 
-## 4. Diagramme de Déploiement (Infrastructure v3.0)
+## 4. Deployment diagram (v3.0)
 
 ```mermaid
 flowchart TB
-    subgraph ClientHost ["Poste Client / Serveur Applicatif"]
-        subgraph AppScope ["Processus EasySave (Mono-Instance Mutex)"]
-            WPF["EasySave.WPF.exe"]
+    subgraph Client ["Each user's computer (Windows)"]
+        subgraph App ["EasySave process (mono-instance mutex)"]
+            WPF["EasySave.WPF.exe / EasySave.exe"]
             Core["EasySave.Core.dll"]
             EasyLog["EasyLog.dll"]
         end
-        
-        CryptoExe["CryptoSoft.exe (Processus indépendant / Mutex)"]
-        LocalLogs[("Fichiers Logs Locaux\n(JSON / XML)")]
-        LocalState[("state.json &\nbackup_config.json")]
+        Crypto["CryptoSoft.exe (mono-instance mutex)"]
+        Data[("%ProgramData%\\EasySave\nappsettings.json, state.json,\nbackup_config*.json, Logs\\")]
 
         WPF --> Core
         Core --> EasyLog
-        Core -->|Lancement Process| CryptoExe
-        EasyLog -->|Écriture disque| LocalLogs
-        Core -->|Persistance| LocalState
+        Core -->|starts process| Crypto
+        EasyLog -->|Local / Both| Data
+        Core --> Data
     end
 
-    subgraph DockerHost ["Hôte Docker (Centralisation Logs)"]
-        subgraph Container ["Conteneur : easysave-logserver"]
-            LogSvr["EasySave.LogServer\n(TCP Listener : 8080)"]
-            CentralLog[("Fichier Journal Unique\nCentralisé")]
-            LogSvr -->|Écriture| CentralLog
+    subgraph Docker ["Docker host"]
+        subgraph Container ["Container: easysave-logserver"]
+            Server["EasySave.LogServer (TCP 8080)\nuses EasyLog.dll"]
         end
+        Volume[("Volume server-logs/\nYYYY-MM-DD.json\none file for all users")]
+        Server --> Volume
     end
 
-    EasyLog -->|Flux TCP Socket / Port 8080| LogSvr
+    EasyLog -->|Centralized / Both: JSON lines over TCP| Server
 ```

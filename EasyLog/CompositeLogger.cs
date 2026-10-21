@@ -6,7 +6,7 @@ namespace EasyLog;
 /// If one logger throws, the others are still called.
 /// Thread-safe.
 /// </summary>
-public sealed class CompositeLogger : ILogger
+public sealed class CompositeLogger : ILogger, IDisposable
 {
     private readonly IReadOnlyList<ILogger> _loggers;
 
@@ -31,5 +31,12 @@ public sealed class CompositeLogger : ILogger
             try { logger.Log(entry); }
             catch { /* Never block the backup due to a logging failure */ }
         }
+    }
+
+    /// <summary>Disposes every inner logger that holds resources (e.g. a TCP connection).</summary>
+    public void Dispose()
+    {
+        foreach (var logger in _loggers.OfType<IDisposable>())
+            logger.Dispose();
     }
 }

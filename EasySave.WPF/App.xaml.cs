@@ -21,7 +21,7 @@ public partial class App : System.Windows.Application
         if (!isNewInstance)
         {
             System.Windows.MessageBox.Show(
-                "EasySave is already running.\nEasySave est déjà en cours d'exécution.",
+                LanguageProvider.Instance.Get("error_already_running"),
                 "EasySave", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
             Shutdown();
             return;

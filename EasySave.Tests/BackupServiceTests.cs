@@ -138,8 +138,9 @@ public sealed class BackupServiceTests : IDisposable
         Assert.True(File.Exists(Path.Combine(_tempTarget, "b.txt")));
         Assert.True(File.Exists(Path.Combine(_tempTarget, "sub", "c.txt")));
 
-        // Logger called 3 times
-        loggerMock.Verify(l => l.Log(It.IsAny<LogEntry>()), Times.Exactly(3));
+        // 3 file transfers + the creation of the "sub" directory are logged
+        loggerMock.Verify(l => l.Log(It.Is<LogEntry>(e => e.Action == LogActions.FileTransfer)), Times.Exactly(3));
+        loggerMock.Verify(l => l.Log(It.Is<LogEntry>(e => e.Action == LogActions.DirectoryCreated)), Times.Once);
     }
 
     // ── ExecuteJob (Differential) ─────────────────────────────────────────────

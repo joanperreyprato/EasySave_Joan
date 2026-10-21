@@ -46,22 +46,23 @@ public partial class AddJobWindow : Window
             return;
         }
 
-        ErrorText.Text = result switch
+        string errorKey = result switch
         {
-            BackupCreationResult.InvalidName    => "⚠ Invalid name. Use 1–100 alphanumeric characters, spaces, dashes or underscores.",
-            BackupCreationResult.SourceNotFound => "⚠ Source directory not found.",
-            BackupCreationResult.TargetNotFound => "⚠ Target parent directory not found.",
-            BackupCreationResult.DuplicateName  => "⚠ A job with this name already exists.",
-            _                                   => "⚠ An error occurred."
+            BackupCreationResult.InvalidName    => "error_invalid_name",
+            BackupCreationResult.SourceNotFound => "error_source_not_found",
+            BackupCreationResult.TargetNotFound => "error_target_not_found",
+            BackupCreationResult.DuplicateName  => "error_duplicate_name",
+            _                                   => "error_unknown"
         };
+        ErrorText.Text = $"⚠ {_viewModel[errorKey]}";
         ErrorText.Visibility = Visibility.Visible;
     }
 
-    private static string BrowseFolder(string initialPath)
+    private string BrowseFolder(string initialPath)
     {
         using var dialog = new System.Windows.Forms.FolderBrowserDialog
         {
-            Description = "Select a directory",
+            Description = _viewModel["tip_browse"],
             UseDescriptionForTitle = true,
             SelectedPath = Directory.Exists(initialPath) ? initialPath : string.Empty
         };

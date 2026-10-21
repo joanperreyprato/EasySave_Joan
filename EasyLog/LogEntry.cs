@@ -43,6 +43,21 @@ public sealed class LogEntry
     public long EncryptionDurationMs { get; set; }
 
     /// <summary>
+    /// Gets or sets the kind of action recorded (see <see cref="LogActions"/>).
+    /// Defaults to a file transfer so that v1.0 callers keep working unchanged.
+    /// </summary>
+    [JsonPropertyName("action")]
+    public string Action { get; set; } = LogActions.FileTransfer;
+
+    /// <summary>Gets or sets the name of the machine that produced the entry (centralized logs).</summary>
+    [JsonPropertyName("machineName")]
+    public string MachineName { get; set; } = Environment.MachineName;
+
+    /// <summary>Gets or sets the Windows user who produced the entry (centralized logs).</summary>
+    [JsonPropertyName("userName")]
+    public string UserName { get; set; } = Environment.UserName;
+
+    /// <summary>
     /// Converts a local file path to UNC format (e.g. C:\foo → \\MachineName\C$\foo).
     /// If the path is already UNC or cannot be converted, returns it unchanged.
     /// </summary>

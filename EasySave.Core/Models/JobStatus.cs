@@ -7,10 +7,12 @@ public enum JobStatus
     Inactive,
     /// <summary>The job is currently running.</summary>
     Active,
-    /// <summary>The job has been paused by the user.</summary>
+    /// <summary>The job is paused (by the user or because the business software is running).</summary>
     Paused,
     /// <summary>The job finished successfully.</summary>
     Completed,
     /// <summary>The job stopped due to an error.</summary>
-    Error
+    Error,
+    /// <summary>The job was stopped by the user or interrupted by the business software.</summary>
+    Stopped
 }

@@ -1,335 +1,200 @@
-# 🛡️ EasySave — Logiciel de Sauvegarde ProSoft
+# 🛡️ EasySave — ProSoft Backup Software
 
-> Application de sauvegarde professionnelle développée en C# / .NET 8.0 pour ProSoft.  
-> Disponible en **mode Console** (v1.x) et **interface graphique WPF** (v2.0 / v3.0).
+> Professional backup application written in C# / .NET 8.0 for ProSoft.
+> Available as a **console application** (v1.x) and a **WPF graphical application** (v2.0 / v3.0).
+
+| Document | Audience |
+|---|---|
+| [User manual (one page)](docs/USER_MANUAL.md) | End users |
+| [Technical support guide](docs/SUPPORT.md) | Customer support |
+| [Release notes](RELEASE_NOTES.md) | Everyone |
+| [UML diagrams](docs/UML_DIAGRAMS.md) | Developers |
+| [v4.0 study](docs/DIRECTION_V4_STUDY.md) | Management |
 
 ---
 
-## 📋 Table des matières
+## 📋 Table of contents
 
-- [Présentation](#-présentation)
-- [Évolution des versions](#-évolution-des-versions)
-- [Architecture du projet](#-architecture-du-projet)
-- [Prérequis](#-prérequis)
-- [Installation & Lancement](#-installation--lancement)
-- [Guide d'utilisation](#-guide-dutilisation)
-- [CryptoSoft — Logiciel de chiffrement](#-cryptosoft--logiciel-de-chiffrement)
-- [LogServer — Serveur de logs Docker](#-logserver--serveur-de-logs-docker)
+- [Overview](#-overview)
+- [Version history](#-version-history)
+- [Project architecture](#-project-architecture)
+- [Prerequisites](#-prerequisites)
+- [Build & run](#-build--run)
+- [CryptoSoft](#-cryptosoft)
+- [Centralized log server (Docker)](#-centralized-log-server-docker)
 - [Tests](#-tests)
-- [Technologies utilisées](#-technologies-utilisées)
+- [Technologies](#-technologies)
 
 ---
 
-## 🎯 Présentation
+## 🎯 Overview
 
-**EasySave** est un logiciel de sauvegarde développé par l'équipe ProSoft. Il permet de :
+**EasySave** lets you:
 
-- ✅ Créer des travaux de sauvegarde (complète ou différentielle)
-- ✅ Exécuter les sauvegardes en parallèle avec contrôle Play/Pause/Stop
-- ✅ Chiffrer les fichiers sensibles via **CryptoSoft** (XOR 64 bits)
-- ✅ Détecter un logiciel métier et mettre en pause automatiquement
-- ✅ Centraliser les logs sur un serveur Docker distant
-- ✅ Interface bilingue Français / Anglais (changement en temps réel)
-- ✅ Thèmes Dark / Light
+- ✅ Create backup jobs (full or differential) on local, external or network drives
+- ✅ Run jobs in parallel with Play / Pause / Stop per job or for all jobs
+- ✅ Encrypt sensitive files with **CryptoSoft** (XOR, key ≥ 64 bits)
+- ✅ Pause automatically while a business software is running
+- ✅ Write daily logs (JSON or XML) locally, on a central Docker server, or both
+- ✅ Follow every job in real time (`state.json` and progress bars)
+- ✅ Use the interface in English or French (switch live), with dark / light themes
 
 ---
 
-## 📈 Évolution des versions
+## 📈 Version history
 
-```
-v1.0 ──► v1.1 ──────────► v2.0 ──────────────────► v3.0
- │         │                │                         │
- │         │                │                         ├── Sauvegardes en parallèle
- │         │                │                         ├── Play / Pause / Stop par job
- │         │                │                         ├── Fichiers prioritaires
- │         │                │                         ├── Limitation gros fichiers
- │         │                │                         ├── CryptoSoft mono-instance
- │         │                │                         ├── EasySave mono-instance
- │         │                │                         ├── LogServer Docker (TCP)
- │         │                │                         └── Nouveau design (sidebar)
- │         │                │
- │         │                ├── Interface graphique WPF (MVVM)
- │         │                ├── Travaux illimités
- │         │                ├── Chiffrement CryptoSoft XOR
- │         │                ├── Détection logiciel métier
- │         │                ├── Thèmes Dark / Light
- │         │                └── Barres de progression
- │         │
- │         └── Choix du format de log (JSON ou XML)
- │
- ├── Application console
- ├── Maximum 5 travaux
- ├── Sauvegarde complète & différentielle
- ├── Logs JSON (via DLL EasyLog)
- ├── Fichier d'état (state.json)
- └── Bilingue FR / EN
-```
-
-| Fonction | v1.0 | v1.1 | v2.0 | v3.0 |
+| Feature | v1.0 | v1.1 | v2.0 | v3.0 |
 |---|:---:|:---:|:---:|:---:|
 | Interface | Console | Console | WPF | WPF |
-| Langues | FR/EN | FR/EN | FR/EN | FR/EN |
-| Nb travaux max | 5 | 5 | Illimité | Illimité |
-| Format logs | JSON | JSON/XML | JSON/XML | JSON/XML |
+| Languages | EN/FR | EN/FR | EN/FR | EN/FR |
+| Max jobs | 5 | 5 | Unlimited | Unlimited |
+| Daily log format | JSON | JSON/XML | JSON/XML + encryption time | JSON/XML + encryption time |
 | CryptoSoft | ❌ | ❌ | ✅ | ✅ (mono-instance) |
-| Logiciel métier | ❌ | ❌ | ✅ (blocage) | ✅ (auto-pause) |
-| Exécution | Séquentielle | Séquentielle | Séquentielle | **Parallèle** |
-| Play/Pause/Stop | ❌ | ❌ | ❌ | ✅ |
-| Fichiers prioritaires | ❌ | ❌ | ❌ | ✅ |
-| Gros fichiers limités | ❌ | ❌ | ❌ | ✅ |
-| LogServer Docker | ❌ | ❌ | ❌ | ✅ |
+| Business software | ❌ | ❌ | ✅ (job cannot start) | ✅ (automatic pause / resume) |
+| Execution | Mono / sequential | Mono / sequential | Mono / sequential | **Parallel** |
+| Play / Pause / Stop | ❌ | ❌ | ❌ | ✅ |
+| Priority files | ❌ | ❌ | ❌ | ✅ |
+| One large file at a time | ❌ | ❌ | ❌ | ✅ |
+| Centralized logs (Docker) | ❌ | ❌ | ❌ | ✅ |
+| Command line (`EasySave.exe 1-3`) | ✅ | ✅ | same as 1.0 | same as 1.0 |
 
-### Accéder à une version spécifique
+Each version is tagged in Git:
 
 ```bash
-git checkout v1.0    # Version 1.0 — Console basique
-git checkout v1.1    # Version 1.1 — Console + XML
-git checkout v2.0    # Version 2.0 — Interface graphique WPF
-git checkout main    # Version 3.0 — Version actuelle complète
+git checkout v1.0    # Console, JSON logs
+git checkout v1.1    # Console, JSON or XML logs
+git checkout v2.0    # WPF graphical interface
+git checkout main    # v3.0 (current version)
 ```
 
 ---
 
-## 🏗️ Architecture du projet
+## 🏗️ Project architecture
 
 ```
 EasySave_Joan/
-│
-├── EasySave.CLI/            # Application console (v1.x)
-│   └── Program.cs           # Point d'entrée CLI
-│
-├── EasySave.WPF/            # Application graphique (v2.0 / v3.0)
-│   ├── Views/               # Fenêtres XAML
-│   ├── ViewModels/          # Logique MVVM
-│   └── Styles/              # Thèmes Dark & Light
-│
-├── EasySave.Core/           # Bibliothèque métier partagée
-│   ├── Models/              # BackupJob, BackupType, JobStatus
-│   ├── Services/            # BackupServiceV3, AppSettings, StateManager
-│   │   ├── JobController.cs          # Pause/Stop par job (ManualResetEventSlim)
-│   │   ├── PriorityTransferGuard.cs  # Règle fichiers prioritaires
-│   │   └── LargeFileTransferGuard.cs # Limitation gros fichiers (SemaphoreSlim)
-│   └── Interfaces/          # Contrats (ILanguageProvider, etc.)
-│
-├── EasyLog/                 # DLL de logging (JSON, XML, Socket, Composite)
-│   ├── LoggerFactory.cs     # Fabrique de loggers
-│   ├── SocketLogger.cs      # Envoi TCP vers le LogServer
-│   └── CompositeLogger.cs   # Pattern Composite (local + distant)
-│
-├── CryptoSoft/              # Logiciel de chiffrement XOR (mono-instance)
-│   └── Program.cs
-│
-├── EasySave.LogServer/      # Serveur TCP de centralisation des logs
-│   ├── Program.cs           # Serveur async multi-clients
-│   └── Dockerfile
-│
-├── EasySave.Tests/          # Tests unitaires (xUnit)
-├── EasySave.Tests.WPF/      # Tests de composants WPF
-├── EasySave.Tests.Integration/ # Tests d'intégration
-│
-├── docker-compose.yml       # Lancement du LogServer
-└── .github/workflows/       # CI GitHub Actions
+├── EasySave.CLI/               # Console application v1.x  → EasySave.exe
+├── EasySave.WPF/               # Graphical application v3.0 (MVVM: Views, ViewModels, Styles)
+├── EasySave.Core/              # Business library shared by both applications
+│   ├── Models/                 # BackupJob, JobState, JobStatus...
+│   └── Services/
+│       ├── BackupServiceBase.cs        # Job management shared by every version
+│       ├── BackupService.cs            # v1.x rules (max 5 jobs)
+│       ├── BackupServiceV2.cs          # v2.0 rules (encryption, business software blocks)
+│       ├── BackupServiceV3.cs          # v3.0 rules (parallel, Play/Pause/Stop, auto-pause)
+│       ├── BackupEngine.cs             # Copies, encrypts, logs and updates state.json
+│       ├── JobCatalog.cs               # Job persistence and validation
+│       ├── JobController.cs            # Play / Pause / Stop of one running job
+│       ├── PriorityTransferGuard.cs    # Priority files rule (shared by all jobs)
+│       ├── LargeFileTransferGuard.cs   # One file > n KB at a time
+│       ├── CryptoSoftRunner.cs         # Calls CryptoSoft (serialized: mono-instance)
+│       └── AppSettings.cs / AppPaths.cs / StateManager.cs / LanguageProvider.cs
+├── EasyLog/                    # EasyLog.dll — reusable daily logging library
+│   ├── FileLogger.cs           # Daily file, efficient append (JsonLogger, XmlLogger)
+│   ├── SocketLogger.cs         # Sends entries to the log server over TCP
+│   ├── CompositeLogger.cs      # Local + server
+│   └── LoggerFactory.cs        # Builds the logger for a log mode
+├── CryptoSoft/                 # XOR encryption tool (mono-instance)
+├── EasySave.LogServer/         # Centralized log server (Docker)
+├── EasySave.Tests*/            # Unit, WPF component and integration tests
+└── docker-compose.yml
 ```
 
 ---
 
-## ⚙️ Prérequis
+## ⚙️ Prerequisites
 
 - [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
-- Windows 10/11 (requis pour WPF)
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/) (optionnel, pour le LogServer)
+- Windows 10/11 (WPF)
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) (optional, for the log server)
 
 ---
 
-## 🚀 Installation & Lancement
-
-### 1. Cloner le projet
+## 🚀 Build & run
 
 ```bash
 git clone https://github.com/joanperreyprato/EasySave_Joan.git
 cd EasySave_Joan
-```
-
-### 2. Compiler
-
-```bash
 dotnet build EasySave.sln
+
+dotnet run --project EasySave.WPF      # Graphical application (v3.0)
+dotnet run --project EasySave.CLI      # Console application (v1.1)
 ```
 
-### 3. Lancer l'application
+Console command line (after build, in `EasySave.CLI/bin/Debug/net8.0/`):
 
-**Mode graphique (WPF) — Recommandé :**
 ```bash
-dotnet run --project EasySave.WPF
+EasySave.exe 1-3      # runs jobs 1 to 3
+EasySave.exe "1;3"    # runs jobs 1 and 3 (quotes needed in PowerShell)
 ```
 
-**Mode console (CLI) :**
-```bash
-dotnet run --project EasySave.CLI
-```
+In VS Code, press `F5` and pick a configuration (WPF, CLI or CryptoSoft).
 
-**Depuis VS Code :**  
-Ouvrez le projet, puis appuyez sur `F5`. Choisissez la configuration souhaitée dans le menu déroulant :
-- 🚀 Launch EasySave (WPF - Interface Graphique)
-- 📟 Launch EasySave (CLI - Mode Console)
+> ⚠️ EasySave is mono-instance: only one EasySave (WPF or CLI) can run at a time on a computer.
 
-> ⚠️ **EasySave est mono-instance** : une seule instance (WPF ou CLI) peut tourner à la fois sur le même PC.
+How to use the application: see the [user manual](docs/USER_MANUAL.md).
 
 ---
 
-## 📖 Guide d'utilisation
+## 🔐 CryptoSoft
 
-### Créer un travail de sauvegarde
+Stand-alone console tool that encrypts / decrypts a file with a bitwise **XOR** (the same command decrypts).
 
-1. Cliquez sur **＋ Nouveau** dans la barre latérale gauche
-2. Remplissez le formulaire :
-   - **Nom** : nom unique du travail (ex: "Sauvegarde Documents")
-   - **Source** : dossier à sauvegarder (ex: `C:\Users\Joan\Documents`)
-   - **Cible** : dossier de destination (ex: `D:\Backups\Documents`)
-   - **Type** : Complète (tous les fichiers) ou Différentielle (uniquement les fichiers modifiés)
-3. Cliquez sur **✓ Créer**
+```bash
+CryptoSoft.exe <source_file> <destination_file>
+```
 
-### Exécuter une sauvegarde
-
-- **Un seul job** : Cochez la case du job → cliquez sur **▶ Lancer sélection**
-- **Tous les jobs** : Cliquez sur **▶▶ Lancer tout**
-
-### Contrôler les sauvegardes en cours (v3.0)
-
-- **⏸ Suspendre** : Met en pause le job sélectionné (attend la fin du fichier en cours)
-- **▶ Reprendre** : Relance un job en pause
-- **⏹ Arrêter** : Annule définitivement le job sélectionné
-- Les boutons **"Toutes les sauvegardes"** appliquent l'action à tous les jobs en même temps
-
-### Paramètres
-
-En bas de la fenêtre, vous trouverez les paramètres configurables :
-
-| Paramètre | Description | Exemple |
-|---|---|---|
-| **Logiciel métier** | Nom du processus qui bloque les sauvegardes | `notepad` |
-| **Extensions à chiffrer** | Extensions traitées par CryptoSoft | `.docx, .xlsx, .pdf` |
-| **Extensions prioritaires** | Extensions copiées en premier | `.doc, .pdf` |
-| **Gros fichier (Ko)** | Taille max pour les transferts parallèles | `1024` |
-| **Format de log** | JSON ou XML | `JSON` |
-
-Cliquez sur **Sauvegarder** pour appliquer les paramètres.
-
-### Changer la langue
-
-Cliquez sur le bouton **EN** / **FR** en bas de la barre latérale. Toute l'interface se traduit instantanément sans redémarrer.
-
-### Changer le thème
-
-Cliquez sur le bouton **☀️ Light** / **🌙 Dark** pour basculer entre les thèmes.
+- Exit code: `> 0` = processing time in ms, `< 0` = error (`-1` usage, `-2` source not found, `-3` processing error, `-4` busy).
+- The key (at least 64 bits) is read from `cryptosoft.config.json`, next to `CryptoSoft.exe`.
+- **Mono-instance:** a system mutex (`Global\CryptoSoftMutex_EasySave`) prevents two instances from running at the same time; a second instance waits up to 30 s. EasySave launches it one file at a time and retries if it is busy.
+- In EasySave, files whose extension is in the encryption list are copied, **then** encrypted in the target folder. The encryption time is written in the log (`0` = not encrypted, `< 0` = error).
 
 ---
 
-## 🔐 CryptoSoft — Logiciel de chiffrement
+## 🐳 Centralized log server (Docker)
 
-**CryptoSoft** est un exécutable console indépendant qui chiffre/déchiffre les fichiers avec l'algorithme **XOR bit à bit** (clé de 64 bits minimum).
-
-### Utilisation manuelle
+The server receives log entries from every EasySave client over TCP and writes them to **one daily file shared by all users** (`server-logs/YYYY-MM-DD.json`). Each entry contains the `machineName` and `userName` of its sender.
 
 ```bash
-CryptoSoft.exe <fichier_source> <fichier_destination>
+docker compose up -d --build        # start (port 8080)
+docker logs -f easysave-logserver   # live view
+docker compose down                 # stop
 ```
 
-### Fonctionnement dans EasySave
+In EasySave (Settings panel), choose the log destination:
 
-Quand EasySave copie un fichier dont l'extension est dans la liste "Extensions à chiffrer", il appelle automatiquement CryptoSoft pour chiffrer le fichier avant de le copier dans le dossier cible.
-
-### Mono-instance
-
-CryptoSoft utilise un `Mutex` système (`Global\CryptoSoftMutex_EasySave`). Si un autre processus CryptoSoft est déjà en cours, le suivant attend (timeout de 30 secondes).
-
-### Configuration
-
-La clé de chiffrement se trouve dans :
-```
-%ProgramData%\EasySave\crypto_key.txt
-```
-
----
-
-## 🐳 LogServer — Serveur de logs Docker
-
-Le LogServer est un serveur TCP qui reçoit et affiche les logs de sauvegarde en temps réel avec des couleurs.
-
-### Lancement
-
-```bash
-docker-compose up -d --build
-```
-
-### Consultation des logs
-
-```bash
-docker logs -f easysave-logserver
-```
-
-Vous verrez en temps réel :
-```
-[21:36:23] [test 1] Copied 'rapport.docx' (1024 B) in 5ms [🔒 1ms]
-[21:36:23] [test 1] Copied 'photo.jpg' (2048 B) in 3ms
-```
-
-### Modes de fonctionnement
-
-| Mode | Description |
+| Mode | Logs written to |
 |---|---|
-| **Local uniquement** | Les logs sont écrits sur le PC (JSON/XML) |
-| **Distant uniquement** | Les logs sont envoyés au serveur Docker |
-| **Local + Distant** | Les logs sont écrits localement ET envoyés au serveur (mode par défaut) |
+| **Local** (default) | The user's computer only (`%ProgramData%\EasySave\Logs`) |
+| **Server** | The Docker server only |
+| **Local + Server** | Both |
 
-### Arrêt
-
-```bash
-docker-compose down
-```
+and set the server address (`host:port`, default `127.0.0.1:8080`).
 
 ---
 
 ## 🧪 Tests
 
-Le projet contient **46 tests automatisés** répartis en 3 catégories :
-
-| Type | Projet | Nombre | Ce qui est testé |
-|---|---|:---:|---|
-| **Unitaires** | `EasySave.Tests` | 40 | Logique métier, validation, logs, guards |
-| **Composants** | `EasySave.Tests.WPF` | 4 | Interface WPF sans fenêtre réelle |
-| **Intégration** | `EasySave.Tests.Integration` | 2 | Sauvegarde complète avec vrais fichiers |
-
-### Lancer les tests
-
 ```bash
 dotnet test EasySave.sln
 ```
 
-### Intégration Continue (CI)
-
-Les tests sont exécutés automatiquement à chaque `push` sur GitHub via **GitHub Actions** (`.github/workflows/tests.yml`).
-
----
-
-## 🛠️ Technologies utilisées
-
-| Technologie | Usage |
+| Project | Scope |
 |---|---|
-| **C# / .NET 8.0** | Langage et framework principal |
-| **WPF (MVVM)** | Interface graphique Windows |
-| **xUnit** | Framework de tests |
-| **Docker** | Conteneurisation du LogServer |
-| **GitHub Actions** | Intégration continue (CI) |
-| **TCP Sockets** | Communication réseau pour les logs |
-| **XOR Cipher** | Algorithme de chiffrement (CryptoSoft) |
+| `EasySave.Tests` | Unit tests: services, engine, priority rule, Play/Pause/Stop, loggers, CryptoSoft |
+| `EasySave.Tests.WPF` | ViewModel tests without a window |
+| `EasySave.Tests.Integration` | End-to-end backups with real files, logs and CryptoSoft |
+
+Tests run on every push through GitHub Actions (`.github/workflows/tests.yml`).
 
 ---
 
-## 👥 Auteur
+## 🛠️ Technologies
 
-- **Joan Perrey Prato** — Étudiant PGE A3 FISA Informatique — CESI
+C# / .NET 8.0 · WPF (MVVM) · xUnit + Moq · Docker · GitHub Actions · TCP sockets · XOR cipher
 
 ---
 
-*Projet réalisé dans le cadre du cours de Programmation Système — Génie Logiciel 2025-2026*
+## 👥 Author
+
+**Joan Perrey Prato** — PGE A3 FISA Computer Science — CESI (Software Engineering, 2025-2026)

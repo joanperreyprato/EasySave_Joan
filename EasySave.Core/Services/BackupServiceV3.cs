@@ -1,360 +1,186 @@
-using System.Diagnostics;
-using System.Text.Json;
-using System.Text.RegularExpressions;
-using EasySave.Core.Interfaces;
 using EasySave.Core.Models;
 using EasyLog;
 
 namespace EasySave.Core.Services;
 
 /// <summary>
-/// v3.0 backup service: parallel execution, Play/Pause/Stop per job,
-/// priority file rule, large file bandwidth throttle,
-/// and automatic pause/resume on business software detection.
+/// v3.0 backup service: parallel execution, Play/Pause/Stop per job or for all jobs,
+/// priority files, one large file at a time, and automatic pause/resume while the
+/// business software is running.
 /// </summary>
-public sealed class BackupServiceV3 : IDisposable
+public sealed class BackupServiceV3 : BackupServiceBase, IDisposable
 {
-    // ── Constants ──────────────────────────────────────────────────────────────
-    private static readonly Regex NameRegex = new(@"^[\w\s\-]{1,100}$", RegexOptions.Compiled);
-    private static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = true };
+    private static readonly TimeSpan BusinessSoftwarePollInterval = TimeSpan.FromMilliseconds(500);
 
-    private readonly string _configPath;
-    private readonly List<BackupJob> _jobs;
-    private readonly StateManager _stateManager;
     private readonly AppSettings _appSettings;
     private readonly BusinessSoftwareMonitor _monitor;
-    private readonly object _lock = new();
+    private readonly Timer _businessSoftwareTimer;
 
-    // ── Per-job controllers (Pause / Stop) ────────────────────────────────────
-    private readonly Dictionary<string, JobController> _controllers = [];
+    /// <summary>A job currently running, with its controller and the logger of its run.</summary>
+    private sealed record RunningJob(BackupJob Job, JobController Controller, ILogger Logger)
+    {
+        public string Name => Job.Name;
+    }
 
-    // ── Business software auto-pause ─────────────────────────────────────────
-    private readonly System.Threading.Timer _businessTimer;
+    private readonly Dictionary<string, RunningJob> _running = new(StringComparer.OrdinalIgnoreCase);
+    private readonly object _runningLock = new();
+    private bool _businessSoftwareRunning;
+    private int _pollInProgress;
 
-    // ── Constructor ────────────────────────────────────────────────────────────
+    /// <summary>Initializes the service and starts watching the business software.</summary>
     public BackupServiceV3(StateManager stateManager, AppSettings appSettings,
         BusinessSoftwareMonitor monitor, string? configPath = null)
+        : base(stateManager, configPath ?? AppPaths.JobsFile("backup_config_v3.json"), maxJobs: null)
     {
-        _stateManager = stateManager ?? throw new ArgumentNullException(nameof(stateManager));
-        _appSettings  = appSettings  ?? throw new ArgumentNullException(nameof(appSettings));
-        _monitor      = monitor      ?? throw new ArgumentNullException(nameof(monitor));
-        _configPath   = configPath   ?? Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
-            "EasySave", "backup_config_v3.json");
-        _jobs = LoadConfig();
-
-        // Poll for business software every 500ms and auto-pause/resume running jobs
-        _businessTimer = new System.Threading.Timer(PollBusinessSoftware, null,
-            TimeSpan.Zero, TimeSpan.FromMilliseconds(500));
+        _appSettings = appSettings ?? throw new ArgumentNullException(nameof(appSettings));
+        _monitor     = monitor     ?? throw new ArgumentNullException(nameof(monitor));
+        _businessSoftwareTimer = new Timer(PollBusinessSoftware, null, TimeSpan.Zero, BusinessSoftwarePollInterval);
     }
 
-    // ── Public API (mirrors IBackupService) ───────────────────────────────────
+    // ── Status ─────────────────────────────────────────────────────────────────
 
-    public BackupCreationResult CreateJob(string name, string source, string target, BackupType type)
+    /// <summary>Gets whether at least one job is running (or paused).</summary>
+    public bool HasRunningJobs
     {
-        lock (_lock)
-        {
-            if (string.IsNullOrWhiteSpace(name) || !NameRegex.IsMatch(name))
-                return BackupCreationResult.InvalidName;
-            if (_jobs.Exists(j => j.Name.Equals(name, StringComparison.OrdinalIgnoreCase)))
-                return BackupCreationResult.DuplicateName;
-            if (!Directory.Exists(source))
-                return BackupCreationResult.SourceNotFound;
-
-            string? targetParent = Path.GetDirectoryName(target.TrimEnd(Path.DirectorySeparatorChar));
-            if (!string.IsNullOrEmpty(targetParent) && !Directory.Exists(targetParent))
-                return BackupCreationResult.TargetNotFound;
-
-            _jobs.Add(new BackupJob { Name = name, SourceDirectory = source, TargetDirectory = target, Type = type });
-            SaveConfig();
-            return BackupCreationResult.Success;
-        }
+        get { lock (_runningLock) return _running.Count > 0; }
     }
 
-    public void DeleteJob(string name)
+    /// <summary>Gets whether the business software was running at the last check.</summary>
+    public bool IsBusinessSoftwareRunning => Volatile.Read(ref _businessSoftwareRunning);
+
+    /// <summary>Returns whether the given job is running (or paused).</summary>
+    public bool IsJobRunning(string name)
     {
-        lock (_lock)
-        {
-            int removed = _jobs.RemoveAll(j => j.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
-            if (removed > 0) { _stateManager.RemoveJobState(name); SaveConfig(); }
-        }
+        lock (_runningLock) return _running.ContainsKey(name);
     }
 
-    public List<BackupJob> GetAllJobs() { lock (_lock) return [.. _jobs]; }
-
-    public BackupJob? GetJob(string name)
-    {
-        lock (_lock) return _jobs.Find(j => j.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
-    }
-
-    // ── Parallel execution ────────────────────────────────────────────────────
+    // ── Parallel execution ─────────────────────────────────────────────────────
 
     /// <summary>
-    /// Launches all specified jobs in parallel. Returns a Task that completes
-    /// when all jobs finish (or are stopped/cancelled).
+    /// Launches the given jobs in parallel (jobs already running are ignored).
+    /// If the business software is running, the jobs start paused and resume automatically.
     /// </summary>
+    /// <returns>A task that completes when all launched jobs are finished or stopped.</returns>
     public Task ExecuteJobsParallelAsync(IEnumerable<string> names, ILogger logger)
     {
-        var jobList = names
-            .Select(GetJob)
-            .Where(j => j is not null)
-            .Cast<BackupJob>()
+        bool pausedByBusinessSoftware = _monitor.IsRunning();
+        var started = Reserve(names, logger, pausedByBusinessSoftware);
+
+        // Every job registers its priority files before any job starts transferring
+        var plans = started
+            .Select(run => (Run: run, Plan: Engine.Prepare(run.Job, PriorityExtensions())))
             .ToList();
 
-        if (jobList.Count == 0) return Task.CompletedTask;
+        if (pausedByBusinessSoftware)
+            started.ForEach(run => BackupEngine.LogEvent(logger, run.Name, LogActions.BusinessSoftwarePaused));
 
-        // Create fresh controllers for each job
-        lock (_lock)
+        return Task.WhenAll(plans.Select(p => Task.Run(() => RunAndReleaseAsync(p.Run, p.Plan))));
+    }
+
+    private List<RunningJob> Reserve(IEnumerable<string> names, ILogger logger, bool pausedByBusinessSoftware)
+    {
+        var started = new List<RunningJob>();
+        lock (_runningLock)
         {
-            foreach (var job in jobList)
+            foreach (var job in names.Select(GetJob).OfType<BackupJob>())
             {
-                _controllers.TryGetValue(job.Name, out var existing);
-                existing?.Dispose();
-                _controllers[job.Name] = new JobController();
+                if (_running.ContainsKey(job.Name)) continue;
+
+                var controller = new JobController();
+                controller.SetBusinessSoftwarePause(pausedByBusinessSoftware);
+                var run = new RunningJob(job, controller, logger);
+                _running[job.Name] = run;
+                started.Add(run);
             }
         }
-
-        var tasks = jobList.Select(job =>
-            Task.Run(() => RunBackupAsync(job, logger, _controllers[job.Name])));
-
-        return Task.WhenAll(tasks);
+        return started;
     }
 
-    // ── Play / Pause / Stop (per job) ─────────────────────────────────────────
-
-    public void PauseJob(string name)
+    private async Task RunAndReleaseAsync(RunningJob run, BackupPlan plan)
     {
-        if (_controllers.TryGetValue(name, out var ctrl)) ctrl.Pause();
+        try
+        {
+            var options = new BackupRunOptions
+            {
+                EncryptionExtensions = BackupRunOptions.ToExtensionSet(_appSettings.EncryptionExtensions),
+                PriorityExtensions   = PriorityExtensions(),
+                LargeFileThresholdKb = _appSettings.MaxParallelFileSizeKb,
+                Controller           = run.Controller
+            };
+            await Engine.RunAsync(plan, run.Logger, options);
+        }
+        finally
+        {
+            lock (_runningLock) _running.Remove(run.Name);
+            run.Controller.Dispose();
+        }
     }
 
-    public void ResumeJob(string name)
+    private IReadOnlySet<string> PriorityExtensions()
+        => BackupRunOptions.ToExtensionSet(_appSettings.PriorityExtensions);
+
+    // ── Play / Pause / Stop ────────────────────────────────────────────────────
+
+    /// <summary>Pauses a job after its current file.</summary>
+    public void PauseJob(string name) => ForJob(name, c => c.Pause());
+
+    /// <summary>Resumes a job paused by the user.</summary>
+    public void ResumeJob(string name) => ForJob(name, c => c.Resume());
+
+    /// <summary>Stops a job immediately (the current transfer is cancelled).</summary>
+    public void StopJob(string name) => ForJob(name, c => c.Stop());
+
+    /// <summary>Pauses every running job after its current file.</summary>
+    public void PauseAll() => ForAll(run => run.Controller.Pause());
+
+    /// <summary>Resumes every job paused by the user.</summary>
+    public void ResumeAll() => ForAll(run => run.Controller.Resume());
+
+    /// <summary>Stops every running job immediately.</summary>
+    public void StopAll() => ForAll(run => run.Controller.Stop());
+
+    private void ForJob(string name, Action<JobController> action)
     {
-        if (_controllers.TryGetValue(name, out var ctrl)) ctrl.Resume();
+        lock (_runningLock)
+            if (_running.TryGetValue(name, out var run)) action(run.Controller);
     }
 
-    public void StopJob(string name)
+    private void ForAll(Action<RunningJob> action)
     {
-        if (_controllers.TryGetValue(name, out var ctrl)) ctrl.Stop();
+        lock (_runningLock)
+            foreach (var run in _running.Values) action(run);
     }
 
-    public void PauseAll()  { lock (_lock) foreach (var c in _controllers.Values) c.Pause(); }
-    public void ResumeAll() { lock (_lock) foreach (var c in _controllers.Values) c.Resume(); }
-    public void StopAll()   { lock (_lock) foreach (var c in _controllers.Values) c.Stop(); }
-
-    // ── Business software auto-pause polling ──────────────────────────────────
-
-    private bool _wasBusinessRunning;
+    // ── Business software: automatic pause / resume ────────────────────────────
 
     private void PollBusinessSoftware(object? _)
     {
-        bool isRunning = _monitor.IsRunning();
-
-        if (isRunning && !_wasBusinessRunning)
-        {
-            // Business software just appeared → pause all
-            PauseAll();
-            _wasBusinessRunning = true;
-        }
-        else if (!isRunning && _wasBusinessRunning)
-        {
-            // Business software just closed → resume all
-            ResumeAll();
-            _wasBusinessRunning = false;
-        }
-    }
-
-    // ── Private: backup engine ────────────────────────────────────────────────
-
-    private async Task RunBackupAsync(BackupJob job, ILogger logger, JobController ctrl)
-    {
-        var ct = ctrl.Token;
-        Directory.CreateDirectory(job.TargetDirectory);
-
-        var allFiles  = GetEligibleFiles(job);
-        long totalSize = allFiles.Sum(f => new FileInfo(f).Length);
-
-        var priorityExtensions = _appSettings.PriorityExtensions
-            .Select(e => e.ToLowerInvariant()).ToHashSet();
-        var encExtensions = _appSettings.EncryptionExtensions
-            .Select(e => e.ToLowerInvariant()).ToHashSet();
-
-        var state = new JobState
-        {
-            Name           = job.Name,
-            Status         = JobStatus.Active,
-            TotalFiles     = allFiles.Count,
-            TotalSize      = totalSize,
-            RemainingFiles = allFiles.Count,
-            RemainingSize  = totalSize,
-            Progress       = 0,
-            LastActionTime = DateTime.Now
-        };
-        _stateManager.UpdateJobState(state);
-
-        int  processed     = 0;
-        long processedSize = 0;
-
-        foreach (string sourceFile in allFiles)
-        {
-            try
-            {
-                // ── 1. Check Pause / Stop between files ───────────────────────
-                state.Status = JobStatus.Paused;
-                _stateManager.UpdateJobState(state);
-                ctrl.CheckPauseOrStop();
-                state.Status = JobStatus.Active;
-
-                // ── 2. Priority rule ──────────────────────────────────────────
-                string ext        = Path.GetExtension(sourceFile).ToLowerInvariant();
-                bool   isPriority = priorityExtensions.Count > 0 && priorityExtensions.Contains(ext);
-                await PriorityTransferGuard.Instance.AcquireAsync(isPriority, ct);
-
-                // ── 3. Large-file bandwidth throttle ──────────────────────────
-                var fileInfo = new FileInfo(sourceFile);
-                using var largeSlot = await LargeFileTransferGuard.Instance
-                    .AcquireAsync(fileInfo.Length, _appSettings.MaxParallelFileSizeKb, ct);
-
-                // ── 4. Transfer ───────────────────────────────────────────────
-                string relativePath = Path.GetRelativePath(job.SourceDirectory, sourceFile);
-                string targetFile   = Path.Combine(job.TargetDirectory, relativePath);
-                Directory.CreateDirectory(Path.GetDirectoryName(targetFile)!);
-
-                state.CurrentSourceFile = LogEntry.ToUncPath(sourceFile);
-                state.CurrentTargetFile = LogEntry.ToUncPath(targetFile);
-                state.LastActionTime    = DateTime.Now;
-                _stateManager.UpdateJobState(state);
-
-                long transferMs  = -1;
-                long encryptMs   = 0;
-
-                var sw = Stopwatch.StartNew();
-                try { File.Copy(sourceFile, targetFile, overwrite: true); sw.Stop(); transferMs = sw.ElapsedMilliseconds; }
-                catch { sw.Stop(); transferMs = -1; }
-
-                // ── 5. Encryption ─────────────────────────────────────────────
-                if (transferMs >= 0 && encExtensions.Count > 0 && encExtensions.Contains(ext))
-                    encryptMs = RunCryptoSoft(targetFile);
-
-                // ── 6. Release priority slot ──────────────────────────────────
-                if (isPriority) PriorityTransferGuard.Instance.ReleasePriority();
-
-                // ── 7. Log ────────────────────────────────────────────────────
-                logger.Log(new LogEntry
-                {
-                    Timestamp           = DateTime.Now,
-                    BackupName          = job.Name,
-                    SourceFilePath      = sourceFile,
-                    TargetFilePath      = targetFile,
-                    FileSize            = fileInfo.Length,
-                    TransferDurationMs  = transferMs,
-                    EncryptionDurationMs = encryptMs
-                });
-
-                processed++;
-                processedSize        += fileInfo.Length;
-                state.RemainingFiles  = allFiles.Count - processed;
-                state.RemainingSize   = totalSize - processedSize;
-                state.Progress        = totalSize > 0 ? processedSize * 100.0 / totalSize : 100.0;
-                state.LastActionTime  = DateTime.Now;
-                _stateManager.UpdateJobState(state);
-            }
-            catch (OperationCanceledException)
-            {
-                state.Status = JobStatus.Inactive;
-                _stateManager.UpdateJobState(state);
-                return;
-            }
-        }
-
-        state.Status           = JobStatus.Completed;
-        state.Progress         = 100;
-        state.RemainingFiles   = 0;
-        state.RemainingSize    = 0;
-        state.CurrentSourceFile = string.Empty;
-        state.CurrentTargetFile = string.Empty;
-        state.LastActionTime   = DateTime.Now;
-        _stateManager.UpdateJobState(state);
-    }
-
-    // ── Helpers ───────────────────────────────────────────────────────────────
-
-    private static long RunCryptoSoft(string targetFile)
-    {
-        string? cryptoSoftPath = FindCryptoSoft();
-        if (cryptoSoftPath is null) return -10;
-
-        string tempFile = targetFile + ".tmp";
+        if (Interlocked.Exchange(ref _pollInProgress, 1) == 1) return; // Previous check still running
         try
         {
-            var psi = new ProcessStartInfo(cryptoSoftPath, $"\"{targetFile}\" \"{tempFile}\"")
+            bool isRunning = _monitor.IsRunning();
+            bool changed = isRunning != _businessSoftwareRunning;
+            Volatile.Write(ref _businessSoftwareRunning, isRunning);
+
+            // Applied on every tick (not only on change) so that no job can escape the pause
+            ForAll(run =>
             {
-                RedirectStandardOutput = true,
-                RedirectStandardError  = true,
-                UseShellExecute        = false,
-                CreateNoWindow         = true
-            };
-            using var process = Process.Start(psi)!;
-            process.WaitForExit(30_000);
-            int exitCode = process.ExitCode;
-            if (exitCode > 0) { File.Move(tempFile, targetFile, overwrite: true); return exitCode; }
-            return exitCode;
+                run.Controller.SetBusinessSoftwarePause(isRunning);
+                if (changed)
+                    BackupEngine.LogEvent(run.Logger, run.Name,
+                        isRunning ? LogActions.BusinessSoftwarePaused : LogActions.BusinessSoftwareResumed);
+            });
         }
-        catch { if (File.Exists(tempFile)) File.Delete(tempFile); return -11; }
-    }
-
-    private static string? FindCryptoSoft()
-    {
-        string exeDir   = AppContext.BaseDirectory;
-        string candidate = Path.Combine(exeDir, "CryptoSoft.exe");
-        if (File.Exists(candidate)) return candidate;
-
-        var dir = new DirectoryInfo(exeDir);
-        while (dir is not null)
+        finally
         {
-            if (dir.GetFiles("*.sln").Length > 0)
-            {
-                foreach (var p in new[]
-                {
-                    Path.Combine(dir.FullName, "CryptoSoft", "bin", "Debug",   "net8.0", "CryptoSoft.exe"),
-                    Path.Combine(dir.FullName, "CryptoSoft", "bin", "Release",  "net8.0", "CryptoSoft.exe"),
-                })
-                    if (File.Exists(p)) return p;
-                break;
-            }
-            dir = dir.Parent;
+            Volatile.Write(ref _pollInProgress, 0);
         }
-        return null;
     }
 
-    private static List<string> GetEligibleFiles(BackupJob job)
-    {
-        var all = Directory.EnumerateFiles(job.SourceDirectory, "*", SearchOption.AllDirectories).ToList();
-        if (job.Type == BackupType.Full) return all;
-        return all.Where(src =>
-        {
-            string rel = Path.GetRelativePath(job.SourceDirectory, src);
-            string tgt = Path.Combine(job.TargetDirectory, rel);
-            return !File.Exists(tgt) || File.GetLastWriteTimeUtc(src) > File.GetLastWriteTimeUtc(tgt);
-        }).ToList();
-    }
-
-    private List<BackupJob> LoadConfig()
-    {
-        try
-        {
-            Directory.CreateDirectory(Path.GetDirectoryName(_configPath)!);
-            if (!File.Exists(_configPath)) return [];
-            return JsonSerializer.Deserialize<List<BackupJob>>(File.ReadAllText(_configPath), JsonOptions) ?? [];
-        }
-        catch { return []; }
-    }
-
-    private void SaveConfig() =>
-        File.WriteAllText(_configPath, JsonSerializer.Serialize(_jobs, JsonOptions));
-
+    /// <inheritdoc/>
     public void Dispose()
     {
-        _businessTimer.Dispose();
-        lock (_lock) foreach (var c in _controllers.Values) c.Dispose();
+        _businessSoftwareTimer.Dispose();
+        StopAll();
     }
 }

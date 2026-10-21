@@ -1,11 +1,15 @@
-version: '3.8'
-
 services:
   log-server:
     build:
-      context: ./EasySave.LogServer
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: EasySave.LogServer/Dockerfile
     container_name: easysave-logserver
     ports:
       - "8080:8080"
+    environment:
+      # Company time zone: timestamps and the daily file change at local midnight, not UTC
+      - TZ=Europe/Paris
+    volumes:
+      # One daily file (YYYY-MM-DD.json) shared by every user, kept on the Docker host
+      - ./server-logs:/logs
     restart: unless-stopped

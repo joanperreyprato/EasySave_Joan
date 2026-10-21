@@ -5,38 +5,47 @@ using System.Text.Json;
 namespace EasyLog;
 
 /// <summary>
-/// A logger that sends log entries over a TCP connection to a remote server.
-/// If the server is unreachable, it silently drops the logs to prevent blocking the backup process.
+/// A logger that sends log entries over a TCP connection to the centralized log server.
+/// If the server is unreachable, entries are dropped (and reconnection is retried after a delay)
+/// so that the backup process is never blocked.
 /// </summary>
 public sealed class SocketLogger : ILogger, IDisposable
 {
+    private static readonly TimeSpan ConnectTimeout = TimeSpan.FromMilliseconds(500);
+    private static readonly TimeSpan RetryDelay = TimeSpan.FromSeconds(5);
+
     private readonly string _serverAddress;
     private readonly int _port;
     private TcpClient? _tcpClient;
     private StreamWriter? _writer;
+    private DateTime _nextConnectAttempt = DateTime.MinValue;
     private readonly object _lock = new();
 
+    /// <summary>Initializes a logger targeting the given log server.</summary>
+    /// <param name="serverAddress">Host name or IP address of the log server.</param>
+    /// <param name="port">TCP port of the log server.</param>
     public SocketLogger(string serverAddress = "127.0.0.1", int port = 8080)
     {
         _serverAddress = serverAddress;
         _port = port;
     }
 
+    /// <inheritdoc/>
     public void Log(LogEntry entry)
     {
+        entry.SourceFilePath = LogEntry.ToUncPath(entry.SourceFilePath);
+        entry.TargetFilePath = LogEntry.ToUncPath(entry.TargetFilePath);
+
         lock (_lock)
         {
             try
             {
-                if (_tcpClient == null || !_tcpClient.Connected)
-                {
+                if (_tcpClient is not { Connected: true })
                     Connect();
-                }
 
                 if (_writer != null)
                 {
-                    string json = JsonSerializer.Serialize(entry);
-                    _writer.WriteLine(json);
+                    _writer.WriteLine(JsonSerializer.Serialize(entry));
                     _writer.Flush();
                 }
             }
@@ -50,25 +59,28 @@ public sealed class SocketLogger : ILogger, IDisposable
 
     private void Connect()
     {
+        // Avoid paying the connection timeout for every entry while the server is down
+        if (DateTime.UtcNow < _nextConnectAttempt) return;
+
         try
         {
             Disconnect();
             _tcpClient = new TcpClient();
-            // Short timeout so we don't freeze the app if server is down
             var result = _tcpClient.BeginConnect(_serverAddress, _port, null, null);
-            var success = result.AsyncWaitHandle.WaitOne(TimeSpan.FromMilliseconds(500));
-            if (!success)
+            if (!result.AsyncWaitHandle.WaitOne(ConnectTimeout))
             {
-                _tcpClient.Close();
+                Disconnect();
+                _nextConnectAttempt = DateTime.UtcNow + RetryDelay;
                 return;
             }
-            
+
             _tcpClient.EndConnect(result);
-            _writer = new StreamWriter(_tcpClient.GetStream(), Encoding.UTF8);
+            _writer = new StreamWriter(_tcpClient.GetStream(), new UTF8Encoding(false));
         }
         catch
         {
             Disconnect();
+            _nextConnectAttempt = DateTime.UtcNow + RetryDelay;
         }
     }
 
@@ -87,8 +99,9 @@ public sealed class SocketLogger : ILogger, IDisposable
         }
     }
 
+    /// <inheritdoc/>
     public void Dispose()
     {
-        Disconnect();
+        lock (_lock) Disconnect();
     }
 }

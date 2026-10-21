@@ -1,34 +1,44 @@
 namespace EasySave.Core.Services;
 
 /// <summary>
-/// Thread-safe shared guard that enforces the priority-file rule (v3.0).
-/// No non-priority file may be transferred while any job has a priority file waiting.
+/// Thread-safe guard shared by all jobs that enforces the priority-file rule (v3.0):
+/// no non-priority file may be transferred while at least one job still has
+/// priority files waiting to be transferred.
 /// </summary>
+/// <remarks>
+/// Each job registers all of its priority files before any job starts, releases them one by one
+/// as they are transferred, and releases the remaining ones when it ends (completed, stopped or failed).
+/// </remarks>
 public sealed class PriorityTransferGuard
 {
-    private static readonly PriorityTransferGuard _instance = new();
-    public static PriorityTransferGuard Instance => _instance;
+    private const int PollDelayMs = 50;
+    private int _pendingPriorityFiles;
 
-    private int _priorityFilesWaiting;
-    private readonly SemaphoreSlim _gate = new(1, 1);
+    /// <summary>Gets the instance shared by every job of the application.</summary>
+    public static PriorityTransferGuard Instance { get; } = new();
 
-    /// <summary>
-    /// Called before transferring a file. Blocks until it is safe to proceed.
-    /// Priority files are always allowed; non-priority files wait if any priority file is pending.
-    /// </summary>
-    public async Task AcquireAsync(bool isPriority, CancellationToken ct)
+    /// <summary>Gets the number of priority files still waiting in all jobs.</summary>
+    public int PendingCount => Volatile.Read(ref _pendingPriorityFiles);
+
+    /// <summary>Declares priority files that a job is going to transfer.</summary>
+    /// <param name="count">The number of priority files in the job.</param>
+    public void Register(int count)
     {
-        if (isPriority)
-        {
-            Interlocked.Increment(ref _priorityFilesWaiting);
-            return; // Priority files never wait
-        }
-
-        // Non-priority: spin-wait until no priority files are pending
-        while (Volatile.Read(ref _priorityFilesWaiting) > 0)
-            await Task.Delay(50, ct);
+        if (count > 0) Interlocked.Add(ref _pendingPriorityFiles, count);
     }
 
-    /// <summary>Called after a priority file transfer completes.</summary>
-    public void ReleasePriority() => Interlocked.Decrement(ref _priorityFilesWaiting);
+    /// <summary>Removes priority files from the pending count (transferred or abandoned).</summary>
+    /// <param name="count">The number of priority files to release.</param>
+    public void Release(int count = 1)
+    {
+        if (count > 0) Interlocked.Add(ref _pendingPriorityFiles, -count);
+    }
+
+    /// <summary>Waits until no priority file is pending in any job.</summary>
+    /// <param name="ct">Cancels the wait when the job is stopped.</param>
+    public async Task WaitUntilNoPriorityPendingAsync(CancellationToken ct)
+    {
+        while (PendingCount > 0)
+            await Task.Delay(PollDelayMs, ct);
+    }
 }

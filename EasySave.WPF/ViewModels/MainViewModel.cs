@@ -1,4 +1,3 @@
-using System.IO;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 using System.Windows.Threading;
@@ -10,8 +9,8 @@ namespace EasySave.WPF.ViewModels;
 
 /// <summary>
 /// Main ViewModel for the EasySave WPF application (v3.0).
-/// Supports parallel execution, per-job Play/Pause/Stop, priority files,
-/// large-file bandwidth control, and auto-pause on business software detection.
+/// Supports parallel execution, per-job and global Play/Pause/Stop, priority files,
+/// large-file bandwidth control, log centralization and auto-pause on business software detection.
 /// </summary>
 public sealed class MainViewModel : ViewModelBase, IDisposable
 {
@@ -25,14 +24,15 @@ public sealed class MainViewModel : ViewModelBase, IDisposable
     public ObservableCollection<JobViewModel> Jobs { get; } = [];
 
     private bool   _isDarkTheme;
-    private string _statusMessage       = string.Empty;
+    private string _statusMessage        = string.Empty;
     private bool   _isBusy;
     private JobViewModel? _selectedJob;
-    private string _currentLanguage     = "en";
-    private string _businessSoftwareName = string.Empty;
-    private string _encryptionExtensions = string.Empty;
-    private string _priorityExtensions   = string.Empty;
-    private string _largeFileSizeKb      = "1024";
+    private string _currentLanguage;
+    private string _businessSoftwareName;
+    private string _encryptionExtensions;
+    private string _priorityExtensions;
+    private string _largeFileSizeKb;
+    private string _logServer;
 
     // ── Commands ───────────────────────────────────────────────────────────────
     public ICommand RunSelectedJobsCommand { get; }
@@ -42,15 +42,15 @@ public sealed class MainViewModel : ViewModelBase, IDisposable
     public ICommand ToggleLanguageCommand  { get; }
     public ICommand SaveSettingsCommand    { get; }
 
-    // v3.0 — per-job controls
-    public ICommand PauseJobCommand  { get; }
-    public ICommand ResumeJobCommand { get; }
-    public ICommand StopJobCommand   { get; }
+    // v3.0 — selected job controls (Play = start or resume)
+    public ICommand PlayJobCommand  { get; }
+    public ICommand PauseJobCommand { get; }
+    public ICommand StopJobCommand  { get; }
 
     // v3.0 — global controls
-    public ICommand PauseAllCommand  { get; }
-    public ICommand ResumeAllCommand { get; }
-    public ICommand StopAllCommand   { get; }
+    public ICommand PlayAllCommand  { get; }
+    public ICommand PauseAllCommand { get; }
+    public ICommand StopAllCommand  { get; }
 
     // ── Constructor ────────────────────────────────────────────────────────────
     public MainViewModel(BackupServiceV3 backupService, AppSettings settings,
@@ -66,25 +66,24 @@ public sealed class MainViewModel : ViewModelBase, IDisposable
         _encryptionExtensions = string.Join(", ", settings.EncryptionExtensions);
         _priorityExtensions   = string.Join(", ", settings.PriorityExtensions);
         _largeFileSizeKb      = settings.MaxParallelFileSizeKb.ToString();
+        _logServer            = $"{settings.LogServerAddress}:{settings.LogServerPort}";
         _monitor.ProcessName  = _businessSoftwareName;
+        LanguageProvider.Instance.SetLanguage(_currentLanguage);
 
-        // Global commands
-        RunSelectedJobsCommand = new RelayCommand(_ => RunSelectedJobs(), _ => !_isBusy);
-        RunAllJobsCommand      = new RelayCommand(_ => RunAllJobs(),      _ => !_isBusy);
-        DeleteJobCommand       = new RelayCommand(_ => DeleteSelectedJob(), _ => _selectedJob != null);
+        RunSelectedJobsCommand = new RelayCommand(_ => RunSelectedJobs());
+        RunAllJobsCommand      = new RelayCommand(_ => RunJobs(Jobs.Select(j => j.Name).ToList(), "status_no_jobs"));
+        DeleteJobCommand       = new RelayCommand(_ => DeleteSelectedJob(), _ => _selectedJob != null && !IsSelectedJobRunning);
         ToggleThemeCommand     = new RelayCommand(_ => ToggleTheme());
         ToggleLanguageCommand  = new RelayCommand(_ => ToggleLanguage());
         SaveSettingsCommand    = new RelayCommand(_ => SaveSettings());
 
-        // Per-job commands (v3.0)
-        PauseJobCommand  = new RelayCommand(_ => _backupService.PauseJob(_selectedJob!.Name),  _ => _selectedJob != null && _isBusy);
-        ResumeJobCommand = new RelayCommand(_ => _backupService.ResumeJob(_selectedJob!.Name), _ => _selectedJob != null && _isBusy);
-        StopJobCommand   = new RelayCommand(_ => _backupService.StopJob(_selectedJob!.Name),   _ => _selectedJob != null && _isBusy);
+        PlayJobCommand  = new RelayCommand(_ => PlaySelectedJob(), _ => _selectedJob != null);
+        PauseJobCommand = new RelayCommand(_ => _backupService.PauseJob(_selectedJob!.Name), _ => IsSelectedJobRunning);
+        StopJobCommand  = new RelayCommand(_ => _backupService.StopJob(_selectedJob!.Name),  _ => IsSelectedJobRunning);
 
-        // Global controls (v3.0)
-        PauseAllCommand  = new RelayCommand(_ => _backupService.PauseAll(),  _ => _isBusy);
-        ResumeAllCommand = new RelayCommand(_ => _backupService.ResumeAll(), _ => _isBusy);
-        StopAllCommand   = new RelayCommand(_ => _backupService.StopAll(),   _ => _isBusy);
+        PlayAllCommand  = new RelayCommand(_ => _backupService.ResumeAll(), _ => _isBusy);
+        PauseAllCommand = new RelayCommand(_ => _backupService.PauseAll(),  _ => _isBusy);
+        StopAllCommand  = new RelayCommand(_ => _backupService.StopAll(),   _ => _isBusy);
 
         _refreshTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(250) };
         _refreshTimer.Tick += RefreshProgress;
@@ -103,10 +102,30 @@ public sealed class MainViewModel : ViewModelBase, IDisposable
     public string        EncryptionExtensions { get => _encryptionExtensions; set => SetField(ref _encryptionExtensions, value); }
     public string        PriorityExtensions   { get => _priorityExtensions;   set => SetField(ref _priorityExtensions, value); }
     public string        LargeFileSizeKb      { get => _largeFileSizeKb;      set => SetField(ref _largeFileSizeKb, value); }
+    public string        LogServer            { get => _logServer;            set => SetField(ref _logServer, value); }
     public string        CurrentLanguageText  => _currentLanguage.ToUpper();
-    public string        ThemeButtonText      => _isDarkTheme ? "☀ Light" : "🌙 Dark";
-    public string        SelectedLogFormat    { get => _settings.LogFormat; set => _settings.LogFormat = value; }
+    public string        ThemeButtonText      => this[_isDarkTheme ? "btn_theme_light" : "btn_theme_dark"];
     public string        this[string key]     => LanguageProvider.Instance.Get(key);
+
+    /// <summary>Gets or sets the log file format ("Json" or "Xml"), saved immediately.</summary>
+    public string SelectedLogFormat
+    {
+        get => _settings.LogFileFormat.ToString();
+        set { _settings.LogFormat = value; OnPropertyChanged(); }
+    }
+
+    /// <summary>Gets or sets the log destination ("Local", "Centralized" or "Both"), saved immediately.</summary>
+    public string SelectedLogMode
+    {
+        get => _settings.LogMode.ToString();
+        set
+        {
+            if (Enum.TryParse(value, out LogMode mode)) _settings.LogMode = mode;
+            OnPropertyChanged();
+        }
+    }
+
+    private bool IsSelectedJobRunning => _selectedJob != null && _backupService.IsJobRunning(_selectedJob.Name);
 
     // ── Public API ─────────────────────────────────────────────────────────────
     public BackupCreationResult CreateJob(string name, string source, string target, BackupType type)
@@ -119,17 +138,13 @@ public sealed class MainViewModel : ViewModelBase, IDisposable
     // ── Commands implementations ───────────────────────────────────────────────
 
     private void RunSelectedJobs()
-    {
-        var selected = Jobs.Where(j => j.IsSelected).Select(j => j.Name).ToList();
-        if (selected.Count == 0) { StatusMessage = "⚠ No jobs selected."; return; }
-        RunJobsAsync(selected);
-    }
+        => RunJobs(Jobs.Where(j => j.IsSelected).Select(j => j.Name).ToList(), "status_no_selection");
 
-    private void RunAllJobs()
+    /// <summary>Play: resumes the selected job if it is running, starts it otherwise.</summary>
+    private void PlaySelectedJob()
     {
-        var all = Jobs.Select(j => j.Name).ToList();
-        if (all.Count == 0) { StatusMessage = "⚠ No jobs configured."; return; }
-        RunJobsAsync(all);
+        if (IsSelectedJobRunning) _backupService.ResumeJob(_selectedJob!.Name);
+        else RunJobs([_selectedJob!.Name], "status_no_selection");
     }
 
     private void DeleteSelectedJob()
@@ -137,7 +152,7 @@ public sealed class MainViewModel : ViewModelBase, IDisposable
         if (_selectedJob is null) return;
         _backupService.DeleteJob(_selectedJob.Name);
         RefreshJobs();
-        StatusMessage = "Job deleted.";
+        StatusMessage = this["status_job_deleted"];
     }
 
     private void ToggleTheme()
@@ -153,9 +168,10 @@ public sealed class MainViewModel : ViewModelBase, IDisposable
         _settings.Language = _currentLanguage;
         LanguageProvider.Instance.SetLanguage(_currentLanguage);
         OnPropertyChanged(nameof(CurrentLanguageText));
+        OnPropertyChanged(nameof(ThemeButtonText));
         OnPropertyChanged("Item[]");
         foreach (var job in Jobs) job.RefreshTranslations();
-        StatusMessage = _currentLanguage == "fr" ? "Langue : Français" : "Language: English";
+        StatusMessage = this["status_language"];
     }
 
     private void SaveSettings()
@@ -169,45 +185,44 @@ public sealed class MainViewModel : ViewModelBase, IDisposable
         if (long.TryParse(LargeFileSizeKb, out long size))
             _settings.MaxParallelFileSizeKb = size;
 
-        StatusMessage = "✓ Settings saved.";
+        var server = LogServer.Split(':', 2, StringSplitOptions.TrimEntries);
+        if (server[0].Length > 0) _settings.LogServerAddress = server[0];
+        if (server.Length == 2 && int.TryParse(server[1], out int port)) _settings.LogServerPort = port;
+
+        StatusMessage = this["status_settings_saved"];
     }
 
-    private void RunJobsAsync(List<string> names)
+    /// <summary>Starts the given jobs in parallel (jobs already running are ignored).</summary>
+    private void RunJobs(List<string> names, string emptyMessageKey)
     {
+        if (names.Count == 0) { StatusMessage = this[emptyMessageKey]; return; }
+
         IsBusy = true;
-        StatusMessage = "▶ Running backups in parallel...";
+        StatusMessage = this["status_running"];
+        var logger = _settings.CreateLogger();
 
-        string logDir = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
-            "EasySave", "Logs");
-        var format = _settings.LogFormat.Equals("XML", StringComparison.OrdinalIgnoreCase)
-            ? LogFormat.Xml : LogFormat.Json;
-        
-        ILogger localLogger = LoggerFactory.Create(format, logDir);
-        ILogger remoteLogger = new SocketLogger("127.0.0.1", 8080);
-        ILogger logger = new CompositeLogger(new[] { localLogger, remoteLogger });
-
-        System.Threading.Tasks.Task.Run(async () =>
+        Task.Run(async () =>
         {
+            string message;
             try
             {
                 await _backupService.ExecuteJobsParallelAsync(names, logger);
-                System.Windows.Application.Current.Dispatcher.Invoke(() =>
-                {
-                    StatusMessage = "✓ All backups completed.";
-                    IsBusy = false;
-                    RefreshJobs();
-                });
+                message = this["status_all_completed"];
             }
             catch (Exception ex)
             {
-                System.Windows.Application.Current.Dispatcher.Invoke(() =>
-                {
-                    StatusMessage = $"✗ {ex.Message}";
-                    IsBusy = false;
-                    RefreshJobs();
-                });
+                message = $"✗ {ex.Message}";
             }
+            finally
+            {
+                (logger as IDisposable)?.Dispose();
+            }
+
+            System.Windows.Application.Current?.Dispatcher.Invoke(() =>
+            {
+                if (!_backupService.HasRunningJobs) StatusMessage = message;
+                RefreshProgress(null, EventArgs.Empty);
+            });
         });
     }
 
@@ -222,7 +237,6 @@ public sealed class MainViewModel : ViewModelBase, IDisposable
     private void RefreshProgress(object? sender, EventArgs e)
     {
         var states = _stateManager.GetAllStates();
-        bool anyActive = false;
         foreach (var job in Jobs)
         {
             var state = states.FirstOrDefault(s => s.Name == job.Name);
@@ -231,14 +245,14 @@ public sealed class MainViewModel : ViewModelBase, IDisposable
             job.Progress       = state.Progress;
             job.RemainingFiles = state.RemainingFiles;
             job.RemainingSize  = state.RemainingSize;
-            if (state.Status == JobStatus.Active || state.Status == JobStatus.Paused)
-                anyActive = true;
         }
-        if (_isBusy && !anyActive)
-        {
-            IsBusy = false;
-            if (!StatusMessage.StartsWith("✓")) StatusMessage = "✓ All backups completed.";
-        }
+
+        IsBusy = _backupService.HasRunningJobs;
+        if (_isBusy && _backupService.IsBusinessSoftwareRunning)
+            StatusMessage = this["status_business_paused"];
+        else if (_isBusy && StatusMessage == this["status_business_paused"])
+            StatusMessage = this["status_running"];
+        CommandManager.InvalidateRequerySuggested();
     }
 
     // ── Helpers ────────────────────────────────────────────────────────────────

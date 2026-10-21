@@ -1,5 +1,6 @@
 using EasySave.Core.Interfaces;
 using EasySave.Core.Models;
+using EasySave.Core.Services;
 using EasyLog;
 
 namespace EasySave.CLI;
@@ -11,22 +12,22 @@ public sealed class ConsoleMenu
 {
     private readonly IBackupService _backupService;
     private readonly ILanguageProvider _lang;
-    private ILogger _logger;
-    private string _logDirectory;
+    private readonly AppSettings _settings;
+    private readonly string _logDirectory;
 
     /// <summary>
     /// Initializes a new instance of <see cref="ConsoleMenu"/>.
     /// </summary>
     /// <param name="backupService">The backup service to use.</param>
     /// <param name="languageProvider">The language provider for localization.</param>
-    /// <param name="logger">The logger for backup operations.</param>
+    /// <param name="settings">The persisted settings (log format).</param>
     /// <param name="logDirectory">The current log directory path.</param>
     public ConsoleMenu(IBackupService backupService, ILanguageProvider languageProvider,
-        ILogger logger, string logDirectory)
+        AppSettings settings, string logDirectory)
     {
         _backupService = backupService;
         _lang = languageProvider;
-        _logger = logger;
+        _settings = settings;
         _logDirectory = logDirectory;
     }
 
@@ -58,7 +59,7 @@ public sealed class ConsoleMenu
                 case "4": DeleteJob(); break;
                 case "5": ShowSettings(); break;
                 case "0": return;
-                default: PrintWarning("Invalid option."); break;
+                default: PrintWarning(_lang.Get("warn_invalid_option")); break;
             }
 
             Console.WriteLine();
@@ -85,14 +86,11 @@ public sealed class ConsoleMenu
 
         if (indices.Count == 0)
         {
-            PrintWarning("No valid job indices provided.");
+            PrintWarning(_lang.Get("warn_no_valid_selection"));
             return;
         }
 
-        var names = indices.Select(i => jobs[i - 1].Name).ToList();
-        Console.WriteLine(_lang.Get("info_backing_up"));
-        _backupService.ExecuteJobs(names, _logger);
-        PrintSuccess(_lang.Get("success_backup_complete"));
+        RunJobs(indices.Select(i => jobs[i - 1].Name).ToList());
     }
 
     // ─────────────────────────────── Private helpers ───────────────────────────────
@@ -107,7 +105,7 @@ public sealed class ConsoleMenu
             return;
         }
 
-        Console.WriteLine($"{"#",-4} {"Name",-25} {"Type",-14} Source → Target");
+        Console.WriteLine($"{"#",-4} {_lang.Get("job_name"),-25} {_lang.Get("job_type"),-18} {_lang.Get("job_source")} → {_lang.Get("job_target")}");
         Console.WriteLine(new string('─', 80));
         for (int i = 0; i < jobs.Count; i++)
         {
@@ -115,7 +113,7 @@ public sealed class ConsoleMenu
             string type = j.Type == BackupType.Full
                 ? _lang.Get("job_type_full")
                 : _lang.Get("job_type_differential");
-            Console.WriteLine($"{i + 1,-4} {j.Name,-25} {type,-14} {j.SourceDirectory} → {j.TargetDirectory}");
+            Console.WriteLine($"{i + 1,-4} {j.Name,-25} {type,-18} {j.SourceDirectory} → {j.TargetDirectory}");
         }
     }
 
@@ -180,12 +178,17 @@ public sealed class ConsoleMenu
         else
             indices = ParseJobIndices(input, jobs.Count);
 
-        if (indices.Count == 0) { PrintWarning("No valid selection."); return; }
+        if (indices.Count == 0) { PrintWarning(_lang.Get("warn_no_valid_selection")); return; }
 
-        var names = indices.Select(i => jobs[i - 1].Name).ToList();
         Console.WriteLine();
+        RunJobs(indices.Select(i => jobs[i - 1].Name).ToList());
+    }
+
+    /// <summary>Runs the given jobs sequentially, logging in the saved log format.</summary>
+    private void RunJobs(List<string> names)
+    {
         Console.WriteLine(_lang.Get("info_backing_up"));
-        _backupService.ExecuteJobs(names, _logger);
+        _backupService.ExecuteJobs(names, LoggerFactory.Create(_settings.LogFileFormat, _logDirectory));
         PrintSuccess(_lang.Get("success_backup_complete"));
     }
 
@@ -218,8 +221,8 @@ public sealed class ConsoleMenu
     {
         Console.WriteLine($"── {_lang.Get("menu_settings")} ──");
         Console.WriteLine($"  1. {_lang.Get("settings_language")} [{_lang.CurrentLanguage.ToUpper()}]");
-        Console.WriteLine($"  2. {_lang.Get("settings_log_format")}");
-        Console.WriteLine($"  0. Back");
+        Console.WriteLine($"  2. {_lang.Get("settings_log_format")} [{_settings.LogFileFormat.ToString().ToUpper()}]");
+        Console.WriteLine($"  0. {_lang.Get("menu_back")}");
         Console.Write(">>> ");
         var choice = Console.ReadLine()?.Trim();
 
@@ -230,7 +233,7 @@ public sealed class ConsoleMenu
             Console.Write(">>> ");
             var lang = Console.ReadLine()?.Trim();
             _lang.SetLanguage(lang == "2" ? "fr" : "en");
-            PrintSuccess("Language updated.");
+            PrintSuccess(_lang.Get("success_language_updated"));
         }
         else if (choice == "2")
         {
@@ -239,7 +242,7 @@ public sealed class ConsoleMenu
             Console.Write(">>> ");
             var fmt = Console.ReadLine()?.Trim();
             var format = fmt == "2" ? LogFormat.Xml : LogFormat.Json;
-            _logger = LoggerFactory.Create(format, _logDirectory);
+            _settings.LogFormat = format.ToString(); // Persisted: also used by "EasySave.exe 1-3"
             PrintSuccess(_lang.Get("settings_log_format") + " → " + format);
         }
     }

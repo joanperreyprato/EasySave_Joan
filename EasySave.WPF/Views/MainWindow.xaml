@@ -216,7 +216,7 @@
                     <TextBlock Text="{Binding [section_jobs]}" Style="{StaticResource SectionLabel}"/>
 
                     <Button Content="{Binding [btn_new_job]}" Style="{StaticResource SideBtn}"
-                            Click="NewJobButton_Click" IsEnabled="{Binding IsNotBusy}"
+                            Click="NewJobButton_Click"
                             Foreground="{DynamicResource TextBrush}"/>
 
                     <Button Content="{Binding [btn_run_selected]}" Style="{StaticResource SideBtn}"
@@ -236,7 +236,7 @@
                     <TextBlock Text="{Binding [section_playback]}" Style="{StaticResource SectionLabel}"/>
 
                     <Button Content="{Binding [btn_play]}" Style="{StaticResource SideBtn}"
-                            Command="{Binding ResumeJobCommand}"
+                            Command="{Binding PlayJobCommand}"
                             Foreground="#3FB950"/>
                     <Button Content="{Binding [btn_pause]}" Style="{StaticResource SideBtn}"
                             Command="{Binding PauseJobCommand}"
@@ -250,7 +250,7 @@
                     <TextBlock Text="{Binding [section_all_jobs]}" Style="{StaticResource SectionLabel}"/>
 
                     <Button Content="{Binding [btn_play_all]}" Style="{StaticResource SideBtn}"
-                            Command="{Binding ResumeAllCommand}"
+                            Command="{Binding PlayAllCommand}"
                             Foreground="#3FB950"/>
                     <Button Content="{Binding [btn_pause_all]}" Style="{StaticResource SideBtn}"
                             Command="{Binding PauseAllCommand}"
@@ -271,7 +271,7 @@
                         <Button Content="{Binding ThemeButtonText}" Style="{StaticResource SideBtn}"
                                 Command="{Binding ToggleThemeCommand}"
                                 Foreground="{DynamicResource TextBrush}"
-                                ToolTip="Toggle dark/light theme"/>
+                                ToolTip="{Binding [tip_theme]}"/>
                     </StackPanel>
                 </Border>
             </Grid>
@@ -500,7 +500,7 @@
                         <TextBlock Text="{Binding [lbl_business_software]}" FontSize="11"
                                    Foreground="{DynamicResource SubtextBrush}" Margin="0,0,0,3"/>
                         <TextBox Text="{Binding BusinessSoftwareName, UpdateSourceTrigger=PropertyChanged}"
-                                 Width="160" ToolTip="Process name (e.g. notepad)"/>
+                                 Width="160" ToolTip="{Binding [tip_process_name]}"/>
                     </StackPanel>
                     <!-- Encrypt Extensions -->
                     <StackPanel Margin="0,0,20,0">
@@ -527,11 +527,27 @@
                     <StackPanel Margin="0,0,20,0">
                         <TextBlock Text="{Binding [settings_log_format]}" FontSize="11"
                                    Foreground="{DynamicResource SubtextBrush}" Margin="0,0,0,3"/>
-                        <ComboBox x:Name="LogFormatCombo" SelectionChanged="LogFormatCombo_SelectionChanged"
-                                  SelectedIndex="0" Width="80">
-                            <ComboBoxItem Content="JSON"/>
-                            <ComboBoxItem Content="XML"/>
+                        <ComboBox SelectedValue="{Binding SelectedLogFormat}" SelectedValuePath="Tag" Width="80">
+                            <ComboBoxItem Content="JSON" Tag="Json"/>
+                            <ComboBoxItem Content="XML" Tag="Xml"/>
                         </ComboBox>
+                    </StackPanel>
+                    <!-- Log destination (v3.0 centralization) -->
+                    <StackPanel Margin="0,0,20,0">
+                        <TextBlock Text="{Binding [lbl_log_mode]}" FontSize="11"
+                                   Foreground="{DynamicResource SubtextBrush}" Margin="0,0,0,3"/>
+                        <ComboBox SelectedValue="{Binding SelectedLogMode}" SelectedValuePath="Tag" Width="130">
+                            <ComboBoxItem Content="{Binding [log_mode_local]}" Tag="Local"/>
+                            <ComboBoxItem Content="{Binding [log_mode_centralized]}" Tag="Centralized"/>
+                            <ComboBoxItem Content="{Binding [log_mode_both]}" Tag="Both"/>
+                        </ComboBox>
+                    </StackPanel>
+                    <!-- Log server -->
+                    <StackPanel Margin="0,0,20,0">
+                        <TextBlock Text="{Binding [lbl_log_server]}" FontSize="11"
+                                   Foreground="{DynamicResource SubtextBrush}" Margin="0,0,0,3"/>
+                        <TextBox Text="{Binding LogServer, UpdateSourceTrigger=PropertyChanged}"
+                                 Width="140" ToolTip="127.0.0.1:8080"/>
                     </StackPanel>
                     <!-- Save -->
                     <StackPanel VerticalAlignment="Bottom">

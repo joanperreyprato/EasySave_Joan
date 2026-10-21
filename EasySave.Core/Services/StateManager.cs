@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using EasySave.Core.Models;
 
 namespace EasySave.Core.Services;
@@ -10,7 +11,12 @@ namespace EasySave.Core.Services;
 public sealed class StateManager
 {
     private readonly string _statePath;
-    private static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = true };
+    // Statuses are written as text ("Active", "Paused"...) so that state.json stays readable in Notepad
+    private static readonly JsonSerializerOptions JsonOptions = new()
+    {
+        WriteIndented = true,
+        Converters = { new JsonStringEnumConverter() }
+    };
     private readonly object _lock = new();
 
     /// <summary>
@@ -18,9 +24,7 @@ public sealed class StateManager
     /// </summary>
     public StateManager(string? statePath = null)
     {
-        _statePath = statePath ?? Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
-            "EasySave", "state.json");
+        _statePath = statePath ?? AppPaths.StateFile;
         Directory.CreateDirectory(Path.GetDirectoryName(_statePath)!);
     }
 

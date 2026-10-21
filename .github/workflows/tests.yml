@@ -9,7 +9,7 @@ on:
 jobs:
   build-and-test:
     name: Build and Run Tests
-    runs-on: windows-latest # Obligatoire car EasySave.WPF utilise net8.0-windows
+    runs-on: windows-latest # Required: EasySave.WPF targets net8.0-windows
 
     steps:
     - name: Checkout code

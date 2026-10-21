@@ -1,19 +1,34 @@
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Text.Json;
+using EasyLog;
 
 namespace EasySave.LogServer;
 
-class Program
+/// <summary>
+/// Centralized log server (v3.0). Receives log entries (one JSON object per line) from every
+/// EasySave client over TCP and appends them to a single daily file shared by all users.
+/// Each entry carries the machine and user name of its sender.
+/// </summary>
+internal static class Program
 {
-    static async Task Main(string[] args)
+    private const int DefaultPort = 8080;
+    private const string DefaultLogDirectory = "/logs";
+
+    private static async Task Main()
     {
-        int port = 8080;
+        int port = int.TryParse(Environment.GetEnvironmentVariable("EASYSAVE_LOG_PORT"), out int p) ? p : DefaultPort;
+        string logDirectory = Environment.GetEnvironmentVariable("EASYSAVE_LOG_DIR") ?? DefaultLogDirectory;
+
+        // A single logger instance (and its lock) serializes writes from every client
+        var dailyLog = new JsonLogger(logDirectory);
         var listener = new TcpListener(IPAddress.Any, port);
         listener.Start();
 
         Console.WriteLine("=============================================");
-        Console.WriteLine($"🚀 EasySave Log Server started on port {port}");
+        Console.WriteLine($"EasySave Log Server listening on port {port}");
+        Console.WriteLine($"Daily log files written to {logDirectory}");
         Console.WriteLine("=============================================\n");
 
         while (true)
@@ -21,7 +36,7 @@ class Program
             try
             {
                 var client = await listener.AcceptTcpClientAsync();
-                _ = HandleClientAsync(client); // Fire and forget
+                _ = HandleClientAsync(client, dailyLog); // One task per connected EasySave client
             }
             catch (Exception ex)
             {
@@ -30,52 +45,46 @@ class Program
         }
     }
 
-    private static async Task HandleClientAsync(TcpClient client)
+    private static async Task HandleClientAsync(TcpClient client, ILogger dailyLog)
     {
         var endPoint = client.Client.RemoteEndPoint;
         Console.WriteLine($"[+] New connection: {endPoint}");
 
         using (client)
-        using (var networkStream = client.GetStream())
-        using (var reader = new StreamReader(networkStream, Encoding.UTF8))
+        using (var reader = new StreamReader(client.GetStream(), Encoding.UTF8))
         {
             try
             {
                 while (await reader.ReadLineAsync() is { } line)
-                {
-                    try
-                    {
-                        using var doc = System.Text.Json.JsonDocument.Parse(line);
-                        var root = doc.RootElement;
-                        
-                        string backupName = root.GetProperty("backupName").GetString() ?? "Unknown";
-                        string sourceFile = root.GetProperty("sourceFilePath").GetString() ?? "";
-                        long size = root.GetProperty("fileSize").GetInt64();
-                        long transferMs = root.GetProperty("transferDurationMs").GetInt64();
-                        long cryptoMs = root.GetProperty("encryptionDurationMs").GetInt64();
-
-                        string fileName = Path.GetFileName(sourceFile);
-                        string cryptoTag = cryptoMs > 0 ? $" [🔒 {cryptoMs}ms]" : "";
-
-                        // Codes ANSI : 90=Gris, 36=Cyan, 33=Jaune, 97=Blanc, 0=Reset
-                        string time = $"\x1b[90m[{DateTime.Now:HH:mm:ss}]\x1b[0m";
-                        string job = $"\x1b[36m[{backupName}]\x1b[0m";
-                        string msg = $"\x1b[97mCopied '\x1b[33m{fileName}\x1b[97m' ({size} B) in {transferMs}ms{cryptoTag}\x1b[0m";
-                        
-                        Console.WriteLine($"{time} {job} {msg}");
-                    }
-                    catch
-                    {
-                        // Fallback
-                        Console.WriteLine($"\x1b[0m[{DateTime.Now:HH:mm:ss}] {line}\x1b[0m");
-                    }
-                }
+                    Store(line, dailyLog);
             }
-            catch (Exception)
+            catch (IOException)
             {
                 // Client disconnected abruptly
             }
         }
-        Console.WriteLine($"\x1b[31m[-] Disconnected: {endPoint}\x1b[0m");
+        Console.WriteLine($"[-] Disconnected: {endPoint}");
+    }
+
+    private static void Store(string line, ILogger dailyLog)
+    {
+        LogEntry? entry;
+        try { entry = JsonSerializer.Deserialize<LogEntry>(line); }
+        catch (JsonException) { entry = null; }
+
+        if (entry is null)
+        {
+            Console.WriteLine($"[!] Ignored malformed entry: {line}");
+            return;
+        }
+
+        dailyLog.Log(entry);
+
+        // Short, aligned console line: the full details are in the daily file
+        string file = Path.GetFileName(entry.SourceFilePath.Replace('\\', '/'));
+        if (string.IsNullOrEmpty(file)) file = Path.GetFileName(entry.TargetFilePath.Replace('\\', '/'));
+        Console.WriteLine($"[{entry.Timestamp:HH:mm:ss}] {entry.UserName + "@" + entry.MachineName,-22} " +
+                          $"{entry.BackupName,-14} {entry.Action,-24} {file,-28} " +
+                          $"{entry.FileSize,12:N0} B {entry.TransferDurationMs,6} ms  crypto {entry.EncryptionDurationMs} ms");
     }
 }

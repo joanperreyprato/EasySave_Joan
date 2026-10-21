@@ -1,10 +1,6 @@
-using System.IO;
 using System.Windows;
 using System.Windows.Input;
-using EasySave.Core.Models;
 using EasySave.WPF.ViewModels;
-using WpfComboBox = System.Windows.Controls.ComboBox;
-using WpfComboBoxItem = System.Windows.Controls.ComboBoxItem;
 
 namespace EasySave.WPF.Views;
 
@@ -31,18 +27,6 @@ public partial class MainWindow : Window
 
     private void JobsGrid_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
     {
-        System.Windows.Input.CommandManager.InvalidateRequerySuggested();
-    }
-
-    private void LogFormatCombo_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
-    {
-        // Guard: ViewModel may not be set yet during XAML initialization
-        if (_viewModel is null) return;
-
-        if (sender is WpfComboBox combo && combo.SelectedItem is WpfComboBoxItem item)
-        {
-            string format = item.Content?.ToString() ?? "JSON";
-            _viewModel.SelectedLogFormat = format;
-        }
+        CommandManager.InvalidateRequerySuggested();
     }
 }

@@ -52,6 +52,7 @@ public sealed class JobViewModel : ViewModelBase
         JobStatus.Paused    => "status_paused",
         JobStatus.Completed => "status_completed",
         JobStatus.Error     => "status_error",
+        JobStatus.Stopped   => "status_stopped",
         _                   => "status_inactive"
     });
 

@@ -1,7 +1,4 @@
-using EasySave.Core.Interfaces;
-using EasySave.Core.Models;
 using EasySave.Core.Services;
-using EasyLog;
 
 namespace EasySave.CLI;
 
@@ -17,26 +14,26 @@ internal static class Program
     /// <param name="args">Command-line arguments. Empty = interactive mode.</param>
     private static void Main(string[] args)
     {
+        var languageProvider = LanguageProvider.Instance;
+
         // ── Mono-Instance: block if another EasySave (WPF or CLI) is running ──
         using var mutex = new System.Threading.Mutex(true, @"Global\EasySaveMutex_ProSoft", out bool isNewInstance);
         if (!isNewInstance)
         {
             Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("❌ EasySave is already running / EasySave est déjà en cours d'exécution.");
+            Console.WriteLine($"✗ {languageProvider.Get("error_already_running")}");
             Console.ResetColor();
             return;
         }
 
         // Bootstrap services
         var stateManager = new StateManager();
-        var languageProvider = LanguageProvider.Instance;
+        var settings = new AppSettings();
         var backupService = new BackupService(stateManager);
 
         // Determine log directory from args (--logdir=PATH or -l=PATH)
         string logDirectory = ResolveLogDirectory(args);
-        ILogger logger = LoggerFactory.Create(LogFormat.Json, logDirectory);
-
-        var ui = new ConsoleMenu(backupService, languageProvider, logger, logDirectory);
+        var ui = new ConsoleMenu(backupService, languageProvider, settings, logDirectory);
 
         if (args.Length == 0 || args.All(a => a.StartsWith("--logdir") || a.StartsWith("-l=")))
         {
@@ -66,8 +63,6 @@ internal static class Program
                 return arg["-l=".Length..];
         }
 
-        return Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
-            "EasySave", "Logs");
+        return AppPaths.LogDirectory;
     }
 }

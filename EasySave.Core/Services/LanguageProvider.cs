@@ -27,9 +27,7 @@ public sealed class LanguageProvider : ILanguageProvider
 
     // ── State ──────────────────────────────────────────────────────────────────
     private string _currentLanguage = "en";
-    private static readonly string ConfigPath = Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
-        "EasySave", "language.json");
+    private static readonly string ConfigPath = AppPaths.LanguageFile;
 
     private static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = true };
 
@@ -102,7 +100,32 @@ public sealed class LanguageProvider : ILanguageProvider
             ["header_status"]           = "Status",
             ["detail_active_job"]       = "ACTIVE JOB",
             ["detail_files_remaining"]  = "FILES REMAINING",
-            ["detail_progress"]         = "PROGRESS"
+            ["detail_progress"]         = "PROGRESS",
+            ["menu_back"]               = "Back",
+            ["warn_invalid_option"]     = "Invalid option.",
+            ["warn_no_valid_selection"] = "No valid job selected.",
+            ["success_language_updated"] = "Language updated.",
+            ["error_already_running"]   = "EasySave is already running.",
+            ["error_business_software"] = "Backup blocked: the business software is running.",
+            ["status_no_selection"]     = "⚠ No jobs selected.",
+            ["status_no_jobs"]          = "⚠ No jobs configured.",
+            ["status_job_deleted"]      = "Job deleted.",
+            ["status_settings_saved"]   = "✓ Settings saved.",
+            ["status_running"]          = "▶ Running backups in parallel...",
+            ["status_all_completed"]    = "✓ All backups completed.",
+            ["status_business_paused"]  = "⏸ Business software detected: backups paused.",
+            ["status_language"]         = "Language: English",
+            ["btn_theme_light"]         = "☀ Light",
+            ["btn_theme_dark"]          = "🌙 Dark",
+            ["lbl_log_mode"]            = "Log destination:",
+            ["lbl_log_server"]          = "Log server (host:port):",
+            ["log_mode_local"]          = "Local",
+            ["log_mode_centralized"]    = "Server",
+            ["log_mode_both"]           = "Local + Server",
+            ["error_unknown"]           = "An error occurred.",
+            ["tip_browse"]              = "Browse...",
+            ["tip_theme"]               = "Toggle dark/light theme",
+            ["tip_process_name"]        = "Process name (e.g. CalculatorApp)"
         },
         ["fr"] = new()
         {
@@ -170,7 +193,32 @@ public sealed class LanguageProvider : ILanguageProvider
             ["header_status"]           = "Statut",
             ["detail_active_job"]       = "JOB ACTIF",
             ["detail_files_remaining"]  = "FICHIERS RESTANTS",
-            ["detail_progress"]         = "PROGRESSION"
+            ["detail_progress"]         = "PROGRESSION",
+            ["menu_back"]               = "Retour",
+            ["warn_invalid_option"]     = "Option invalide.",
+            ["warn_no_valid_selection"] = "Aucun travail valide sélectionné.",
+            ["success_language_updated"] = "Langue mise à jour.",
+            ["error_already_running"]   = "EasySave est déjà en cours d'exécution.",
+            ["error_business_software"] = "Sauvegarde bloquée : le logiciel métier est en cours d'exécution.",
+            ["status_no_selection"]     = "⚠ Aucun travail sélectionné.",
+            ["status_no_jobs"]          = "⚠ Aucun travail configuré.",
+            ["status_job_deleted"]      = "Travail supprimé.",
+            ["status_settings_saved"]   = "✓ Paramètres enregistrés.",
+            ["status_running"]          = "▶ Sauvegardes en cours (parallèle)...",
+            ["status_all_completed"]    = "✓ Toutes les sauvegardes sont terminées.",
+            ["status_business_paused"]  = "⏸ Logiciel métier détecté : sauvegardes en pause.",
+            ["status_language"]         = "Langue : Français",
+            ["btn_theme_light"]         = "☀ Clair",
+            ["btn_theme_dark"]          = "🌙 Sombre",
+            ["lbl_log_mode"]            = "Destination des logs :",
+            ["lbl_log_server"]          = "Serveur de logs (hôte:port) :",
+            ["log_mode_local"]          = "Local",
+            ["log_mode_centralized"]    = "Serveur",
+            ["log_mode_both"]           = "Local + Serveur",
+            ["error_unknown"]           = "Une erreur est survenue.",
+            ["tip_browse"]              = "Parcourir...",
+            ["tip_theme"]               = "Basculer thème clair/sombre",
+            ["tip_process_name"]        = "Nom du processus (ex : CalculatorApp)"
         }
     };
 
