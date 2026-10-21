@@ -46,10 +46,13 @@ public abstract class BackupServiceBase
     /// <summary>Returns the job with the given name, or <c>null</c> if not found.</summary>
     public BackupJob? GetJob(string name) => _catalog.Find(name);
 
-    /// <summary>Runs one job to completion on the calling thread (v1.x and v2.0 sequential mode).</summary>
+    /// <summary>Runs one job to completion, blocking the caller (v1.x and v2.0 sequential mode).</summary>
     protected BackupOutcome RunSequentially(BackupJob job, ILogger logger, BackupRunOptions options)
     {
         var plan = Engine.Prepare(job, options.PriorityExtensions);
-        return Engine.RunAsync(plan, logger, options).GetAwaiter().GetResult();
+
+        // Task.Run: the engine runs on the thread pool, without the caller's synchronization context.
+        // Blocking on it directly deadlocks when that context has a single thread (UI thread, test runner).
+        return Task.Run(() => Engine.RunAsync(plan, logger, options)).GetAwaiter().GetResult();
     }
 }
