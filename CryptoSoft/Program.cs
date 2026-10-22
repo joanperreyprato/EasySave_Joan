@@ -11,7 +11,7 @@ namespace CryptoSoft;
 /// </summary>
 internal static class Program
 {
-    /// <summary>System-wide mutex name — guarantees only one CryptoSoft runs at a time (v3.0).</summary>
+    /// <summary>System-wide mutex name - guarantees only one CryptoSoft runs at a time (v3.0).</summary>
     private const string MutexName = "Global\\CryptoSoftMutex_EasySave";
 
     private static int Main(string[] args)
@@ -31,7 +31,7 @@ internal static class Program
             return -2;
         }
 
-        // v3.0: Mono-instance — wait up to 30s for any other CryptoSoft instance to finish
+        // v3.0: Mono-instance - wait up to 30s for any other CryptoSoft instance to finish
         using var mutex = new Mutex(initiallyOwned: false, name: MutexName);
         bool acquired = false;
         try

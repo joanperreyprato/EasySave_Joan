@@ -5,7 +5,7 @@ namespace EasySave.Core.Models;
 /// </summary>
 public sealed class BackupJob
 {
-    /// <summary>Gets or sets the unique name of the backup job (1–50 characters).</summary>
+    /// <summary>Gets or sets the unique name of the backup job (1-50 characters).</summary>
     public string Name { get; set; } = string.Empty;
 
     /// <summary>Gets or sets the full path to the source directory.</summary>

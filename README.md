@@ -1,4 +1,4 @@
-# 🛡️ EasySave — ProSoft Backup Software
+# EasySave - ProSoft Backup Software
 
 > Professional backup application written in C# / .NET 8.0 for ProSoft.
 > EasySave 3.0 = a **WPF graphical application** and **`EasySave.exe`, its command-line interface** (same jobs, same settings).
@@ -14,7 +14,7 @@
 
 ---
 
-## 📋 Table of contents
+## Table of contents
 
 - [Overview](#-overview)
 - [Version history](#-version-history)
@@ -28,21 +28,21 @@
 
 ---
 
-## 🎯 Overview
+## Overview
 
 **EasySave** lets you:
 
-- ✅ Create backup jobs (full or differential) on local, external or network drives
-- ✅ Run jobs in parallel with Play / Pause / Stop per job or for all jobs
-- ✅ Encrypt sensitive files with **CryptoSoft** (XOR, key ≥ 64 bits)
-- ✅ Pause automatically while a business software is running
-- ✅ Write daily logs (JSON or XML) locally, on a central Docker server, or both
-- ✅ Follow every job in real time (`state.json` and progress bars)
-- ✅ Use the interface in English or French (switch live), with dark / light themes
+- Create backup jobs (full or differential) on local, external or network drives
+- Run jobs in parallel with Play / Pause / Stop per job or for all jobs
+- Encrypt sensitive files with **CryptoSoft** (XOR, key ≥ 64 bits)
+- Pause automatically while a business software is running
+- Write daily logs (JSON or XML) locally, on a central Docker server, or both
+- Follow every job in real time (`state.json` and progress bars)
+- Use the interface in English or French (switch live), with dark / light themes
 
 ---
 
-## 📈 Version history
+## Version history
 
 | Feature | v1.0 | v1.1 | v2.0 | v3.0 |
 |---|:---:|:---:|:---:|:---:|
@@ -50,14 +50,14 @@
 | Languages | EN/FR | EN/FR | EN/FR | EN/FR |
 | Max jobs | 5 | 5 | Unlimited | Unlimited |
 | Daily log format | JSON | JSON/XML | JSON/XML + encryption time | JSON/XML + encryption time |
-| CryptoSoft | ❌ | ❌ | ✅ | ✅ (mono-instance) |
-| Business software | ❌ | ❌ | ✅ (job cannot start) | ✅ (automatic pause / resume) |
+| CryptoSoft | No | No | Yes | Yes (mono-instance) |
+| Business software | No | No | Yes (job cannot start) | Yes (automatic pause / resume) |
 | Execution | Mono / sequential | Mono / sequential | Mono / sequential | **Parallel** |
-| Play / Pause / Stop | ❌ | ❌ | ❌ | ✅ |
-| Priority files | ❌ | ❌ | ❌ | ✅ |
-| One large file at a time | ❌ | ❌ | ❌ | ✅ |
-| Centralized logs (Docker) | ❌ | ❌ | ❌ | ✅ |
-| Command line (`EasySave.exe 1-3`, `EasySave.exe 1;3`) | ✅ | ✅ | same as 1.0 | same as 1.0 (runs the v3.0 jobs with the v3.0 rules) |
+| Play / Pause / Stop | No | No | No | Yes |
+| Priority files | No | No | No | Yes |
+| One large file at a time | No | No | No | Yes |
+| Centralized logs (Docker) | No | No | No | Yes |
+| Command line (`EasySave.exe 1-3`, `EasySave.exe 1;3`) | Yes | Yes | same as 1.0 | same as 1.0 (runs the v3.0 jobs with the v3.0 rules) |
 
 Each version is tagged in Git:
 
@@ -70,7 +70,7 @@ git checkout main    # v3.0 (current version)
 
 ---
 
-## 🏗️ Project architecture
+## Project architecture
 
 ```
 EasySave_Joan/
@@ -90,7 +90,7 @@ EasySave_Joan/
 │       ├── LargeFileTransferGuard.cs   # One file > n KB at a time
 │       ├── CryptoSoftRunner.cs         # Calls CryptoSoft (serialized: mono-instance)
 │       └── AppSettings.cs / AppPaths.cs / StateManager.cs / LanguageProvider.cs
-├── EasyLog/                    # EasyLog.dll — reusable daily logging library
+├── EasyLog/                    # EasyLog.dll - reusable daily logging library
 │   ├── FileLogger.cs           # Daily file, efficient append (JsonLogger, XmlLogger)
 │   ├── SocketLogger.cs         # Sends entries to the log server over TCP
 │   ├── CompositeLogger.cs      # Local + server
@@ -103,7 +103,7 @@ EasySave_Joan/
 
 ---
 
-## ⚙️ Prerequisites
+## Prerequisites
 
 - [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
 - Windows 10/11 (WPF)
@@ -111,7 +111,7 @@ EasySave_Joan/
 
 ---
 
-## 🚀 Build & run
+## Build & run
 
 ```bash
 git clone https://github.com/joanperreyprato/EasySave_Joan.git
@@ -134,13 +134,13 @@ The progress is displayed until the jobs end; `Ctrl+C` stops them. Exit code: `0
 
 In VS Code, press `F5` and pick a configuration (WPF, CLI or CryptoSoft).
 
-> ⚠️ EasySave is mono-instance: only one EasySave (WPF or CLI) can run at a time on a computer.
+> **Note:** EasySave is mono-instance: only one EasySave (WPF or CLI) can run at a time on a computer.
 
 How to use the application: see the [user manual](docs/USER_MANUAL.md).
 
 ---
 
-## 🔐 CryptoSoft
+## CryptoSoft
 
 Stand-alone console tool that encrypts / decrypts a file with a bitwise **XOR** (the same command decrypts).
 
@@ -155,7 +155,7 @@ CryptoSoft.exe <source_file> <destination_file>
 
 ---
 
-## 🐳 Centralized log server (Docker)
+## Centralized log server (Docker)
 
 The server receives log entries from every EasySave client over TCP and writes them to **one daily file shared by all users** (`server-logs/YYYY-MM-DD.json`). Each entry contains the `machineName` and `userName` of its sender.
 
@@ -177,7 +177,7 @@ and set the server address (`host:port`, default `127.0.0.1:8080`).
 
 ---
 
-## 🧪 Tests
+## Tests
 
 ```bash
 dotnet test EasySave.sln
@@ -193,12 +193,12 @@ Tests run on every push through GitHub Actions (`.github/workflows/tests.yml`).
 
 ---
 
-## 🛠️ Technologies
+## Technologies
 
 C# / .NET 8.0 · WPF (MVVM) · xUnit + Moq · Docker · GitHub Actions · TCP sockets · XOR cipher
 
 ---
 
-## 👥 Author
+## Author
 
-**Joan Perrey Prato** — PGE A3 FISA Computer Science — CESI (Software Engineering, 2025-2026)
+**Joan Perrey Prato** - PGE A3 FISA Computer Science - CESI (Software Engineering, 2025-2026)

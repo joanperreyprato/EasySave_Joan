@@ -5,7 +5,7 @@ using EasySave.WPF.ViewModels;
 namespace EasySave.WPF.Views;
 
 /// <summary>
-/// Code-behind for MainWindow. Contains only UI event handlers — zero business logic.
+/// Code-behind for MainWindow. Contains only UI event handlers - zero business logic.
 /// </summary>
 public partial class MainWindow : Window
 {

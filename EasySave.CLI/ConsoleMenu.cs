@@ -323,7 +323,7 @@ public sealed class ConsoleMenu
     {
         Console.ForegroundColor = ConsoleColor.Cyan;
         Console.WriteLine("╔══════════════════════════════════════╗");
-        Console.WriteLine("║        EasySave v3.0 — ProSoft       ║");
+        Console.WriteLine("║        EasySave v3.0 - ProSoft       ║");
         Console.WriteLine("╚══════════════════════════════════════╝");
         Console.ResetColor();
         Console.WriteLine();

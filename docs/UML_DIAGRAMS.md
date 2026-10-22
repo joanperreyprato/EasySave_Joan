@@ -1,4 +1,4 @@
-# 📐 UML Models — EasySave
+# UML Models - EasySave
 
 This document gathers the UML diagrams required for each deliverable (v1.0 to v3.0).
 Diagrams are written in **Mermaid** (rendered directly by GitHub and VS Code).
@@ -9,8 +9,8 @@ Diagrams are written in **Mermaid** (rendered directly by GitHub and VS Code).
 
 ```mermaid
 flowchart LR
-    User(["👤 User"])
-    OS(["💻 Operating system"])
+    User(["User"])
+    OS(["Operating system"])
 
     subgraph EasySave ["EasySave (v1.x → v3.0)"]
         UC_Create["Create / delete a backup job (v1: 5 max, v2+: unlimited)"]
@@ -279,7 +279,7 @@ classDiagram
 
 ---
 
-## 3. Sequence diagram — one v3.0 job
+## 3. Sequence diagram - one v3.0 job
 
 ```mermaid
 sequenceDiagram

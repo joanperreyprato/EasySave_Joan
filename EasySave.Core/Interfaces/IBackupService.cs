@@ -9,7 +9,7 @@ namespace EasySave.Core.Interfaces;
 public interface IBackupService
 {
     /// <summary>Creates a new backup job after validating all parameters.</summary>
-    /// <param name="name">Unique job name (1–50 alphanumeric/dash/underscore characters).</param>
+    /// <param name="name">Unique job name (1-50 alphanumeric/dash/underscore characters).</param>
     /// <param name="sourceDirectory">Existing source directory path.</param>
     /// <param name="targetDirectory">Target directory path (parent must exist).</param>
     /// <param name="type">Full or Differential backup.</param>

@@ -1,11 +1,11 @@
-# EasySave — Technical Support Guide
+# EasySave - Technical Support Guide
 
 ## Minimum configuration
 
 | Component | Requirement |
 |---|---|
 | Operating system | Windows 10 (64-bit) or later, Windows Server 2019 or later |
-| Runtime | .NET 8.0 Desktop Runtime (WPF) — .NET 8.0 Runtime for the command line (`EasySave.exe`) |
+| Runtime | .NET 8.0 Desktop Runtime (WPF) - .NET 8.0 Runtime for the command line (`EasySave.exe`) |
 | Memory / disk | 4 GB RAM, 200 MB free for the application (plus the backup volume) |
 | Rights | Read access to the source folders, write access to the target folders and to `%ProgramData%\EasySave` |
 | Log server (optional) | Any host running Docker, TCP port 8080 reachable from the clients |

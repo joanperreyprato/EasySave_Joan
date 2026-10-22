@@ -2,7 +2,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "🚀 Launch EasySave (WPF - graphical interface)",
+            "name": "Launch EasySave (WPF - graphical interface)",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build-wpf",
@@ -13,7 +13,7 @@
             "stopAtEntry": false
         },
         {
-            "name": "📟 Launch EasySave (CLI - console mode)",
+            "name": "Launch EasySave (CLI - console mode)",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build-cli",
@@ -24,7 +24,7 @@
             "stopAtEntry": false
         },
         {
-            "name": "🔐 Launch CryptoSoft (encryption test)",
+            "name": "Launch CryptoSoft (encryption test)",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build-cryptosoft",

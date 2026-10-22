@@ -1,9 +1,9 @@
-# 🗺️ Plan de refonte — EasySave Joan
+# Plan de refonte - EasySave Joan
 > Basé sur le **cahier des charges officiel CESI** (PDF extrait le 07/09/2026)
 
 ---
 
-## ⚠️ Différences importantes entre l'original et le cahier des charges
+## ⚠ Différences importantes entre l'original et le cahier des charges
 
 | Point | Original (autre groupe) | Cahier des charges officiel | Notre version |
 |---|---|---|---|
@@ -19,9 +19,9 @@
 
 ---
 
-## 📦 Versions — Fonctionnalités exactes (cahier des charges)
+## Versions - Fonctionnalités exactes (cahier des charges)
 
-### ✅ v1.0 — CLI + Logs JSON
+### v1.0 - CLI + Logs JSON
 | Fonctionnalité | Détail |
 |---|---|
 | Application **console** .NET 8 | CLI uniquement |
@@ -41,25 +41,25 @@
 
 ---
 
-### ✅ v1.1 — Choix format log (JSON ou XML)
+### v1.1 - Choix format log (JSON ou XML)
 | Fonctionnalité | Détail |
 |---|---|
 | Tout v1.0 + | |
 | **Choix du format log** | L'utilisateur choisit JSON ou XML |
 | Format XML du log | Valide, lisible, compatible avec la suite |
 
-> ⚠️ v1.1 sort **en même temps** que v2.0 (Livrable 2 du projet)
+> ⚠ v1.1 sort **en même temps** que v2.0 (Livrable 2 du projet)
 
 **Tag git : `v1.1`**
 
 ---
 
-### ✅ v2.0 — Interface WPF + Chiffrement + Business Software
+### v2.0 - Interface WPF + Chiffrement + Business Software
 | Fonctionnalité | Détail |
 |---|---|
 | **Interface graphique WPF** | Architecture MVVM obligatoire |
 | **Nombre de travaux illimité** | Plus de limite à 5 |
-| **CryptoSoft** — Exécutable séparé | `CryptoSoft.exe <source> <destination>` |
+| **CryptoSoft** - Exécutable séparé | `CryptoSoft.exe <source> <destination>` |
 | Algorithme chiffrement | **XOR bit à bit** entre fichier et clé (≥ 64 bits) |
 | Clé lue depuis fichier de config | `cryptosoft.config` ou équivalent |
 | Code retour CryptoSoft | > 0 : temps en ms / < 0 : erreur |
@@ -75,7 +75,7 @@
 
 ---
 
-### ✅ v3.0 — Parallélisme + Pause/Play/Stop + Docker
+### v3.0 - Parallélisme + Pause/Play/Stop + Docker
 | Fonctionnalité | Détail |
 |---|---|
 | **Sauvegarde en parallèle** | Abandon du mode séquentiel |
@@ -96,7 +96,7 @@
 
 ---
 
-## 🏗️ Architecture cible (notre sauce)
+## Architecture cible (notre sauce)
 
 ```
 EasySave_Joan/
@@ -144,7 +144,7 @@ EasySave_Joan/
 
 ---
 
-## 🎨 Règles qualité (toutes versions)
+## Règles qualité (toutes versions)
 
 | Critère | Règle |
 |---|---|
@@ -163,13 +163,13 @@ EasySave_Joan/
 
 ---
 
-## 🚀 Ordre d'exécution
+## Ordre d'exécution
 
 ```
-Phase 1 : v1.0 — Core + CLI + EasyLog (JSON) + Tests
-Phase 2 : v1.1 — Ajout XML au choix + Tests
-Phase 3 : v2.0 — WPF MVVM + CryptoSoft.exe (XOR) + Business Monitor (interdit lancement)
-Phase 4 : v3.0 — Parallélisme + Pause/Play/Stop + CryptoSoft mono-instance + LogServer Docker
+Phase 1 : v1.0 - Core + CLI + EasyLog (JSON) + Tests
+Phase 2 : v1.1 - Ajout XML au choix + Tests
+Phase 3 : v2.0 - WPF MVVM + CryptoSoft.exe (XOR) + Business Monitor (interdit lancement)
+Phase 4 : v3.0 - Parallélisme + Pause/Play/Stop + CryptoSoft mono-instance + LogServer Docker
 ```
 
 > [!IMPORTANT]
@@ -183,6 +183,6 @@ Phase 4 : v3.0 — Parallélisme + Pause/Play/Stop + CryptoSoft mono-instance + 
 
 ---
 
-## 📝 TODO / Idées d'amélioration (hors cahier des charges)
+## TODO / Idées d'amélioration (hors cahier des charges)
 
 - [ ] **Benchmark de performance (Temps d'exécution) :** Comparer le temps de copie de notre application avec d'autres logiciels du marché (comme Robocopy, FreeFileSync, rsync, ou un simple copier-coller Windows) sur un même dataset. Utile pour justifier nos performances lors de la soutenance (surtout après l'ajout du parallélisme en v3.0).

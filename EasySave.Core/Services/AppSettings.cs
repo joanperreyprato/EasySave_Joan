@@ -87,7 +87,7 @@ public sealed class AppSettings
         set => Update(d => d.LargeFileSizeKb = value);
     }
 
-    /// <summary>Alias for <see cref="LargeFileSizeKb"/> — max file size (KB) for parallel transfer.</summary>
+    /// <summary>Alias for <see cref="LargeFileSizeKb"/> - max file size (KB) for parallel transfer.</summary>
     public long MaxParallelFileSizeKb
     {
         get => LargeFileSizeKb;

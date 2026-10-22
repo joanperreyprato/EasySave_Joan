@@ -1,6 +1,6 @@
-# 📋 Synthèse du Projet EasySave (ProSoft) & Matrice de Conformité
+# Synthèse du Projet EasySave (ProSoft) & Matrice de Conformité
 
-> **Projet Fil Rouge — Rattrapage Génie Logiciel (A3 FISA INFO CESI)**  
+> **Projet Fil Rouge - Rattrapage Génie Logiciel (A3 FISA INFO CESI)**  
 > **Auteur** : Joan Perrey-Prato  
 > **Date d'analyse** : 20 Octobre 2026  
 > **Source du cahier des charges** : sujet EasySave ProSoft (Livrables 1 à 3)
@@ -34,7 +34,7 @@ flowchart LR
     V3 --> V4["v4.0 (Prospective)<br/>• Sauvegarde Cloud / S3<br/>• Déduplication de blocs<br/>• Chiffrement post-quantique"]
 ```
 
-### 🔹 Livrable 1 — Version 1.0 (CLI)
+### Livrable 1 - Version 1.0 (CLI)
 * **Interface** : Mode console uniquement.
 * **Travaux de sauvegarde** :
   * Limité strictement à **5 travaux maximum**.
@@ -55,7 +55,7 @@ flowchart LR
 
 ---
 
-### 🔹 Livrable 2 — Versions 1.1 & 2.0
+### Livrable 2 - Versions 1.1 & 2.0
 
 #### Version 1.1 (Maintenance évolutive console)
 * Rétro-portage pour les clients conservant le mode console.
@@ -80,7 +80,7 @@ flowchart LR
 
 ---
 
-### 🔹 Livrable 3 — Version 3.0 (Haute Disponibilité & Parallélisme)
+### Livrable 3 - Version 3.0 (Haute Disponibilité & Parallélisme)
 
 * **Exécution Parallèle** :
   * Abandon du mode séquentiel : exécution concurrente multithreadée de tous les travaux lancés.
@@ -113,30 +113,30 @@ flowchart LR
 
 | Exigence du Cahier des Charges | Version | Statut | Implémentation |
 |---|:---:|:---:|---|
-| Console, `EasySave.exe 1-3` et `EasySave.exe 1;3` | v1.0 | ✅ | `EasySave.CLI/Program.cs`, `ConsoleMenu.ParseJobIndices` (exécutable nommé `EasySave.exe`) |
-| 5 travaux maximum, complète / différentielle, sous-dossiers | v1.0 | ✅ | `BackupService` (MaxJobs = 5), `JobCatalog`, `BackupEngine.GetEligibleFiles` |
-| Répertoires locaux, externes, réseau (UNC) | v1.0 | ✅ | Chemins libres + conversion UNC dans `LogEntry.ToUncPath` |
-| DLL `EasyLog.dll` (log journalier temps réel, JSON indenté) | v1.0 | ✅ | `EasyLog/FileLogger.cs`, `JsonLogger.cs` — ajout en place, champs v1.0 conservés |
-| Log : création de répertoire consignée | v1.0 | ✅ | `BackupEngine.EnsureDirectory` → action `DirectoryCreated` |
-| `state.json` unique temps réel (statut lisible) | v1.0 | ✅ | `StateManager` (statuts en texte : `Active`, `Paused`…) |
-| Pas de `C:\temp` | v1.0 | ✅ | `AppPaths` → `%ProgramData%\EasySave` |
-| Choix JSON / XML mémorisé (aussi en ligne de commande) | v1.1 | ✅ | `XmlLogger`, `AppSettings.LogFormat`, `ConsoleMenu.ShowSettings` |
-| Interface WPF MVVM, travaux illimités | v2.0 | ✅ | `EasySave.WPF/`, `BackupServiceV2/V3` (maxJobs = null) |
-| CryptoSoft : XOR, clé ≥ 64 bits en config, code retour ms / négatif | v2.0 | ✅ | `CryptoSoft/Program.cs`, `cryptosoft.config.json` |
-| Chiffrement par extensions + temps de chiffrement dans le log | v2.0 | ✅ | `BackupEngine.TransferAsync`, `CryptoSoftRunner` |
-| Logiciel métier : lancement interdit, fin du fichier en cours en séquentiel, arrêt consigné | v2.0 | ✅ | `BackupServiceV2` + `BackupRunOptions.InterruptRequested` |
-| Sauvegardes en parallèle | v3.0 | ✅ | `BackupServiceV3.ExecuteJobsParallelAsync` |
-| Fichiers prioritaires (attente inter-travaux) | v3.0 | ✅ | `BackupEngine.Prepare` (tri + enregistrement avant démarrage), `PriorityTransferGuard`, libération en `finally` |
-| Un seul fichier > n Ko à la fois | v3.0 | ✅ | `LargeFileTransferGuard` (`SemaphoreSlim(1,1)`) |
-| Play / Pause (après le fichier) / Stop (immédiat) par travail et global, progression | v3.0 | ✅ | `JobController`, copie annulable dans `BackupEngine.CopyFileAsync`, `MainViewModel` |
-| Pause auto si logiciel métier (même déjà lancé), reprise auto, consigné | v3.0 | ✅ | `BackupServiceV3.PollBusinessSoftware`, `JobController.SetBusinessSoftwarePause` |
-| CryptoSoft mono-instance + gestion des problèmes | v3.0 | ✅ | Mutex (récupération si abandonné), `CryptoSoftRunner` (appels sérialisés, relance si occupé, timeout) |
-| Centralisation Docker : fichier journalier unique, utilisateur différencié | v3.0 | ✅ | `EasySave.LogServer` (réutilise `JsonLogger`), volume `server-logs/`, `machineName` / `userName` |
-| Choix Local / Serveur / Local + Serveur | v3.0 | ✅ | `LogMode`, `LoggerFactory.Create(LogMode…)`, sélecteur dans les paramètres WPF |
-| Code et documents en anglais, pas de duplication | Qualité | ✅ | Moteur unique `BackupEngine` + `BackupServiceBase` ; docs EN |
-| Manuel 1 page, guide support, release note | Livrables | ✅ | `docs/USER_MANUAL.md`, `docs/SUPPORT.md`, `RELEASE_NOTES.md` |
-| UML, étude v4.0 | Livrables | ✅ | `docs/UML_DIAGRAMS.md`, `docs/DIRECTION_V4_STUDY.md` |
-| Tests automatisés | Qualité | ✅ | 70 tests (`EasySave.Tests`, `.WPF`, `.Integration`) |
+| Console, `EasySave.exe 1-3` et `EasySave.exe 1;3` | v1.0 | OK | `EasySave.CLI/Program.cs`, `ConsoleMenu.ParseJobIndices` (exécutable nommé `EasySave.exe`) |
+| 5 travaux maximum, complète / différentielle, sous-dossiers | v1.0 | OK | `BackupService` (MaxJobs = 5), `JobCatalog`, `BackupEngine.GetEligibleFiles` |
+| Répertoires locaux, externes, réseau (UNC) | v1.0 | OK | Chemins libres + conversion UNC dans `LogEntry.ToUncPath` |
+| DLL `EasyLog.dll` (log journalier temps réel, JSON indenté) | v1.0 | OK | `EasyLog/FileLogger.cs`, `JsonLogger.cs` - ajout en place, champs v1.0 conservés |
+| Log : création de répertoire consignée | v1.0 | OK | `BackupEngine.EnsureDirectory` → action `DirectoryCreated` |
+| `state.json` unique temps réel (statut lisible) | v1.0 | OK | `StateManager` (statuts en texte : `Active`, `Paused`…) |
+| Pas de `C:\temp` | v1.0 | OK | `AppPaths` → `%ProgramData%\EasySave` |
+| Choix JSON / XML mémorisé (aussi en ligne de commande) | v1.1 | OK | `XmlLogger`, `AppSettings.LogFormat`, `ConsoleMenu.ShowSettings` |
+| Interface WPF MVVM, travaux illimités | v2.0 | OK | `EasySave.WPF/`, `BackupServiceV2/V3` (maxJobs = null) |
+| CryptoSoft : XOR, clé ≥ 64 bits en config, code retour ms / négatif | v2.0 | OK | `CryptoSoft/Program.cs`, `cryptosoft.config.json` |
+| Chiffrement par extensions + temps de chiffrement dans le log | v2.0 | OK | `BackupEngine.TransferAsync`, `CryptoSoftRunner` |
+| Logiciel métier : lancement interdit, fin du fichier en cours en séquentiel, arrêt consigné | v2.0 | OK | `BackupServiceV2` + `BackupRunOptions.InterruptRequested` |
+| Sauvegardes en parallèle | v3.0 | OK | `BackupServiceV3.ExecuteJobsParallelAsync` |
+| Fichiers prioritaires (attente inter-travaux) | v3.0 | OK | `BackupEngine.Prepare` (tri + enregistrement avant démarrage), `PriorityTransferGuard`, libération en `finally` |
+| Un seul fichier > n Ko à la fois | v3.0 | OK | `LargeFileTransferGuard` (`SemaphoreSlim(1,1)`) |
+| Play / Pause (après le fichier) / Stop (immédiat) par travail et global, progression | v3.0 | OK | `JobController`, copie annulable dans `BackupEngine.CopyFileAsync`, `MainViewModel` |
+| Pause auto si logiciel métier (même déjà lancé), reprise auto, consigné | v3.0 | OK | `BackupServiceV3.PollBusinessSoftware`, `JobController.SetBusinessSoftwarePause` |
+| CryptoSoft mono-instance + gestion des problèmes | v3.0 | OK | Mutex (récupération si abandonné), `CryptoSoftRunner` (appels sérialisés, relance si occupé, timeout) |
+| Centralisation Docker : fichier journalier unique, utilisateur différencié | v3.0 | OK | `EasySave.LogServer` (réutilise `JsonLogger`), volume `server-logs/`, `machineName` / `userName` |
+| Choix Local / Serveur / Local + Serveur | v3.0 | OK | `LogMode`, `LoggerFactory.Create(LogMode…)`, sélecteur dans les paramètres WPF |
+| Code et documents en anglais, pas de duplication | Qualité | OK | Moteur unique `BackupEngine` + `BackupServiceBase` ; docs EN |
+| Manuel 1 page, guide support, release note | Livrables | OK | `docs/USER_MANUAL.md`, `docs/SUPPORT.md`, `RELEASE_NOTES.md` |
+| UML, étude v4.0 | Livrables | OK | `docs/UML_DIAGRAMS.md`, `docs/DIRECTION_V4_STUDY.md` |
+| Tests automatisés | Qualité | OK | 70 tests (`EasySave.Tests`, `.WPF`, `.Integration`) |
 
 ---
 

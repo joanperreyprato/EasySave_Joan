@@ -36,7 +36,7 @@ public sealed class LanguageProvider : ILanguageProvider
     {
         ["en"] = new()
         {
-            ["menu_title"]              = "EasySave — Backup Manager",
+            ["menu_title"]              = "EasySave - Backup Manager",
             ["menu_list"]               = "List backup jobs",
             ["menu_create"]             = "Create a backup job",
             ["menu_execute"]            = "Execute backup job(s)",
@@ -50,7 +50,7 @@ public sealed class LanguageProvider : ILanguageProvider
             ["job_type_full"]           = "Full",
             ["job_type_differential"]   = "Differential",
             ["error_max_jobs"]          = "Cannot create job: maximum of 5 jobs reached.",
-            ["error_invalid_name"]      = "Invalid name. Use 1–50 alphanumeric characters, spaces, dashes or underscores.",
+            ["error_invalid_name"]      = "Invalid name. Use 1-50 alphanumeric characters, spaces, dashes or underscores.",
             ["error_source_not_found"]  = "Source directory not found.",
             ["error_target_not_found"]  = "Target parent directory not found.",
             ["error_duplicate_name"]    = "A job with this name already exists.",
@@ -77,7 +77,7 @@ public sealed class LanguageProvider : ILanguageProvider
             ["settings_log_format"]     = "Log format",
             ["log_format_json"]         = "JSON",
             ["log_format_xml"]          = "XML",
-            ["btn_new_job"]             = "＋ New Job",
+            ["btn_new_job"]             = "+ New Job",
             ["btn_run_selected"]        = "▶ Run Selected",
             ["btn_run_all"]             = "▶▶ Run All",
             ["btn_delete"]              = "✕ Delete",
@@ -118,8 +118,8 @@ public sealed class LanguageProvider : ILanguageProvider
             ["status_all_completed"]    = "✓ All backups completed.",
             ["status_business_paused"]  = "⏸ Business software detected: backups paused.",
             ["status_language"]         = "Language: English",
-            ["btn_theme_light"]         = "☀ Light",
-            ["btn_theme_dark"]          = "🌙 Dark",
+            ["btn_theme_light"]         = "Light",
+            ["btn_theme_dark"]          = "Dark",
             ["lbl_log_mode"]            = "Log destination:",
             ["lbl_log_server"]          = "Log server (host:port):",
             ["log_mode_local"]          = "Local",
@@ -134,7 +134,7 @@ public sealed class LanguageProvider : ILanguageProvider
         },
         ["fr"] = new()
         {
-            ["menu_title"]              = "EasySave — Gestionnaire de sauvegardes",
+            ["menu_title"]              = "EasySave - Gestionnaire de sauvegardes",
             ["menu_list"]               = "Lister les travaux de sauvegarde",
             ["menu_create"]             = "Créer un travail de sauvegarde",
             ["menu_execute"]            = "Exécuter un ou plusieurs travaux",
@@ -175,7 +175,7 @@ public sealed class LanguageProvider : ILanguageProvider
             ["settings_log_format"]     = "Format du journal",
             ["log_format_json"]         = "JSON",
             ["log_format_xml"]          = "XML",
-            ["btn_new_job"]             = "＋ Nouveau",
+            ["btn_new_job"]             = "+ Nouveau",
             ["btn_run_selected"]        = "▶ Lancer sélection",
             ["btn_run_all"]             = "▶▶ Lancer tout",
             ["btn_delete"]              = "✕ Supprimer",
@@ -216,8 +216,8 @@ public sealed class LanguageProvider : ILanguageProvider
             ["status_all_completed"]    = "✓ Toutes les sauvegardes sont terminées.",
             ["status_business_paused"]  = "⏸ Logiciel métier détecté : sauvegardes en pause.",
             ["status_language"]         = "Langue : Français",
-            ["btn_theme_light"]         = "☀ Clair",
-            ["btn_theme_dark"]          = "🌙 Sombre",
+            ["btn_theme_light"]         = "Clair",
+            ["btn_theme_dark"]          = "Sombre",
             ["lbl_log_mode"]            = "Destination des logs :",
             ["lbl_log_server"]          = "Serveur de logs (hôte:port) :",
             ["log_mode_local"]          = "Local",
@@ -277,7 +277,7 @@ public sealed class LanguageProvider : ILanguageProvider
                 && Translations.ContainsKey(lang))
                 _currentLanguage = lang;
         }
-        catch { /* Ignore — fall back to default English */ }
+        catch { /* Ignore - fall back to default English */ }
     }
 
     /// <summary>Persists the current language choice to disk.</summary>

@@ -1,6 +1,6 @@
-# EasySave — Release Notes
+# EasySave - Release Notes
 
-## v3.0.1 — Compliance update
+## v3.0.1 - Compliance update
 
 ### Fixed
 - **Priority files:** each job now copies its priority files first, and every job registers its priority files before any job starts. Non-priority files of every job wait until no priority file is left. A stopped or failed job releases its remaining priority files, so other jobs can no longer be blocked forever.
@@ -27,20 +27,20 @@
 ## v3.0
 Parallel backups, Play / Pause / Stop per job or for all jobs, priority files, one large file at a time, automatic pause while the business software runs, mono-instance CryptoSoft, Docker log server.
 
-## v2.0.1 — Maintenance of the v2.0 branch
+## v2.0.1 - Maintenance of the v2.0 branch
 - **Fixed:** the progress bar stayed at 0 %. The bars are now refreshed on every tick and keep their final value when the run is over.
 - Available on the `maintenance/v2.0` branch, tag `v2.0.1` (for customers who stay on v2.0).
 
 ## v2.0
 WPF graphical interface (MVVM), unlimited jobs, CryptoSoft encryption by extension, encryption time in the log, business software detection (a job cannot start).
 
-## v1.1.1 — Maintenance of the v1.1 branch
+## v1.1.1 - Maintenance of the v1.1 branch
 - **Fixed:** job path validation (same fix as v3.0.1: quotes removed, relative paths and a target inside the source refused, backup type asked again). Branch `maintenance/v1.1`, tag `v1.1.1`.
 
 ## v1.1
 Choice of the daily log format: JSON or XML.
 
-## v1.0.1 — Maintenance of the v1.0 branch
+## v1.0.1 - Maintenance of the v1.0 branch
 - **Fixed:** job path validation (same fix as v1.1.1). Branch `maintenance/v1.0`, tag `v1.0.1`.
 
 ## v1.0

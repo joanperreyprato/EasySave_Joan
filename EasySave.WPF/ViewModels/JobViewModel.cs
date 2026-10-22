@@ -33,7 +33,7 @@ public sealed class JobViewModel : ViewModelBase
     /// <summary>Gets or sets the current execution status.</summary>
     public JobStatus Status { get => _status; set { SetField(ref _status, value); OnPropertyChanged(nameof(StatusText)); OnPropertyChanged(nameof(IsRunning)); } }
 
-    /// <summary>Gets or sets the completion progress (0–100).</summary>
+    /// <summary>Gets or sets the completion progress (0-100).</summary>
     public double Progress { get => _progress; set => SetField(ref _progress, value); }
 
     /// <summary>Gets or sets the number of remaining files to transfer.</summary>

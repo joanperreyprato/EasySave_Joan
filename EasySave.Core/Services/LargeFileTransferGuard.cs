@@ -21,7 +21,7 @@ public sealed class LargeFileTransferGuard
     {
         long thresholdBytes = thresholdKb * 1024;
         if (thresholdKb <= 0 || fileSizeBytes <= thresholdBytes)
-            return NullDisposable.Instance; // Small file — no restriction
+            return NullDisposable.Instance; // Small file - no restriction
 
         await _largeSemaphore.WaitAsync(ct);
         return new SemaphoreReleaser(_largeSemaphore);

@@ -28,13 +28,13 @@
         <!-- Source -->
         <TextBlock Grid.Row="1" Grid.Column="0" Text="{Binding [job_source]}" VerticalAlignment="Center" Margin="0,6"/>
         <TextBox Grid.Row="1" Grid.Column="1" x:Name="SourceBox" Margin="0,6,6,6"/>
-        <Button Grid.Row="1" Grid.Column="2" Content="📂" Width="32" Click="BrowseSource_Click"
+        <Button Grid.Row="1" Grid.Column="2" Content="..." Width="32" Click="BrowseSource_Click"
                 ToolTip="{Binding [tip_browse]}" Padding="4" Margin="0,6"/>
 
         <!-- Target -->
         <TextBlock Grid.Row="2" Grid.Column="0" Text="{Binding [job_target]}" VerticalAlignment="Center" Margin="0,6"/>
         <TextBox Grid.Row="2" Grid.Column="1" x:Name="TargetBox" Margin="0,6,6,6"/>
-        <Button Grid.Row="2" Grid.Column="2" Content="📂" Width="32" Click="BrowseTarget_Click"
+        <Button Grid.Row="2" Grid.Column="2" Content="..." Width="32" Click="BrowseTarget_Click"
                 ToolTip="{Binding [tip_browse]}" Padding="4" Margin="0,6"/>
 
         <!-- Type -->

@@ -42,12 +42,12 @@ public sealed class MainViewModel : ViewModelBase, IDisposable
     public ICommand ToggleLanguageCommand  { get; }
     public ICommand SaveSettingsCommand    { get; }
 
-    // v3.0 — selected job controls (Play = start or resume)
+    // v3.0 - selected job controls (Play = start or resume)
     public ICommand PlayJobCommand  { get; }
     public ICommand PauseJobCommand { get; }
     public ICommand StopJobCommand  { get; }
 
-    // v3.0 — global controls
+    // v3.0 - global controls
     public ICommand PlayAllCommand  { get; }
     public ICommand PauseAllCommand { get; }
     public ICommand StopAllCommand  { get; }

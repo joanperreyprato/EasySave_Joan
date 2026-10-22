@@ -27,7 +27,7 @@ public partial class App : System.Windows.Application
             return;
         }
 
-        // Bootstrap services (manual DI — no container needed for this scale)
+        // Bootstrap services (manual DI - no container needed for this scale)
         var stateManager = new StateManager();
         var appSettings = new AppSettings();
         var monitor = new BusinessSoftwareMonitor
