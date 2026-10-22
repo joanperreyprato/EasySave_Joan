@@ -64,7 +64,7 @@ Each version is tagged in Git:
 ```bash
 git checkout v1.0    # Console, JSON logs
 git checkout v1.1    # Console, JSON or XML logs
-git checkout v2.0    # WPF graphical interface
+git checkout v2.0.1  # WPF graphical interface (v2.0 + progress bar fix)
 git checkout main    # v3.0 (current version)
 ```
 

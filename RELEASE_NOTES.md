@@ -26,6 +26,10 @@
 ## v3.0
 Parallel backups, Play / Pause / Stop per job or for all jobs, priority files, one large file at a time, automatic pause while the business software runs, mono-instance CryptoSoft, Docker log server.
 
+## v2.0.1 — Maintenance of the v2.0 branch
+- **Fixed:** the progress bar stayed at 0 %. The bars are now refreshed on every tick and keep their final value when the run is over.
+- Available on the `maintenance/v2.0` branch, tag `v2.0.1` (for customers who stay on v2.0).
+
 ## v2.0
 WPF graphical interface (MVVM), unlimited jobs, CryptoSoft encryption by extension, encryption time in the log, business software detection (a job cannot start).
 
