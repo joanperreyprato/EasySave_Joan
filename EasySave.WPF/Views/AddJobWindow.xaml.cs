@@ -46,15 +46,7 @@ public partial class AddJobWindow : Window
             return;
         }
 
-        string errorKey = result switch
-        {
-            BackupCreationResult.InvalidName    => "error_invalid_name",
-            BackupCreationResult.SourceNotFound => "error_source_not_found",
-            BackupCreationResult.TargetNotFound => "error_target_not_found",
-            BackupCreationResult.DuplicateName  => "error_duplicate_name",
-            _                                   => "error_unknown"
-        };
-        ErrorText.Text = $"⚠ {_viewModel[errorKey]}";
+        ErrorText.Text = $"⚠ {_viewModel[result.TranslationKey()]}";
         ErrorText.Visibility = Visibility.Visible;
     }
 

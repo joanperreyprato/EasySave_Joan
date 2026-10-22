@@ -16,12 +16,16 @@ public sealed class MainViewModelTests : IDisposable
     private readonly string _statePath;
     private readonly string _cfgPath;
     private readonly string _appSetPath;
+    private readonly string _src;
+    private readonly string _tgt;
 
     public MainViewModelTests()
     {
         _statePath  = Path.Combine(Path.GetTempPath(), $"es_state_{Guid.NewGuid():N}.json");
         _cfgPath    = Path.Combine(Path.GetTempPath(), $"es_cfg_{Guid.NewGuid():N}.json");
         _appSetPath = Path.Combine(Path.GetTempPath(), $"es_app_{Guid.NewGuid():N}.json");
+        _src        = Directory.CreateDirectory(Path.Combine(Path.GetTempPath(), $"es_src_{Guid.NewGuid():N}")).FullName;
+        _tgt        = Path.Combine(Path.GetTempPath(), $"es_tgt_{Guid.NewGuid():N}");
 
         var stateManager = new StateManager(_statePath);
         var settings     = new AppSettings(_appSetPath);
@@ -36,16 +40,15 @@ public sealed class MainViewModelTests : IDisposable
         if (File.Exists(_statePath)) File.Delete(_statePath);
         if (File.Exists(_cfgPath)) File.Delete(_cfgPath);
         if (File.Exists(_appSetPath)) File.Delete(_appSetPath);
+        if (Directory.Exists(_src)) Directory.Delete(_src, recursive: true);
     }
 
     [Fact]
     public void CreateJob_AddsJobToObservableCollection()
     {
         int initialCount = _viewModel.Jobs.Count;
-        var src = Path.GetTempPath();
-        var tgt = Path.GetTempPath();
 
-        var result = _viewModel.CreateJob("TestJob", src, tgt, BackupType.Full);
+        var result = _viewModel.CreateJob("TestJob", _src, _tgt, BackupType.Full);
 
         Assert.Equal(BackupCreationResult.Success, result);
         Assert.Equal(initialCount + 1, _viewModel.Jobs.Count);
@@ -55,9 +58,7 @@ public sealed class MainViewModelTests : IDisposable
     [Fact]
     public void DeleteJob_RemovesJobFromObservableCollection()
     {
-        var src = Path.GetTempPath();
-        var tgt = Path.GetTempPath();
-        _viewModel.CreateJob("ToDelete", src, tgt, BackupType.Full);
+        _viewModel.CreateJob("ToDelete", _src, _tgt, BackupType.Full);
         _viewModel.SelectedJob = _viewModel.Jobs.First(j => j.Name == "ToDelete");
 
         Assert.True(_viewModel.DeleteJobCommand.CanExecute(null));

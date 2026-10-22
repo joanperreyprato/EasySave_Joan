@@ -63,6 +63,52 @@ public sealed class BackupServiceTests : IDisposable
         Assert.Equal(BackupCreationResult.SourceNotFound, result);
     }
 
+    [Theory]
+    [InlineData("backup")]          // Relative: would land in the folder EasySave is started from
+    [InlineData(@"backup\daily")]
+    [InlineData(@"\backup")]        // Root of the current drive
+    [InlineData("C:backup")]        // Current folder of drive C:
+    public void CreateJob_RelativeTarget_ReturnsPathNotFullyQualified(string target)
+    {
+        var result = _service.CreateJob("Relative", _tempSource, target, BackupType.Full);
+        Assert.Equal(BackupCreationResult.PathNotFullyQualified, result);
+    }
+
+    [Fact]
+    public void CreateJob_RelativeSource_ReturnsPathNotFullyQualified()
+    {
+        var result = _service.CreateJob("Relative", "data", _tempTarget, BackupType.Full);
+        Assert.Equal(BackupCreationResult.PathNotFullyQualified, result);
+    }
+
+    [Fact]
+    public void CreateJob_QuotedPaths_AreAccepted()
+    {
+        var result = _service.CreateJob("Quoted", $"\"{_tempSource}\"", $" \"{_tempTarget}\" ", BackupType.Full);
+
+        Assert.Equal(BackupCreationResult.Success, result);
+        Assert.Equal(_tempSource, _service.GetJob("Quoted")!.SourceDirectory);
+        Assert.Equal(_tempTarget, _service.GetJob("Quoted")!.TargetDirectory);
+    }
+
+    [Theory]
+    [InlineData("")]                // The source itself
+    [InlineData(@"\")]
+    [InlineData(@"\backup")]        // A sub-directory of the source
+    public void CreateJob_TargetInsideSource_ReturnsTargetInsideSource(string suffix)
+    {
+        var result = _service.CreateJob("Loop", _tempSource, _tempSource + suffix, BackupType.Full);
+        Assert.Equal(BackupCreationResult.TargetInsideSource, result);
+    }
+
+    [Fact]
+    public void CreateJob_TargetNextToSourceWithSamePrefix_IsAccepted()
+    {
+        // "C:\data_backup" is not inside "C:\data"
+        var result = _service.CreateJob("Sibling", _tempSource, _tempSource + "_backup", BackupType.Full);
+        Assert.Equal(BackupCreationResult.Success, result);
+    }
+
     [Fact]
     public void CreateJob_DuplicateName_ReturnsDuplicateName()
     {

@@ -134,35 +134,26 @@ public sealed class ConsoleMenu
         Console.Write($"{_lang.Get("prompt_enter_target")}: ");
         var target = Console.ReadLine()?.Trim() ?? "";
 
+        var type = AskBackupType();
+        var result = _backupService.CreateJob(name, source, target, type);
+
+        if (result == BackupCreationResult.Success) PrintSuccess(_lang.Get(result.TranslationKey()));
+        else PrintError(_lang.Get(result.TranslationKey()));
+    }
+
+    /// <summary>Asks the backup type until the user types 1 (full) or 2 (differential).</summary>
+    private BackupType AskBackupType()
+    {
         Console.WriteLine($"{_lang.Get("prompt_select_type")}:");
         Console.WriteLine($"  1. {_lang.Get("job_type_full")}");
         Console.WriteLine($"  2. {_lang.Get("job_type_differential")}");
-        Console.Write(">>> ");
-        var typeChoice = Console.ReadLine()?.Trim();
-        var type = typeChoice == "2" ? BackupType.Differential : BackupType.Full;
-
-        var result = _backupService.CreateJob(name, source, target, type);
-
-        switch (result)
+        while (true)
         {
-            case BackupCreationResult.Success:
-                PrintSuccess(_lang.Get("success_job_created"));
-                break;
-            case BackupCreationResult.InvalidName:
-                PrintError(_lang.Get("error_invalid_name"));
-                break;
-            case BackupCreationResult.SourceNotFound:
-                PrintError(_lang.Get("error_source_not_found"));
-                break;
-            case BackupCreationResult.TargetNotFound:
-                PrintError(_lang.Get("error_target_not_found"));
-                break;
-            case BackupCreationResult.DuplicateName:
-                PrintError(_lang.Get("error_duplicate_name"));
-                break;
-            default:
-                PrintError(_lang.Get("error_unknown"));
-                break;
+            Console.Write(">>> ");
+            string? choice = Console.ReadLine()?.Trim();
+            if (choice is null or "1") return BackupType.Full; // null: end of input
+            if (choice == "2") return BackupType.Differential;
+            PrintWarning(_lang.Get("warn_invalid_type"));
         }
     }
 
