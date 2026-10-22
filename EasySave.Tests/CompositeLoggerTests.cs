@@ -3,8 +3,8 @@ using EasyLog;
 namespace EasySave.Tests;
 
 /// <summary>
-/// Un "Spy" (Espion) qui implémente ILogger. 
-/// Il nous sert uniquement à vérifier si la méthode Log a bien été appelée pendant le test.
+/// A "spy" implementation of ILogger.
+/// It only records whether the Log method was called during the test.
 /// </summary>
 public class SpyLogger : ILogger
 {
@@ -54,7 +54,7 @@ public class CompositeLoggerTests
         var workingSpy = new SpyLogger();
         var failingSpy = new SpyLogger { ShouldThrow = true };
         
-        // On met le logger défaillant en premier pour voir si le deuxième est quand même appelé
+        // The failing logger comes first, to check that the second one is still called
         var composite = new CompositeLogger(new ILogger[] { failingSpy, workingSpy });
         var entry = new LogEntry
         {
@@ -67,10 +67,10 @@ public class CompositeLoggerTests
         };
 
         // Act
-        // Le test réussit si aucune exception n'est jetée
+        // The test passes only if no exception is thrown
         composite.Log(entry);
 
         // Assert
-        Assert.Equal(1, workingSpy.LogCallCount); // Le deuxième a bien reçu le log !
+        Assert.Equal(1, workingSpy.LogCallCount); // The second logger received the entry
     }
 }

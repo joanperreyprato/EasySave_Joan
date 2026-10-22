@@ -125,7 +125,9 @@ public sealed class LanguageProvider : ILanguageProvider
             ["error_unknown"]           = "An error occurred.",
             ["tip_browse"]              = "Browse...",
             ["tip_theme"]               = "Toggle dark/light theme",
-            ["tip_process_name"]        = "Process name (e.g. CalculatorApp)"
+            ["tip_process_name"]        = "Process name (e.g. CalculatorApp)",
+            ["cli_stop_hint"]           = "Press Ctrl+C to stop the backups.",
+            ["cli_result_failed"]       = "Some backups did not complete."
         },
         ["fr"] = new()
         {
@@ -218,7 +220,9 @@ public sealed class LanguageProvider : ILanguageProvider
             ["error_unknown"]           = "Une erreur est survenue.",
             ["tip_browse"]              = "Parcourir...",
             ["tip_theme"]               = "Basculer thème clair/sombre",
-            ["tip_process_name"]        = "Nom du processus (ex : CalculatorApp)"
+            ["tip_process_name"]        = "Nom du processus (ex : CalculatorApp)",
+            ["cli_stop_hint"]           = "Appuyez sur Ctrl+C pour arrêter les sauvegardes.",
+            ["cli_result_failed"]       = "Certaines sauvegardes ne sont pas terminées."
         }
     };
 

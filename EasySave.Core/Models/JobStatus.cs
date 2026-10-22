@@ -16,3 +16,18 @@ public enum JobStatus
     /// <summary>The job was stopped by the user or interrupted by the business software.</summary>
     Stopped
 }
+
+/// <summary>Helpers shared by the user interfaces to display a <see cref="JobStatus"/>.</summary>
+public static class JobStatusExtensions
+{
+    /// <summary>Returns the translation key of the status (e.g. "status_paused").</summary>
+    public static string TranslationKey(this JobStatus status) => status switch
+    {
+        JobStatus.Active    => "status_active",
+        JobStatus.Paused    => "status_paused",
+        JobStatus.Completed => "status_completed",
+        JobStatus.Error     => "status_error",
+        JobStatus.Stopped   => "status_stopped",
+        _                   => "status_inactive"
+    };
+}

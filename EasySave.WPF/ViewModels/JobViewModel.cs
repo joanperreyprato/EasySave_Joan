@@ -46,15 +46,7 @@ public sealed class JobViewModel : ViewModelBase
     public bool IsSelected { get => _isSelected; set => SetField(ref _isSelected, value); }
 
     /// <summary>Gets the localized string representation of the current status.</summary>
-    public string StatusText => EasySave.Core.Services.LanguageProvider.Instance.Get(Status switch
-    {
-        JobStatus.Active    => "status_active",
-        JobStatus.Paused    => "status_paused",
-        JobStatus.Completed => "status_completed",
-        JobStatus.Error     => "status_error",
-        JobStatus.Stopped   => "status_stopped",
-        _                   => "status_inactive"
-    });
+    public string StatusText => EasySave.Core.Services.LanguageProvider.Instance.Get(Status.TranslationKey());
 
     /// <summary>Forces UI to refresh translated texts.</summary>
     public void RefreshTranslations()
