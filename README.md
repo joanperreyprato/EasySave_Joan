@@ -1,7 +1,8 @@
 # 🛡️ EasySave — ProSoft Backup Software
 
 > Professional backup application written in C# / .NET 8.0 for ProSoft.
-> Available as a **console application** (v1.x) and a **WPF graphical application** (v2.0 / v3.0).
+> EasySave 3.0 = a **WPF graphical application** and **`EasySave.exe`, its command-line interface** (same jobs, same settings).
+> The console versions v1.0 / v1.1 remain available through their Git tags.
 
 | Document | Audience |
 |---|---|
@@ -56,7 +57,7 @@
 | Priority files | ❌ | ❌ | ❌ | ✅ |
 | One large file at a time | ❌ | ❌ | ❌ | ✅ |
 | Centralized logs (Docker) | ❌ | ❌ | ❌ | ✅ |
-| Command line (`EasySave.exe 1-3`) | ✅ | ✅ | same as 1.0 | same as 1.0 |
+| Command line (`EasySave.exe 1-3`, `EasySave.exe 1;3`) | ✅ | ✅ | same as 1.0 | same as 1.0 (runs the v3.0 jobs with the v3.0 rules) |
 
 Each version is tagged in Git:
 
@@ -73,7 +74,7 @@ git checkout main    # v3.0 (current version)
 
 ```
 EasySave_Joan/
-├── EasySave.CLI/               # Console application v1.x  → EasySave.exe
+├── EasySave.CLI/               # Command-line interface of v3.0 → EasySave.exe (same jobs as the WPF app)
 ├── EasySave.WPF/               # Graphical application v3.0 (MVVM: Views, ViewModels, Styles)
 ├── EasySave.Core/              # Business library shared by both applications
 │   ├── Models/                 # BackupJob, JobState, JobStatus...
@@ -118,15 +119,18 @@ cd EasySave_Joan
 dotnet build EasySave.sln
 
 dotnet run --project EasySave.WPF      # Graphical application (v3.0)
-dotnet run --project EasySave.CLI      # Console application (v1.1)
+dotnet run --project EasySave.CLI      # Command-line interface (interactive menu)
 ```
 
-Console command line (after build, in `EasySave.CLI/bin/Debug/net8.0/`):
+Command line, as in version 1.0 (after build, in `EasySave.CLI/bin/Debug/net8.0/`). It runs the jobs created in the graphical
+interface, in parallel, with every v3.0 rule (encryption, priority files, large files, business software, log destination):
 
 ```bash
 EasySave.exe 1-3      # runs jobs 1 to 3
 EasySave.exe "1;3"    # runs jobs 1 and 3 (quotes needed in PowerShell)
 ```
+
+The progress is displayed until the jobs end; `Ctrl+C` stops them. Exit code: `0` if every job completed, `1` otherwise.
 
 In VS Code, press `F5` and pick a configuration (WPF, CLI or CryptoSoft).
 

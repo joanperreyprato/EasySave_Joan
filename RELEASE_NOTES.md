@@ -9,7 +9,7 @@
 - **state.json** shows `Paused` only during a real pause, and statuses are written as text (`Active`, `Paused`, `Stopped`, `Completed`...).
 - **CryptoSoft:** EasySave calls CryptoSoft one file at a time, retries when it is busy and no longer leaves `.tmp` files. CryptoSoft recovers its mutex when a previous instance crashed.
 - **v2.0 rule:** when the business software starts during a sequential run, the current file is finished, the stop is logged and the remaining files are skipped.
-- **Console v1.1:** the chosen log format (JSON / XML) is saved and also used by `EasySave.exe 1-3`. The executable is now named `EasySave.exe`.
+- **Command line (v3.0):** `EasySave.exe 1-3` / `EasySave.exe 1;3` now runs the v3.0 jobs (the ones of the graphical interface) in parallel with every v3.0 rule, shows the progress, stops on Ctrl+C and returns an exit code. The text menu, the log format, the log destination and the language are shared with the graphical interface. The v1.1 console remains available through the `v1.1` tag.
 
 ### Added
 - **Centralized logs:** the Docker server now writes one daily file shared by all users (`server-logs/YYYY-MM-DD.json`). Each entry identifies its machine and user.

@@ -339,7 +339,7 @@ sequenceDiagram
 flowchart TB
     subgraph Client ["Each user's computer (Windows)"]
         subgraph App ["EasySave process (mono-instance mutex)"]
-            WPF["EasySave.WPF.exe / EasySave.exe"]
+            WPF["EasySave.WPF.exe (GUI) / EasySave.exe (command line)"]
             Core["EasySave.Core.dll"]
             EasyLog["EasyLog.dll"]
         end

@@ -27,6 +27,6 @@
 
 **6. Language and theme** — The **EN / FR** button switches the language instantly; the **🌙 / ☀** button switches the theme.
 
-**7. Console version (v1.1)** — Run `EasySave.exe` for the menu (up to 5 jobs), or `EasySave.exe 1-3` / `EasySave.exe "1;3"` to run jobs 1 to 3 / jobs 1 and 3 directly.
+**7. Command line** — `EasySave.exe 1-3` / `EasySave.exe "1;3"` runs jobs 1 to 3 / jobs 1 and 3 of the list above, with the same rules as the interface (Ctrl+C stops them). `EasySave.exe` alone opens a text menu.
 
 **Logs and state** — Daily logs: `%ProgramData%\EasySave\Logs\YYYY-MM-DD.json` (or `.xml`). Real-time state: `%ProgramData%\EasySave\state.json`. Both open in Notepad.
