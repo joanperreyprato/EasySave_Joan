@@ -47,6 +47,8 @@ public sealed class BackupService : IBackupService
     public BackupCreationResult CreateJob(string name, string sourceDirectory,
         string targetDirectory, BackupType type)
     {
+        sourceDirectory = CleanPath(sourceDirectory);
+        targetDirectory = CleanPath(targetDirectory);
         lock (_lock)
         {
             if (_jobs.Count >= MaxJobs)
@@ -58,6 +60,10 @@ public sealed class BackupService : IBackupService
             if (_jobs.Exists(j => j.Name.Equals(name, StringComparison.OrdinalIgnoreCase)))
                 return BackupCreationResult.DuplicateName;
 
+            // A relative path ("backup") would depend on the folder EasySave is started from
+            if (!Path.IsPathFullyQualified(sourceDirectory) || !Path.IsPathFullyQualified(targetDirectory))
+                return BackupCreationResult.PathNotFullyQualified;
+
             if (!Directory.Exists(sourceDirectory))
                 return BackupCreationResult.SourceNotFound;
 
@@ -65,6 +71,10 @@ public sealed class BackupService : IBackupService
             string? targetParent = Path.GetDirectoryName(targetDirectory.TrimEnd(Path.DirectorySeparatorChar));
             if (!string.IsNullOrEmpty(targetParent) && !Directory.Exists(targetParent))
                 return BackupCreationResult.TargetNotFound;
+
+            // Otherwise every backup would copy the previous backups again
+            if (IsSameOrInside(targetDirectory, sourceDirectory))
+                return BackupCreationResult.TargetInsideSource;
 
             _jobs.Add(new BackupJob
             {
@@ -234,6 +244,17 @@ public sealed class BackupService : IBackupService
             if (!File.Exists(target)) return true;
             return File.GetLastWriteTimeUtc(src) > File.GetLastWriteTimeUtc(target);
         }).ToList();
+    }
+
+    /// <summary>Removes surrounding spaces and quotes: "\"C:\My data\"" becomes "C:\My data".</summary>
+    private static string CleanPath(string? path) => (path ?? string.Empty).Trim().Trim('"').Trim();
+
+    /// <summary>Returns whether <paramref name="path"/> is <paramref name="directory"/> or one of its sub-directories.</summary>
+    private static bool IsSameOrInside(string path, string directory)
+    {
+        string full = Path.TrimEndingDirectorySeparator(Path.GetFullPath(path)) + Path.DirectorySeparatorChar;
+        string root = Path.TrimEndingDirectorySeparator(Path.GetFullPath(directory)) + Path.DirectorySeparatorChar;
+        return full.StartsWith(root, StringComparison.OrdinalIgnoreCase);
     }
 
     // ── Config persistence ─────────────────────────────────────────────────────
