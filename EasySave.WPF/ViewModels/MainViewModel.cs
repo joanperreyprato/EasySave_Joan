@@ -217,11 +217,16 @@ public sealed class MainViewModel : ViewModelBase
         Jobs.Clear();
         foreach (var m in models)
             Jobs.Add(JobViewModel.FromModel(m));
+        RefreshProgress(this, EventArgs.Empty); // New rows start at 0 %: restore their saved progress
     }
 
+    /// <summary>
+    /// Copies the real-time state (state.json) into the job rows.
+    /// Runs on every timer tick, not only while busy, so that a job finished
+    /// between two ticks still shows its final progress.
+    /// </summary>
     private void RefreshProgress(object? sender, EventArgs e)
     {
-        if (!_isBusy) return;
         var states = _stateManager.GetAllStates();
         foreach (var job in Jobs)
         {
