@@ -9,7 +9,8 @@
 - **state.json** shows `Paused` only during a real pause, and statuses are written as text (`Active`, `Paused`, `Stopped`, `Completed`...).
 - **CryptoSoft:** EasySave calls CryptoSoft one file at a time, retries when it is busy and no longer leaves `.tmp` files. CryptoSoft recovers its mutex when a previous instance crashed.
 - **v2.0 rule:** when the business software starts during a sequential run, the current file is finished, the stop is logged and the remaining files are skipped.
-- **Command line (v3.0):** `EasySave.exe 1-3` / `EasySave.exe 1;3` now runs the v3.0 jobs (the ones of the graphical interface) in parallel with every v3.0 rule, shows the progress, stops on Ctrl+C and returns an exit code. The text menu, the log format, the log destination and the language are shared with the graphical interface. The v1.1 console remains available through the `v1.1` tag.
+- **Command line (v3.0):** `EasySave.exe 1-3` / `EasySave.exe 1;3` now runs the v3.0 jobs (the ones of the graphical interface) in parallel with every v3.0 rule, shows the progress, stops on Ctrl+C and returns an exit code. The text menu, the log format, the log destination and the language are shared with the graphical interface. The v1.1 console remains available through the `v1.1.1` tag.
+- **Job creation:** quotes around the paths are removed; relative paths are refused (a target such as `sd` used to be created in the folder EasySave was started from); a target equal to the source or inside it is refused; the console asks the backup type again until 1 or 2 is typed.
 
 ### Added
 - **Centralized logs:** the Docker server now writes one daily file shared by all users (`server-logs/YYYY-MM-DD.json`). Each entry identifies its machine and user.
@@ -33,8 +34,14 @@ Parallel backups, Play / Pause / Stop per job or for all jobs, priority files, o
 ## v2.0
 WPF graphical interface (MVVM), unlimited jobs, CryptoSoft encryption by extension, encryption time in the log, business software detection (a job cannot start).
 
+## v1.1.1 — Maintenance of the v1.1 branch
+- **Fixed:** job path validation (same fix as v3.0.1: quotes removed, relative paths and a target inside the source refused, backup type asked again). Branch `maintenance/v1.1`, tag `v1.1.1`.
+
 ## v1.1
 Choice of the daily log format: JSON or XML.
+
+## v1.0.1 — Maintenance of the v1.0 branch
+- **Fixed:** job path validation (same fix as v1.1.1). Branch `maintenance/v1.0`, tag `v1.0.1`.
 
 ## v1.0
 Console application: up to 5 full or differential jobs, sequential execution, command line (`EasySave.exe 1-3`, `EasySave.exe 1;3`), JSON daily log (EasyLog.dll), real-time state file, English and French.
