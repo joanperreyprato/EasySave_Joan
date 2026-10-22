@@ -95,10 +95,12 @@ public sealed class CryptoSoftTests
     [Fact]
     public void CryptoSoft_MonoInstance_BlocksOrWaitsWhenConcurrent()
     {
-        // Acquire the exact system Mutex that CryptoSoft uses
+        // Acquire the exact system Mutex that CryptoSoft uses.
+        // Other tests (in this process or in the integration tests) may be encrypting a file
+        // right now, so wait for our turn instead of requiring the mutex to be free.
         const string mutexName = "Global\\CryptoSoftMutex_EasySave";
-        using var holderMutex = new Mutex(true, mutexName, out bool createdNew);
-        Assert.True(createdNew, "Should be able to acquire mutex in test");
+        using var holderMutex = new Mutex(initiallyOwned: false, mutexName);
+        Assert.True(AcquireMutex(holderMutex), "Should be able to acquire mutex in test");
 
         try
         {
@@ -136,5 +138,12 @@ public sealed class CryptoSoftTests
         {
             holderMutex.ReleaseMutex();
         }
+    }
+
+    /// <summary>Waits up to 60 s for the mutex; an abandoned mutex (crashed owner) is ours too.</summary>
+    private static bool AcquireMutex(Mutex mutex)
+    {
+        try { return mutex.WaitOne(TimeSpan.FromSeconds(60)); }
+        catch (AbandonedMutexException) { return true; }
     }
 }
